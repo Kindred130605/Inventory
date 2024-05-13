@@ -39,7 +39,7 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="blue darken-1" text @click="dialog = false">Cancel</v-btn>
-        <v-btn color="blue darken-1" text @click="saveItem">Save</v-btn>
+        <v-btn color="blue darken-1"  @click="saveItem()">Save</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -63,8 +63,7 @@ export default {
       id: null,
       items_name: '',
       items_quantity: 0
-      }
-
+      },
 
     };
 },
@@ -101,19 +100,47 @@ export default {
       this.dialog = true;
     },
 
-    saveItem() {
-      if (this.editMode) {
-        // Update item in itemsList
-      } else {
-        // Add new item to itemsList
-      }
-      this.dialog = false;
-    },
-    
-    deleteItem(item) {
-      // Delete item from itemsList
-    }
+   saveItem() {
+  if (this.editMode) {
+    api.post(`/items/update/${this.editedItem.id}`, this.editedItem)
+      .then(response => {
+        let i = this.itemsList.findIndex(item => item.id === this.editedItem.id);
+        if (i !== -1) {
+          this.itemsList.splice(i, 1, response.data);
+          this.dialog = false;
+        }
+      })
+      .catch(error => {
+        console.error('Error updating item:', error);
+      });
+  } else {
+    api.post('/items/add', this.editedItem)
+      .then(response => {
+        const newItem = response.data;
+        this.itemsList.push(newItem);
+        this.dialog = false;
+      })
+      .catch(error => {
+        console.error('Error adding item:', error);
+      });
+  }
+},
 
+ deleteItem(item) {
+  api.post(`/items/delete/${item.id}`)
+    .then(response => {
+      let i = this.itemsList.findIndex(i => i.id === item.id);
+      if (i !== -1) {
+        this.itemsList.splice(i, 1);
+      } else {
+        console.error('Item not found in itemList');
+      }
+    })
+    .catch(error => {
+      console.error('Error deleting item:', error);
+    });
+}
+    
   },
 
 

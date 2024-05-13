@@ -20,8 +20,8 @@
               <span class="text">Dashboard</span>
           </router-link>
 
-          <router-link class="button" to="/studentprofile">
-              <span class="material-icons">meeting_room</span>
+          <router-link class="button" to="/rooms">
+              <span class="material-icons">home</span>
               <span class="text">Room</span>
           </router-link>
 

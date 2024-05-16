@@ -9,7 +9,11 @@
     >
       <template v-slot:top >
         <v-toolbar flat >
+<<<<<<< Updated upstream
           <v-toolbar-title class="text-h6 font-weight-black " style="color: #2F3F64">Borrowing</v-toolbar-title>
+=======
+          <v-toolbar-title class="text-h6 font-weight-black " style="color: #2F3F64">Records</v-toolbar-title>
+>>>>>>> Stashed changes
           <!-- <v-divider class="mx-2" inset vertical></v-divider> -->
   
           <v-text-field
@@ -25,10 +29,6 @@
         ></v-text-field>
         
           <v-dialog v-model="dialog" max-width="1000px">
-            
-            <template v-slot:activator="{ props }">
-              <v-btn class="mb-2 rounded-l	" color="primary" dark v-bind="props" prepend-icon="mdi-plus">Add Room</v-btn>
-            </template>
             
             <v-card >
               <v-card-title ><span class="text-h6 m-2" style="color: #2F3F64"  >{{ formTitle }}</span></v-card-title>

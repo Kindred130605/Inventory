@@ -9,7 +9,7 @@
     >
       <template v-slot:top >
         <v-toolbar flat >
-          <v-toolbar-title class="text-h6 font-weight-black " style="color: #2F3F64">Room Items</v-toolbar-title>
+          <v-toolbar-title class="text-h6 font-weight-black " style="color: #2F3F64">Borrowing</v-toolbar-title>
           <!-- <v-divider class="mx-2" inset vertical></v-divider> -->
   
           <v-text-field

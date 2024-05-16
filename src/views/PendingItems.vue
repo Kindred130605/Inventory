@@ -3,7 +3,7 @@
         <div class="top-container">
             <div class="studentProfile">
                 <span class="material-icons">inventory</span>
-                <span class="text">Pending Items</span>
+                <span class="text">Items Maintenance</span>
             </div>
 
         </div>  

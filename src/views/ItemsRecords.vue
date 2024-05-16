@@ -3,7 +3,7 @@
         <div class="top-container">
             <div class="studentProfile">
                 <span class="material-icons">inventory</span>
-                <span class="text">Items Records</span>
+                <span class="text">Borrowing</span>
             </div>
 
         </div>  

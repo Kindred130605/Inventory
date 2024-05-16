@@ -10,10 +10,9 @@
         <hr>
 
         <div class="main-content">
-
-            <div class="container">
+            <!-- <div class="container"> -->
                 <Rooms/>
-            </div>
+            <!-- </div> -->
         </div>
 
 </main>
@@ -62,7 +61,7 @@ export default {
     flex-direction: column;
     .container{
         display: flex;
-        align-items: flex-start;
+        flex-direction: column;
         border-radius: 10px;
         background-color: #f0f0f0;
         padding: 0.5rem;

@@ -21,7 +21,7 @@
             :loading="loading"
           />
           <v-card-actions>
-            <v-card-title v-text="room.rooms_num" />
+                   <v-card-title v-text="room.rooms_num"></v-card-title>
             <v-spacer />
             <v-btn color="primary" variant="flat" dark>VIEW</v-btn>
           </v-card-actions>

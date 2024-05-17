@@ -1,5 +1,5 @@
 <template>
-<<<<<<< Updated upstream
+
     <v-data-table
       :search="search"
       :headers="headers"
@@ -135,7 +135,7 @@
                   >
                     <v-text-field
                       v-model="editedItem.birth_date"
-                      label="Birthdate*"
+                     
                       required
                     ></v-text-field>
                   </v-col>
@@ -207,8 +207,8 @@
                     sm="6"
                   >
                     <v-text-field
-                      v-model="editedItem.barangay"
-                      label="Barangay*"
+                   
+                  
                       required
                     ></v-text-field>
                   </v-col>
@@ -231,8 +231,7 @@
                     sm="6"
                   >
                     <v-text-field
-                      v-model="editedItem.province"
-                      label="Provice*"
+                 
                       required
                     ></v-text-field>
                   </v-col>
@@ -302,66 +301,13 @@
       </template> -->
     </v-data-table>
   </template>
-  
-  <script>
-  
-  export default {
-    
-    data: () => ({
-=======
-  <v-data-table :search="search" :headers="headers" :items="itemsList" :sort-by="[{ key: 'items_name', order: 'asc' }]">
-    <!-- toolbar  -->
-    <template v-slot:top>
-      <v-toolbar flat>
-        <v-toolbar-title class="text-h6 font-weight-black" style="color: #2F3F64">Items</v-toolbar-title>
-        <v-text-field v-model="search" class="w-auto mr-4" label="Search" prepend-inner-icon="mdi-magnify"
-          variant="outlined" dense hide-details single-line></v-text-field>
-        <v-btn color="primary" variant="flat" dark @click="openDialog()">
-          <v-icon left>mdi-plus</v-icon>
-          ADD ITEM
-        </v-btn>
-      </v-toolbar>
-    </template>
-    <!-- end -->
-
-    <!-- table config -->
-    <template v-slot:item="{ item }">
-      <tr :key="item.id">
-        <td>{{ item.items_name }}</td>
-        <td>{{ item.items_quantity }}</td>
-        <td>
-          <v-icon @click="editItem(item)">mdi-pencil</v-icon>
-          <v-icon @click="deleteItem(item)">mdi-delete</v-icon>
-        </td>
-      </tr>
-    </template>
-  </v-data-table>
-
-  <!-- Dialog for editing/adding items -->
-  <v-dialog v-model="dialog" max-width="600">
-    <v-card>
-      <v-card-title v-if="editMode">Edit Item</v-card-title>
-      <v-card-title v-else>Add Item</v-card-title>
-      <v-card-text>
-        <v-text-field v-model="editedItem.items_name" label="Item Name"></v-text-field>
-        <v-text-field v-model="editedItem.items_quantity" label="Item Quantity" type="number"></v-text-field>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" text @click="dialog = false">Cancel</v-btn>
-        <v-btn color="blue darken-1"  @click="saveItem()">Save</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
-</template>
-
+ 
     <script>
-import api from '../service/axiosApi';
+
 
 export default {
   data() {
     return {
->>>>>>> Stashed changes
       search: '',
       itemsList: [],
       headers: [

@@ -2,8 +2,8 @@
     <main>
         <div class="top-container">
             <div class="studentProfile">
-                <span class="material-icons">inventory</span>
-                <span class="text">Items Maintenance</span>
+                <span class="material-icons">pending</span>
+                <span class="text">Maintenance</span>
             </div>
 
         </div>  

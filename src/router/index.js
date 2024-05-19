@@ -31,6 +31,10 @@ const router = createRouter({
       path: "/itemrecords",
       component: () => import("../views/ItemsRecords.vue"),
     },
+    {
+      path: "/borrowing",
+      component: () => import("../views/Borrowing.vue"),
+    },
   ],
 });
 

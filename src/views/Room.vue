@@ -2,7 +2,7 @@
     <main>
         <div class="top-container">
             <div class="studentProfile">
-                <span class="material-icons">inventory</span>
+                <span class="material-icons">home</span>
                 <span class="text">Rooms</span>
             </div>
 

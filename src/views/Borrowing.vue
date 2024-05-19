@@ -2,8 +2,8 @@
     <main>
         <div class="top-container">
             <div class="studentProfile">
-                <span class="material-icons">save</span>
-                <span class="text">History</span>
+                <span class="material-icons">pending_actions</span>
+                <span class="text">Borrowing</span>
             </div>
 
         </div>  
@@ -12,7 +12,7 @@
         <div class="main-content">
 
             <div class="student-table">
-                <RecordsTable/>
+                <BorrowingTables/>
             </div>
         </div>
 
@@ -23,12 +23,12 @@
 
 <script>
 // import AddStudent from '../components/AddStudent.vue';
-import RecordsTable from '../components/RecordsTable.vue'; // dalawa dito
+import BorrowingTables from '../components/BorrowingTables.vue';
 
 export default {
   components: {
     // AddStudent,
-    RecordsTable
+    BorrowingTables
   }
 };
 </script>

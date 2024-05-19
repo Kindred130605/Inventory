@@ -39,6 +39,11 @@
             <span class="material-icons">save</span>
               <span class="text">Records</span>
           </router-link>
+
+          <router-link class="button" to="/borrowing">
+            <span class="material-icons">pending_actions</span>
+              <span class="text">Borrowing</span>
+          </router-link>
         </div>
   
       <div class="menu-logout">

@@ -33,8 +33,8 @@
       <v-card-title v-if="editMode">Edit Item</v-card-title>
       <v-card-title v-else>Add Item</v-card-title>
       <v-card-text>
-        <v-text-field v-model="editedItem.items_name" label="Item Name"></v-text-field>
-        <v-text-field v-model="editedItem.items_quantity" label="Item Quantity" type="number"></v-text-field>
+        <v-text-field v-model="itemsData.items_name" label="Item Name"></v-text-field>
+        <v-text-field v-model="itemsData.items_quantity" label="Item Quantity" type="number"></v-text-field>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
@@ -59,7 +59,7 @@ export default {
       ],
       dialog: false,
       editMode: false,
-      editedItem: {
+      itemsData: {
       id: null,
       items_name: '',
       items_quantity: 0
@@ -86,7 +86,7 @@ export default {
 
     openDialog() {
       this.editMode = false;
-      this.editedItem = {
+      this.itemsData = {
         id: null,
         items_name: '',
         items_quantity: 0
@@ -96,15 +96,15 @@ export default {
 
     editItem(item) {
       this.editMode = true;
-      this.editedItem = { ...item };
+      this.itemsData = { ...item };
       this.dialog = true;
     },
 
    saveItem() {
   if (this.editMode) {
-    api.post(`/items/update/${this.editedItem.id}`, this.editedItem)
+    api.post(`/items/update/${this.itemsData.id}`, this.itemsData)
       .then(response => {
-        let i = this.itemsList.findIndex(item => item.id === this.editedItem.id);
+        let i = this.itemsList.findIndex(item => item.id === this.itemsData.id);
         if (i !== -1) {
           this.itemsList.splice(i, 1, response.data);
           this.dialog = false;
@@ -114,10 +114,9 @@ export default {
         console.error('Error updating item:', error);
       });
   } else {
-    api.post('/items/add', this.editedItem)
+    api.post('/items/add', this.itemsData)
       .then(response => {
-        const newItem = response.data;
-        this.itemsList.push(newItem);
+        this.itemsList.push(...this.itemsData);
         this.dialog = false;
       })
       .catch(error => {

@@ -1,34 +1,44 @@
 <template>
   <v-card>
-  <v-toolbar>
-     <v-toolbar-title class="text-h6 font-weight-black" style="color: #2F3F64">Rooms</v-toolbar-title>
-        <v-text-field v-model="search" class="w-auto mr-4" label="Search" prepend-inner-icon="mdi-magnify"
-          variant="outlined" dense hide-details single-line></v-text-field>
-        <v-btn color="primary" variant="flat" dark @click="openDialog()">
-          <v-icon left>mdi-plus</v-icon>
-          ADD Rooms
-        </v-btn>
-  </v-toolbar>
+    <v-toolbar>
+      <v-toolbar-title class="text-h6 font-weight-black" style="color: #2F3F64">Rooms</v-toolbar-title>
+      <v-text-field v-model="search" class="w-auto mr-4" label="Search" prepend-inner-icon="mdi-magnify"
+        variant="outlined" dense hide-details single-line></v-text-field>
+      <v-btn color="primary" variant="flat" dark @click="openDialog()">
+        <v-icon left>mdi-plus</v-icon>
+        ADD Rooms
+      </v-btn>
+    </v-toolbar>
 
-    <v-row dense>
-      <v-col v-for="room in rooms" :key="room.title" :cols="4">
+    <v-row dense id="scroll-target">
+      <v-col v-for="room in rooms" :key="room.id" :cols="4">
         <v-card class="mx-auto" max-width="500">
-          <v-img
-            src="src/assets/SNA Logo with BG.png"
-            class="white--text align-end"
-            gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-            height="200px"
-            :loading="loading"
-          />
+          <v-img src="src/assets/SNA Logo with BG.png" class="white--text align-end"
+            gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)" height="200px" :loading="loading" />
           <v-card-actions>
-                   <v-card-title v-text="room.rooms_num"></v-card-title>
+            <v-card-title v-text="room.rooms_num"></v-card-title>
             <v-spacer />
+            <v-btn color="#F50057" variant="flat" dark @click="deleteRoom(room)">DELETE</v-btn>
             <v-btn color="primary" variant="flat" dark>VIEW</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
     </v-row>
   </v-card>
+
+  <v-dialog v-model="dialog" max-width="600">
+    <v-card>
+      <v-card-title>Add Room</v-card-title>
+      <v-card-text>
+        <v-text-field v-model="roomsData.rooms_num" label="Room Name"></v-text-field>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="blue darken-1" text @click="dialog = false">Cancel</v-btn>
+        <v-btn color="blue darken-1" @click="saveRoom()">Save</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
@@ -38,7 +48,11 @@ import api from '../service/axiosApi';
     data (){
           return {
               search: '',
-              rooms: [],
+            rooms: [],
+            roomsData: {
+              rooms_num: ''
+            },
+            dialog: false,
              
           };
     },
@@ -57,9 +71,38 @@ mounted() {
       }
         },
 
+      openDialog() {
+        this.dialog = true;
+        this.roomsData = {
+          rooms_num: '',
+        };
+      },
 
-        
-    },
+      saveRoom() {
+        api.post('/rooms/add', this.roomsData).then(response => {
+          this.rooms.push({ ...this.roomsData });
+          this.dialog = false;
+        })
+      },
+
+      deleteRoom(room) {
+        api.post(`/rooms/delete/${room.id}`)
+          .then(response => {
+            let i = this.rooms.findIndex(i => i.id === room.id);
+            if (i !== -1) {
+              this.rooms.splice(i, 1);
+            } else {
+              console.error('Item not found in itemList');
+            }
+          })
+          .catch(error => {
+            console.error('Error deleting rooms:', error);
+          });
+
+      },
+
+  
+  },
 
       computed: {
         filteredItems() {

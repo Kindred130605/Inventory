@@ -15,7 +15,7 @@
     <!-- end -->
 
     <!-- table config -->
-    <template v-slot:item="{ item }">
+    <template v-slot:item= { ...this.items }>
       <tr :key="item.id">
         <td>{{ item.items_name }}</td>
         <td>{{ item.items_quantity }}</td>
@@ -106,7 +106,7 @@ export default {
       .then(response => {
         let i = this.itemsList.findIndex(item => item.id === this.itemsData.id);
         if (i !== -1) {
-          this.itemsList.splice(i, 1, response.data);
+         this.itemsList.splice(i, 1, { ...this.itemsData });
           this.dialog = false;
         }
       })
@@ -116,7 +116,7 @@ export default {
   } else {
     api.post('/items/add', this.itemsData)
       .then(response => {
-        this.itemsList.push(...this.itemsData);
+        this.itemsList.push({ ...this.itemsData });
         this.dialog = false;
       })
       .catch(error => {

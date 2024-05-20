@@ -1,3 +1,16 @@
+
+<script setup>
+import { ref } from 'vue'
+
+const is_expanded = ref(localStorage.getItem("is_expanded") === "true")
+
+const ToggleMenu = () => {
+    is_expanded.value = !is_expanded.value
+
+    localStorage.setItem("is_expanded", is_expanded.value)
+}
+</script>
+
 <template>
     <aside :class="`${is_expanded && 'is_expanded'}`">
         
@@ -15,15 +28,26 @@
       </div>
       
       <div class="menu">
-          <router-link class="button" to="/dashboard">
-              <span class="material-icons">dashboard</span>
+          <router-link class="button" to="/rooms">
+              <span class="material-icons">home</span>
               <span class="text">Dashboard</span>
           </router-link>
 
-          <router-link class="button" to="/rooms">
-              <span class="material-icons">home</span>
-              <span class="text">Room</span>
-          </router-link>
+          <div class="dropdown " @click="toggleDropdown" :class="{ 'open': isDropdownOpen }">
+            <button class="dropbtn">
+            <span class="material-icons">list</span>
+            <span class="text">Student List</span>
+            </button>
+            <transition name="fade">
+            <div class="dropdown-content" v-if="isDropdownOpen" @click.stop>
+                <!-- Five tabs in the dropdown -->
+                <router-link to="/junior"><span class="material-icons">group</span><span class="text">Junior</span></router-link>
+                <router-link to="/senior"><span class="material-icons">group</span><span class="text">Senior</span></router-link>
+               
+            </div>
+            </transition>
+        </div>
+
 
           <router-link class="button" to="/items">
             <span class="material-icons">inventory</span>
@@ -37,7 +61,7 @@
 
           <router-link class="button" to="/itemrecords">
             <span class="material-icons">save</span>
-              <span class="text">Records</span>
+              <span class="text">History</span>
           </router-link>
 
           <router-link class="button" to="/borrowing">
@@ -55,23 +79,53 @@
     </aside>
   </template>
   
-  <script setup>
-  import { ref } from 'vue'
+ <script> 
+export default {
   
-  const is_expanded = ref(localStorage.getItem("is_expanded") === "true")
-  
-  const ToggleMenu = () => {
-      is_expanded.value = !is_expanded.value
-  
-      localStorage.setItem("is_expanded", is_expanded.value)
+  name: "Sidebar",
+data() {
+  return {
+    isDropdownOpen: false
+  };
+},
+methods: {
+  async logout() { 
+    try {
+      await api.get('logout');
+    } finally {
+      this.logoutAlert();      
+    }
+  },
+
+  toggleDropdown() {
+    this.isDropdownOpen = !this.isDropdownOpen;
+  },
+  logoutAlert() {
+    Swal.fire({
+      title: 'Confirm Logout',
+      text: 'Are you sure you want to logout?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#808080',
+      confirmButtonText: 'Yes, logout'
+    }).then((result) => {
+      if (result.isConfirmed) {
+          sessionStorage.clear();
+          this.$router.push('/login');
+      }
+    });
   }
-  </script>
+}
+};
+
+ </script>
   
   <style lang="scss" scoped>
-  aside {
+   aside {
       display: flex;
       flex-direction: column;
-      width: calc(2.5rem + 32px);
+      width: calc(2.5rem + 40px);
       min-height: 100vh;
       overflow: hidden;
       padding: 1rem;
@@ -96,7 +150,7 @@
           justify-content: flex-end;
   
           position: relative;
-          top: 0;
+          bottom: 0.5rem;
           transition: 0.2s ease-out;
   
           margin: 5px;
@@ -124,7 +178,8 @@
   
       .menu {
           margin: -0 -1rem;
-  
+          position: relative;
+          bottom: 0.5rem;
           .button{
               display: flex;
               align-items: center;
@@ -154,6 +209,72 @@
                   }
               }
           }
+
+          .dropdown {
+            padding: 0.8rem 1rem;
+            transition: 0.2s ease-out;
+
+            .dropbtn{
+                .material-icons {
+                        font-size: 2rem;
+                        color: var(--light);
+                        transition: 0.2s ease-out;
+
+                }
+
+                .text{
+                    opacity: 0;
+                    transition: 0.2s ease-out;
+
+                }
+
+                &:hover{
+                  margin-left: 0.3rem;
+                  transition: 0.2s ease-out;
+
+                }
+            }   
+            .dropdown-content a {
+                color: var(--light);
+                padding: 1rem 5.3rem 1rem ; 
+                margin-bottom: 0.5rem;
+                text-decoration: none;
+                display: flex;
+                transition: background-color 0.3s ease;
+                border-top-left-radius: 20px;
+                border-bottom-left-radius: 20px;
+                transition: 0.2s ease-out;
+              
+              &:hover, &.router-link-active{
+                background-color: #fff;
+                margin-left: 0.5rem;
+                border-top-left-radius: 20px;
+                border-bottom-left-radius: 20px;
+                transition: 0.2s ease-out;
+                color: var(--dark);
+              }
+              .material-icons{
+                font-size: 2rem;
+                position: relative;
+                right: 75px;
+                transition: 0.2s ease-out;
+
+            }
+            
+            .text{
+                opacity: 0;
+                transition: 0.2s ease-out;
+            }
+              }
+            
+              .fade-enter-active, .fade-leave-active {
+                transition: opacity 0.3s;
+              }
+              
+              .fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+                opacity: 0;
+              }
+          }
       }
   
       .menu-logout {
@@ -181,7 +302,7 @@
                   transition: 0.2s ease-out;
               }
   
-              &:hover, &.router-link-exact-active{
+              &:hover{
                   .material-icons, .text {
                       color: var(--primary);
                   }
@@ -196,7 +317,7 @@
               align-items: flex-end;
               margin: -0 2rem ;
               transition: 0.2s ease-out;
-              
+              color: var(--light);
   
           }
           .sna-logo{
@@ -234,10 +355,95 @@
                   margin-right: 1rem;
               }
           }
-      }
-      @media (max-width: 768px) {
-          z-index: 99;
-      }
+          .dropdown {
+            position: relative;
+            align-items: center;
+            text-decoration: none;
+            padding: 0.8rem 1rem;
+            transition: 0.2s ease-out;
 
-  }
+            .dropbtn{
+                
+                .material-icons {
+                    font-size: 2rem;
+                    color: var(--light);
+                    transition: 0.2s ease-out;
+                    position: relative;
+                    top: 10px;
+                }
+
+                .text{
+                    color: var(--light);
+                    transition: 0.2s ease-out;
+                    margin-left: 1rem;
+                    opacity: 1;
+                }
+            }  
+             
+            .dropdown-content a {
+                position: relative;
+                top: 1rem;
+                left: 1rem;
+                color: var(--light);
+                padding: 1rem 4rem 0.7rem ; 
+                margin-bottom: 0.5rem;
+                text-decoration: none;
+                display: flex;
+                transition: background-color 0.3s ease;
+                border-top-left-radius: 20px;
+                border-bottom-left-radius: 20px;
+                transition: 0.2s ease-out;
+             
+              
+              &:hover, &.router-link-exact-active {
+                background-color: #fff;
+                border-top-left-radius: 20px;
+                border-bottom-left-radius: 20px;
+                transition: 0.2s ease-out;
+                color: var(--dark);
+              }
+
+              .material-icons{
+                font-size: 2rem;
+                position: relative;
+                right: 30px;
+                transition: 0.2s ease-out;
+
+            }
+            
+            .text{
+                position: relative;
+                right: 30px;
+                transition: 0.2s ease-out;
+                margin-left: 1rem;
+                opacity: 1;
+            }
+              }
+            
+              .fade-enter-active, .fade-leave-active {
+                transition: opacity 0.3s;
+              }
+              
+              .fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+                opacity: 0;
+              }
+          }
+          .menu {
+            bottom: 2.5rem;
+          }
+          
+          .hr{
+            position: relative;
+            bottom: 2rem;
+          }
+        
+        }
+
+        @media (max-width: 1050px){
+          .menu-toggle-wrap{
+            opacity: 0;
+            pointer-events: none;
+          }
+        }
+    }
   </style>

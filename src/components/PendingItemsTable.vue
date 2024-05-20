@@ -1,181 +1,212 @@
 <template>
 
-    <v-data-table
-      :search="search"
-      :headers="headers"
-      :items="displayedStudents"
-      :sort-by="[{ key: 'studentId', order: 'asc' }]"
-      
-      
-    >
-      <template v-slot:top >
-        <v-toolbar flat >
-          <v-toolbar-title class="text-h6 font-weight-black " style="color: #2F3F64">Maintenance</v-toolbar-title>
-          <!-- <v-divider class="mx-2" inset vertical></v-divider> -->
-  
-          <v-text-field
-          v-model="search"
-          class="w-auto mr-4 "
-          density="compact"
-          label="Search"
-          prepend-inner-icon="mdi-magnify"
-          variant="solo-filled"
-          flat
-          hide-details
-          single-line
-        ></v-text-field>
-        
-          <v-dialog v-model="dialogDelete" max-width="500px">
-            <v-card>
-              <v-card-title class="text-h5">Are you sure you want to delete this item?</v-card-title>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="blue-darken-1" variant="text" @click="closeDelete">Cancel</v-btn>
-                <v-btn color="blue-darken-1" variant="text" @click="deleteItemConfirm">OK</v-btn>
-                <v-spacer></v-spacer>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-        </v-toolbar>
-      </template>
-      <template v-slot:item="{ item }">
-        <tr>
-          <td>{{ item.first_name }} {{ item.middle_name }} {{ item.last_name }} {{ item.extension }}</td>
-          <td>{{ item.student_id }}</td>
-          <td>{{ item.student_lrn }}</td>
-          <td>{{ item.grade_level }}</td>
-          <td>{{ item.strand }}</td>
-          <td>
-            <v-icon class="me-2" size="small" style="color: #2F3F64" @click="editItem(item)">mdi-pencil</v-icon>
-            <v-icon size="small" style="color: #2F3F64" @click="deleteItem(item)">mdi-delete</v-icon>
-          </td>
-        </tr>
-      </template>
-      <!-- <template v-slot:no-data>
-        <v-btn class="text-h2" color="primary" @click="initialize">Reset</v-btn>
-      </template> -->
-    </v-data-table>
-  </template>
- 
-    <script>
+  <v-data-table
+    :search="search"
+    :headers="headers"
+    :items="displayedStudents"
+    :sort-by="[{ key: 'studentId', order: 'asc' }]"
+    
+    
+  >
+    <template v-slot:top >
+      <v-toolbar flat >
+        <v-toolbar-title class="text-h6 font-weight-black " style="color: #2F3F64">Maintenance</v-toolbar-title>
+        <!-- <v-divider class="mx-2" inset vertical></v-divider> -->
 
+        <v-text-field
+        v-model="search"
+        class="w-auto mr-4 "
+        density="compact"
+        label="Search"
+        prepend-inner-icon="mdi-magnify"
+        variant="solo-filled"
+        flat
+        hide-details
+        single-line
+      ></v-text-field>
+      
+      </v-toolbar>
+    </template>
+    <template v-slot:item="{ item }">
+      <tr>
+        <td>{{ item.Items }}</td>
+        <td>{{ item.status }}</td>
+        <td>{{ item.room_number }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.Course_name }}</td>
+        <td>
+          <v-icon class="me-2" size="small" style="color: #2F3F64" @click="editItem(item)">mdi-pencil</v-icon>
+          <v-icon size="small" style="color: #2F3F64" @click="deleteItem(item)">mdi-delete</v-icon>
+        </td>
+      </tr>
+    </template>
+    <!-- <template v-slot:no-data>
+      <v-btn class="text-h2" color="primary" @click="initialize">Reset</v-btn>
+    </template> -->
+  </v-data-table>
+</template>
 
+  <script>
 export default {
-  data() {
-    return {
-      search: '',
-      itemsList: [],
-      headers: [
-        { title: 'Item Name', key: 'items_name' },
-        { title: 'Item Quantity', key: 'items_quantity' }
-      ],
-      dialog: false,
-      editMode: false,
-      editedItem: {
-      id: null,
-      items_name: '',
-      items_quantity: 0
-      },
-
-    };
-},
-
-      
-  mounted() {
-    this.getItems();
-      },
   
+  data: () => ({
+    search: '',
+    dialog: false,
+    dialogDelete: false,
+    headers: [
+      { title: 'Items', align: 'start', key: 'Items'} ,
+      { title: 'Status', key: 'status' },
+      { title: 'Room', key: 'room_number' },
+      { title: 'Quantity', key: 'quantity' },
+      { title: 'Course', sortable: 'Course_name' },
+      { title: 'Actions', sortable: false },
+    ],
+    Items: [],
+    editedIndex: -1,
+    editedItem: {
+      Items:'',
+      status: '',
+      room_number: '',
+      quantity: '',
+      Course_name: '',
+    },
+    defaultItem: {
+      Items:'',
+      status: '',
+      room_number: '',
+      quantity: '',
+      Course_name: '',
+    },
+    
+  }),
+
+  computed: {
+    formTitle() {
+      return this.editedIndex === -1 ? 'Add Room' : 'Edit Room';
+    },
+    displayedStudents() {
+      const searchTerm = this.search.toLowerCase(); // Convert search input to lowercase for case-insensitive comparison
+    return this.students.filter(student =>
+      Object.values(student).some(value =>
+        typeof value === 'string' && value.toLowerCase().includes(searchTerm)
+    )
+    );
+    },
+  },
+
+  watch: {
+    dialog(val) {
+      val || this.close();
+    },
+    dialogDelete(val) {
+      val || this.closeDelete();
+    },
+  },
+
+  created() {
+    this.initialize();
+  },
+
   methods: {
-     async getItems() {
-      try {
-        const response = await api.get('/items');
-        this.itemsList = response.data;
-        console.log(this.itemsList);
-      } catch (error) {
-        console.error('Error fetching items:', error);
-      }
+    initialize() {
+      this.students = [
+        { 
+      Items: 'Chair',
+      status: 'Available',
+      room_number: '101',
+      quantity: '500',
+      Course_name: 'CCS',
+    },
+    { 
+      Items: 'Tables',
+      status: 'Available',
+      room_number: '101',
+      quantity: '250',
+      Course_name: 'CCS',
+    },
+    { 
+      Items: 'TV',
+      status: 'Available',
+      room_number: '101',
+      quantity: '10',
+      Course_name: 'CCS',
+    },
+    // add more items here
+
+    { 
+      Items: 'Whiteboard',
+      status: 'Available',
+      room_number: '101',
+      quantity: '10',
+      Course_name: 'CCS',
     },
 
-    openDialog() {
-      this.editMode = false;
-      this.editedItem = {
-        id: null,
-        items_name: '',
-        items_quantity: 0
-      };
-      this.dialog = true;
+      ];
+      this.students.forEach(student => {
+  student.full_name = `${student.first_name} ${student.middle_name} ${student.last_name} ${student.extension}`.trim();
+    if (student.grade_level < 11 || student.grade_level > 12) {
+        // Remove the strand property
+        student.strand = "N/A";
+    }
+      });
     },
 
     editItem(item) {
-      this.editMode = true;
-      this.editedItem = { ...item };
+      this.editedIndex = this.students.indexOf(item);
+      this.editedItem = Object.assign({}, item);
       this.dialog = true;
     },
 
-   saveItem() {
-  if (this.editMode) {
-    api.post(`/items/update/${this.editedItem.id}`, this.editedItem)
-      .then(response => {
-        let i = this.itemsList.findIndex(item => item.id === this.editedItem.id);
-        if (i !== -1) {
-          this.itemsList.splice(i, 1, response.data);
-          this.dialog = false;
-        }
-      })
-      .catch(error => {
-        console.error('Error updating item:', error);
-      });
-  } else {
-    api.post('/items/add', this.editedItem)
-      .then(response => {
-        const newItem = response.data;
-        this.itemsList.push(newItem);
-        this.dialog = false;
-      })
-      .catch(error => {
-        console.error('Error adding item:', error);
-      });
-  }
-},
+    deleteItem(item) {
+      this.editedIndex = this.students.indexOf(item);
+      this.editedItem = Object.assign({}, item);
+      this.dialogDelete = true;
+    },
 
- deleteItem(item) {
-  api.post(`/items/delete/${item.id}`)
-    .then(response => {
-      let i = this.itemsList.findIndex(i => i.id === item.id);
-      if (i !== -1) {
-        this.itemsList.splice(i, 1);
+    deleteItemConfirm() {
+      this.students.splice(this.editedIndex, 1);
+      this.closeDelete();
+    },
+
+    close() {
+      this.dialog = false;
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedIndex = -1;
+      });
+    },
+
+    closeDelete() {
+      this.dialogDelete = false;
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedIndex = -1;
+      });
+    },
+
+    save() {
+      if (this.editedIndex > -1) {
+        Object.assign(this.students[this.editedIndex], this.editedItem);
       } else {
-        console.error('Item not found in itemList');
+        this.students.push(this.editedItem);
       }
-    })
-    .catch(error => {
-      console.error('Error deleting item:', error);
-    });
-}
+      this.close();
+    },
     
   },
-
-
-      computed: {
-        filteredItems() {
-          return this.itemsList.filter(item => {
-            return item.items_name.toLowerCase().includes(this.search.toLowerCase()) ||
-              item.items_quantity.toString().includes(this.search);
-          });
-        }
-}
-      
 };
 </script>
 
+<style lang="scss">
+.v-data-table {
+  height: 100%;
+}
 
+   .table {
+      max-height: 700vh;
+    }
 
-    <style lang="scss">
-      .table {
-        max-height: 700vh;
-      }
-
-      .v-data-table {
-        height: 100%;
-      }
-    </style>
+    .v-data-table {
+      height: 100%;
+    }
+  </style>

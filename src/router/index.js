@@ -12,8 +12,12 @@ const router = createRouter({
       component: () => import("../views/AdminLogin.vue"),
     },
     {
-      path: "/dashboard",
-      component: () => import("../views/Dashboard.vue"),
+      path: "/junior",
+      component: () => import("../views/Junior.vue"),
+    },
+    {
+      path: "/senior",
+      component: () => import("../views/Senior.vue"),
     },
     {
       path: "/rooms",

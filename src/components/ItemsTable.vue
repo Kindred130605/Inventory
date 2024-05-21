@@ -15,7 +15,7 @@
     <!-- end -->
 
     <!-- table config -->
-    <template v-slot:item= { ...this.items }>
+    <template v-slot:item= '{ item }'>
       <tr :key="item.id">
         <td>{{ item.items_name }}</td>
         <td>{{ item.items_quantity }}</td>

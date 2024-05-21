@@ -1,4 +1,5 @@
 <template>
+
   <v-card>
     <v-toolbar>
       <v-toolbar-title class="text-h6 font-weight-black" style="color: #2F3F64">Rooms</v-toolbar-title>
@@ -10,7 +11,7 @@
       </v-btn>
     </v-toolbar>
 
-    <v-row dense id="scroll-target">
+    <v-row dense >
       <v-col v-for="room in rooms" :key="room.id" :cols="4">
         <v-card class="mx-auto" max-width="500">
           <v-img src="src/assets/SNA Logo with BG.png" class="white--text align-end"
@@ -41,37 +42,37 @@
   </v-dialog>
 
 
-  <v-dialog v-model="viewDialog"  max-width="600" max-height="1000">
-    <v-card >
-      <v-card-title>View Room</v-card-title>
+  <v-dialog v-model="viewDialog" max-width="600" max-height="1000">
     <v-card>
-      <v-card-title>
-        Room items
-      </v-card-title>s
-    </v-card>
-  
-      <v-card-text>
-      <v-select
-      v-model="selectedItem"
-       v-slot:items="{ items }"
-      label="Select an item"
-      @change="updateInput"
-    ></v-select>
+      <v-card-title>View Room</v-card-title>
+      <v-card>
+        <v-container dense>
+          Room items
+        </v-container>
+      </v-card>
 
-    <v-text-field
-      v-model="inputValue"
-      label="Input field"
-    ></v-text-field>
-     <v-btn color="blue darken-1" >ADD ROOM ITEM</v-btn>
+      <v-card-text>
+        <v-select
+          v-model="selectedItem"
+          :items="items"
+          label="Select an item"
+          @change="updateInput"
+        ></v-select>
+
+        <v-text-field
+          v-model="inputValue"
+          label="Input field"
+        ></v-text-field>
+        <v-btn color="blue darken-1" @click="addItemToRoom">ADD ROOM ITEM</v-btn>
       </v-card-text>
+
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="blue darken-1" text @click="viewDialog = false">Cancel</v-btn>
-        <v-btn color="blue darken-1" @click="saveRoom()">Save</v-btn>
+        <v-btn color="blue darken-1" @click="saveRoom">Save</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
-
 
 </template>
 
@@ -89,9 +90,9 @@ import api from '../service/axiosApi';
             },
             addDialog: false,
             viewDialog: false,
-           
-            selectedItem: "ITEM",
+            selectedItem: '',
             inputValue: '',
+
              
           };
     },
@@ -151,15 +152,19 @@ mounted() {
 
       },
 
-      openDialogView(room) {
-        this.viewDialog = true;
-      
-      },
-
-      updateInput() {
-      this.inputValue = this.selectedItem || ''; // Set input value to selected item
+     openDialogView(room) {
+      this.viewDialog = true;
     },
 
+    updateInput() {
+      this.inputValue = this.selectedItem || '';
+    },
+
+
+    addItemToRoom() {
+      console.log(`Item added: ${this.inputValue}`);
+    },
+  
   
   },
 

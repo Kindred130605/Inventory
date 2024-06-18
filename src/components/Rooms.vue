@@ -52,17 +52,10 @@
       </v-card>
 
       <v-card-text>
-        <v-select
-          v-model="selectedItem"
-          :items="items"
-          label="Select an item"
-          @change="updateInput"
-        ></v-select>
-
-        <v-text-field
-          v-model="inputValue"
-          label="Input field"
-        ></v-text-field>
+        <v-select :item-props="itemSelect" :items="items" label="ITEMS">
+        </v-select>
+        <v-text-field  label="Input field">
+        </v-text-field>
         <v-btn color="blue darken-1" @click="addItemToRoom">ADD ROOM ITEM</v-btn>
       </v-card-text>
 
@@ -90,10 +83,8 @@ import api from '../service/axiosApi';
             },
             addDialog: false,
             viewDialog: false,
-            selectedItem: '',
+            selected: 'NONE',
             inputValue: '',
-
-             
           };
     },
 
@@ -150,11 +141,19 @@ mounted() {
             console.error('Error deleting rooms:', error);
           });
 
+          
       },
 
      openDialogView(room) {
       this.viewDialog = true;
     },
+
+    itemSelect (item) {
+        return {
+          title: item.items_name,
+          subtitle: item.items_quantity,
+        }
+      },
 
     updateInput() {
       this.inputValue = this.selectedItem || '';
@@ -164,16 +163,17 @@ mounted() {
     addItemToRoom() {
       console.log(`Item added: ${this.inputValue}`);
     },
-  
+   
+   
   
   },
 
-      computed: {
-        filteredItems() {
-          return this.rooms.filter(item => {
-            return rooms.rooms_num.toLowerCase().includes(this.search.toLowerCase()) 
-          });
-        },
+  computed: {
+    filteredItems() {
+      return this.items.filter(item => {
+        return item.items_name.toLowerCase().includes(this.search.toLowerCase());
+      });
+    },
 
     
 

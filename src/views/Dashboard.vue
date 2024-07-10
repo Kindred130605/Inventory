@@ -1,4 +1,4 @@
-<template>
+<template >
     <main>
         <section>            
             <div class="top-container">
@@ -17,7 +17,7 @@
                     <span class="material-icons">school</span>
                     Total Classroom Equipment 
                     <br>    
-                    <span class="card-1">-</span> 
+                    <span class="card-1">{{ dashboardInfo.classroom }}</span> 
                 </h2>  
             </div>
         </div>
@@ -39,7 +39,7 @@
                     <span class="material-icons">school</span>
                     Total School Supplies 
                     <br>    
-                    <span class="card-1">-</span> 
+                    <span class="card-1">{{ dashboardInfo.school_supply }}</span> 
                 </h2>  
             </div>
         </div>
@@ -61,7 +61,7 @@
                 <span class="material-icons">school</span>
                 Total School Equipment
                   <br>    
-                <span class="card-2">100</span> 
+                <span class="card-2">{{ dashboardInfo.all_items }}</span> 
             </h1>
             </div>
         </div>
@@ -78,9 +78,30 @@
 </template>
 
 <script>
+import api from '../service/axiosApi';
 export default {
+  data() {
+    return {
+      dashboardInfo: [],
+    };
+  },
 
-}
+  mounted() {
+    this.getDashboard(); 
+  },
+
+  methods: {
+    async getDashboard() {
+      try {
+        const response = await api.get('/dashboardview');
+        this.dashboardInfo = response.data; 
+        console.log(this.dashboardInfo);
+      } catch (error) {
+        console.error('Error fetching items:', error);
+      }
+    },
+  },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -315,6 +336,7 @@ section{
                 }
                 .card-1{
                     font-size: 30px;
+                    background-color: aqua;
                 }
             }
             h2{

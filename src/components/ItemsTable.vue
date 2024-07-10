@@ -19,6 +19,7 @@
       <tr :key="item.id">
         <td>{{ item.items_name }}</td>
         <td>{{ item.items_quantity }}</td>
+        <td>{{ item.type }}</td>
         <td>
           <v-icon @click="editItem(item)">mdi-pencil</v-icon>
           <v-icon @click="deleteItem(item)">mdi-delete</v-icon>
@@ -35,6 +36,7 @@
       <v-card-text>
         <v-text-field v-model="itemsData.items_name" label="Item Name"></v-text-field>
         <v-text-field v-model="itemsData.items_quantity" label="Item Quantity" type="number"></v-text-field>
+        <v-text-field v-model="itemsData.type" label="Item Quantity" type="number"></v-text-field>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
@@ -55,7 +57,8 @@ export default {
       itemsList: [],
       headers: [
         { title: 'Item Name', key: 'items_name' },
-        { title: 'Item Quantity', key: 'items_quantity' }
+        { title: 'Item Quantity', key: 'items_quantity' },
+        { title: 'Type', key: 'type' }
       ],
       dialog: false,
       editMode: false,

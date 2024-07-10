@@ -25,7 +25,7 @@
         <div class="buttom-left">
             <div class="total-student">
                 <h2 class="info-text">
-                    Students:
+                    Items:
                 </h2>  
                 <canvas ref="chart1Canvas"></canvas>
             </div>
@@ -47,7 +47,7 @@
         <div class="buttom-left">
             <div class="total-student">
                 <h2 class="info-text">
-                    Students:
+                    Items:
                 </h2>  
                 <canvas ref="chart1Canvas"></canvas>
             </div>
@@ -61,18 +61,22 @@
                 <span class="material-icons">school</span>
                 Total School Equipment
                   <br>    
-                <span class="card-2">100</span> 
+                <span class="card-2">-</span> 
             </h1>
             </div>
         </div>
             <div class="buttom-right">
             <h1 class="info-text">
-                Students:
+                Items:
             </h1>
             <canvas ref="chart2Canvas"></canvas>
         </div>
      
     </div>
+
+    <div class="announcement-button-container">
+            <button class="announcement-button">Announcement</button>
+        </div>
 
     </main>
 </template>
@@ -112,7 +116,7 @@ main {
 .left-container{
     flex: 0.5;
     margin-right: 1rem;
-    margin-top: 100px;
+    margin-top: 150px;
     border-radius: 10px;
     background-color: #f0f0f0;
     padding: 0.5rem;
@@ -281,7 +285,7 @@ section{
 .middle-container{
     flex: 0.5;
     margin-right: 1rem;
-    margin-top: 100px;
+    margin-top: 150px;
     border-radius: 10px;
     background-color: #f0f0f0;
     padding: 0.5rem;
@@ -453,7 +457,7 @@ section{
     padding: 0.5rem;
     flex: 0.5;
     margin-left: 1rem;
-    margin-top: 100px;
+    margin-top: 150px;
     
     .top-right{
         padding: 1rem;
@@ -575,6 +579,30 @@ section{
             }
         }
     }
+
+.announcement-button-container {
+    position: absolute;
+    flex: 0.5;
+    margin-right: 1rem;
+    margin-top: 4.9rem;
+    border-radius: 10px;
+    padding: 0.5rem;
+}
+
+.announcement-button {
+    padding: 1rem 5rem;
+    background-color: #2F3F64;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: background-color 0.3s ease;
+}
+
+.announcement-button:hover {
+    background-color: #1A2744;
+}
 
 
 .info-text{

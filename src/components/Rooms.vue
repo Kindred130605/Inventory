@@ -33,6 +33,12 @@
       <v-card-text>
         <v-text-field v-model="roomsData.rooms_num" label="Room Name"></v-text-field>
       </v-card-text>
+      <v-card-text>
+        <v-text-field v-model="roomsData.rooms_num" label="Room Number"></v-text-field>
+      </v-card-text>
+      <v-card-text>
+        <v-text-field v-model="roomsData.rooms_num" label="Custodian"></v-text-field>
+      </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="blue darken-1" text @click="addDialog = false">Cancel</v-btn>

@@ -12,6 +12,10 @@ const router = createRouter({
       component: () => import("../views/AdminLogin.vue"),
     },
     {
+      path: "/dashboard",
+      component: () => import("../views/Dashboard.vue"),
+    },
+    {
       path: "/junior",
       component: () => import("../views/Junior.vue"),
     },
@@ -34,11 +38,7 @@ const router = createRouter({
     {
       path: "/itemrecords",
       component: () => import("../views/ItemsRecords.vue"),
-    },
-    {
-      path: "/borrowing",
-      component: () => import("../views/Borrowing.vue"),
-    },
+    }
   ],
 });
 

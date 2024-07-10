@@ -28,7 +28,7 @@ const ToggleMenu = () => {
       </div>
       
       <div class="menu">
-          <router-link class="button" to="/rooms">
+          <router-link class="button" to="/dashboard">
               <span class="material-icons">home</span>
               <span class="text">Dashboard</span>
           </router-link>
@@ -47,7 +47,10 @@ const ToggleMenu = () => {
             </div>
             </transition>
         </div>
-
+          <router-link class="button" to="/rooms">
+            <span class="material-icons">door_front</span>
+              <span class="text">Room</span>
+          </router-link>
 
           <router-link class="button" to="/items">
             <span class="material-icons">inventory</span>
@@ -62,11 +65,6 @@ const ToggleMenu = () => {
           <router-link class="button" to="/itemrecords">
             <span class="material-icons">save</span>
               <span class="text">History</span>
-          </router-link>
-
-          <router-link class="button" to="/borrowing">
-            <span class="material-icons">pending_actions</span>
-              <span class="text">Borrowing</span>
           </router-link>
         </div>
   

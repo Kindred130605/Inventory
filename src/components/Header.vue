@@ -1,9 +1,6 @@
 <template>
     <header class="header">
         <h2 class="sna-label">Inventory Panel</h2>
-
-
-        
     </header>
 </template>
 

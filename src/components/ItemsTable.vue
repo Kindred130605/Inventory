@@ -17,11 +17,20 @@
     <!-- table config -->
     <template v-slot:item= '{ item }'>
       <tr :key="item.id">
-        <td>{{ item.items_name }}</td>
-        <td>{{ item.items_quantity }}</td>
-        <td>{{ item.type }}</td>
+        <td>{{ item.item_name }}</td>
+        <td>{{ item.item_quantity }}</td>
+        <td>{{ item.category}}</td>
+        <td>{{ item.unit_of_measure}}</td>
+        <td>{{ item.room_number}}</td>
+        <td>{{ item.school_level}}</td>
+        <td>{{ item.acceptedby}}</td>
+        <td>{{ item.items_needed}}</td>
+        <td>{{ item.borrowed_items}}</td>
+        <td>{{ item.overdue_items}}</td>
+        <td>{{ item.damaged_items}}</td>
         <td>
           <v-icon @click="editItem(item)">mdi-pencil</v-icon>
+          <v-icon @click="editItem(item)">mdi-handshake</v-icon>
           <v-icon @click="deleteItem(item)">mdi-delete</v-icon>
         </td>
       </tr>
@@ -56,9 +65,17 @@ export default {
       search: '',
       itemsList: [],
       headers: [
-        { title: 'Item Name', key: 'items_name' },
-        { title: 'Item Quantity', key: 'items_quantity' },
-        { title: 'Type', key: 'type' }
+        { title: 'Item Name', key: 'item_name' },
+        { title: 'Item Quantity', key: 'item_quantity' },
+        { title: 'Category', key: 'category' },
+        { title: 'Unit Of Measure', key: 'unit_of_measure' },
+        { title: 'Room Number', key: 'room_number' },
+        { title: 'School Level', key: 'school_level' },
+        { title: 'Accepted By', key: 'acceptedby' },
+        { title: 'Items Needed', key: 'items_needed' },
+        { title: 'Borrowed Items', key: 'borrowed_items' },
+        { title: 'Overdue Items', key: 'overdue_items' },
+        { title: 'Damanged Items', key: 'damaged_items' },
       ],
       dialog: false,
       editMode: false,

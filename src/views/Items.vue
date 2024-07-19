@@ -5,7 +5,6 @@
                 <span class="material-icons">inventory</span>
                 <span class="text">Items</span>
             </div>
-
         </div>  
         <hr>
 
@@ -14,20 +13,16 @@
             <div class="student-table">
                 <ItemsTable/>
             </div>
-        </div>
-
-        
+        </div>    
 </main>
 
 </template>
 
 <script>
-// import AddStudent from '../components/AddStudent.vue';
 import ItemsTable from '../components/ItemsTable.vue';
 
 export default {
   components: {
-    // AddStudent,
     ItemsTable
   }
 };

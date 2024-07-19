@@ -33,25 +33,21 @@ const ToggleMenu = () => {
               <span class="text">Dashboard</span>
           </router-link>
 
-          <div class="dropdown " @click="toggleDropdown" :class="{ 'open': isDropdownOpen }">
+          <!-- <div class="dropdown " @click="toggleDropdown" :class="{ 'open': isDropdownOpen }">
             <button class="dropbtn">
             <span class="material-icons">list</span>
             <span class="text">Student List</span>
             </button>
             <transition name="fade">
             <div class="dropdown-content" v-if="isDropdownOpen" @click.stop>
-                <!-- Five tabs in the dropdown -->
+                Five tabs in the dropdown
                 <router-link to="/junior"><span class="material-icons">group</span><span class="text">Junior</span></router-link>
                 <router-link to="/senior"><span class="material-icons">group</span><span class="text">Senior</span></router-link>
                
             </div>
             </transition>
-        </div>
-          <router-link class="button" to="/rooms">
-            <span class="material-icons">door_front</span>
-              <span class="text">Room</span>
-          </router-link>
-
+        </div> -->
+        
           <router-link class="button" to="/items">
             <span class="material-icons">inventory</span>
               <span class="text">Items</span>
@@ -59,7 +55,7 @@ const ToggleMenu = () => {
 
           <router-link class="button" to="/pendingitems">
             <span class="material-icons">pending</span>
-              <span class="text">Pending Items</span>
+              <span class="text">Borrowing</span>
           </router-link>
 
           <router-link class="button" to="/itemrecords">
@@ -129,7 +125,6 @@ methods: {
       padding: 1rem;
       background-color: var(--dark);
       color: var(--light);
-  
       transition: 0.2s ease-out;
   
       .sna-logo {

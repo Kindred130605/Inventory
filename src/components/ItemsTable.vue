@@ -12,9 +12,8 @@
         </v-btn>
       </v-toolbar>
     </template>
-    <!-- end -->
 
-    <!-- table config -->
+
     <template v-slot:item= '{ item }'>
       <tr :key="item.id">
         <td>{{ item.item_name }}</td>
@@ -24,17 +23,17 @@
         <td>{{ item.room_number}}</td>
         <td>{{ item.school_level}}</td>
         <td>{{ item.acceptedby}}</td>
-        <td>{{ item.items_needed}}</td>
         <td>{{ item.borrowed_items}}</td>
         <td>{{ item.overdue_items}}</td>
         <td>{{ item.damaged_items}}</td>
         <td>
           <v-icon @click="editItem(item)">mdi-pencil</v-icon>
-          <v-icon @click="editItem(item)">mdi-handshake</v-icon>
+          <v-icon @click="borrowItem(item)">mdi-handshake</v-icon>
           <v-icon @click="deleteItem(item)">mdi-delete</v-icon>
         </td>
       </tr>
     </template>
+
   </v-data-table>
 
   <!-- Dialog for editing/adding items -->
@@ -43,9 +42,13 @@
       <v-card-title v-if="editMode">Edit Item</v-card-title>
       <v-card-title v-else>Add Item</v-card-title>
       <v-card-text>
-        <v-text-field v-model="itemsData.items_name" label="Item Name"></v-text-field>
-        <v-text-field v-model="itemsData.items_quantity" label="Item Quantity" type="number"></v-text-field>
-        <v-text-field v-model="itemsData.type" label="Item Quantity" type="number"></v-text-field>
+        <v-text-field v-model="itemsData.item_name" label="Item Name"></v-text-field>
+        <v-text-field v-model="itemsData.item_quantity" label="Item Quantity" type="number"></v-text-field>
+        <v-select v-model="itemsData.category" label="Category" :items="chmeasure"></v-select>
+        <v-select v-model="itemsData.unit_of_measure" label="Unit of Measure" :items="chquantity"></v-select>
+        <v-text-field v-model="itemsData.room_number" label="Room Number"></v-text-field>
+        <v-select v-model="itemsData.school_level" label="School Level" :items="chschool"></v-select>
+        <v-text-field v-model="itemsData.acceptedby" label="Accepted By"></v-text-field>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
@@ -58,11 +61,16 @@
 
     <script>
 import api from '../service/axiosApi.js';
-
+import Swal from 'sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
 export default {
+ 
   data() {
     return {
       search: '',
+      chmeasure:['Classroom', 'Office Items', 'Library Items', 'Science Lab Items', 'Art Room Items', 'Music Room Items', 'Gymnasium and Sports Items', 'Cafeteria Items', 'Maintenance Items', 'Playground Item', 'Miscellaneous Items'],
+      chquantity:['Sets', 'Pieces', 'Packs Items', 'Kits'],
+      chschool:['Junior High School', 'Senior High School'],
       itemsList: [],
       headers: [
         { title: 'Item Name', key: 'item_name' },
@@ -72,7 +80,6 @@ export default {
         { title: 'Room Number', key: 'room_number' },
         { title: 'School Level', key: 'school_level' },
         { title: 'Accepted By', key: 'acceptedby' },
-        { title: 'Items Needed', key: 'items_needed' },
         { title: 'Borrowed Items', key: 'borrowed_items' },
         { title: 'Overdue Items', key: 'overdue_items' },
         { title: 'Damanged Items', key: 'damaged_items' },
@@ -81,8 +88,13 @@ export default {
       editMode: false,
       itemsData: {
       id: null,
-      items_name: '',
-      items_quantity: 0
+      item_name: '',
+      item_quantity: 0,
+      category:'',
+      unit_of_measure:'',
+      room_number:'',
+      school_level:'',
+      acceptedby:'',
       },
 
     };
@@ -107,9 +119,14 @@ export default {
     openDialog() {
       this.editMode = false;
       this.itemsData = {
-        id: null,
-        items_name: '',
-        items_quantity: 0
+      id: null,
+      item_name: '',
+      item_quantity: 0,
+      category:'',
+      unit_of_measure:'',
+      room_number:'',
+      school_level:'',
+      acceptedby:'',
       };
       this.dialog = true;
     },
@@ -134,15 +151,34 @@ export default {
         console.error('Error updating item:', error);
       });
   } else {
-    api.post('/items/add', this.itemsData)
-      .then(response => {
-        this.itemsList.push({ ...this.itemsData });
-        this.dialog = false;
-      })
-      .catch(error => {
-        console.error('Error adding item:', error);
-      });
-  }
+        const conflictItem = this.itemsList.find(item => (
+          item.item_name.toLowerCase() === this.itemsData.item_name.toLowerCase() &&
+          item.category.toLowerCase() === this.itemsData.category.toLowerCase() &&
+          item.unit_of_measure.toLowerCase() === this.itemsData.unit_of_measure.toLowerCase() &&
+          item.school_level.toLowerCase() === this.itemsData.school_level.toLowerCase() &&
+          item.room_number.toString().toLowerCase() === this.itemsData.room_number.toString() &&
+          item.acceptedby.toLowerCase() === this.itemsData.acceptedby.toString()
+        ));
+
+        if (conflictItem) {
+          Swal.fire('Duplicate!', 'An item with the same details already exists. You should check it first', 'error');
+          this.dialog = false;
+          return
+        }
+        api.post('/items/add', this.itemsData)
+          .then(response => {
+            this.itemsList.push({ ...this.itemsData });
+            this.dialog = false;
+            Swal.fire({
+            icon: 'success ',
+            title: 'SUCCESS',
+            confirmButtonText: 'OK'
+        });
+          })
+          .catch(error => {
+            console.error('Error adding item:', error);
+          });
+      }
 },
 
  deleteItem(item) {
@@ -158,7 +194,14 @@ export default {
     .catch(error => {
       console.error('Error deleting item:', error);
     });
-}
+},
+borrowItem(){
+               Swal.fire({
+                title: "Good job!",
+                text: "You clicked the button!",
+                icon: "success"
+              });
+},
     
   },
 
@@ -166,8 +209,8 @@ export default {
       computed: {
         filteredItems() {
           return this.itemsList.filter(item => {
-            return item.items_name.toLowerCase().includes(this.search.toLowerCase()) ||
-              item.items_quantity.toString().includes(this.search);
+            return item.item_name.toLowerCase().includes(this.search.toLowerCase()) ||
+              item.item_quantity.toString().includes(this.search);
           });
         }
 }

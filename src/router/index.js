@@ -23,21 +23,21 @@ const router = createRouter({
       path: "/senior",
       component: () => import("../views/Senior.vue"),
     },
-    {
-      path: "/rooms",
-      component: () => import("../views/Room.vue"),
-    },
+    // {
+    //   path: "/rooms",
+    //   component: () => import("../views/Room.vue"),
+    // },
     {
       path: "/items",
       component: () => import("../views/Items.vue"),
     },
     {
-      path: "/pendingitems",
-      component: () => import("../views/PendingItems.vue"),
+      path: "/borrowing",
+      component: () => import("../views/Borrowing.vue"),
     },
     {
-      path: "/itemrecords",
-      component: () => import("../views/ItemsRecords.vue"),
+      path: "/history",
+      component: () => import("../views/History.vue"),
     }
   ],
 });

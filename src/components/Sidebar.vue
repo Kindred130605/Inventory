@@ -16,7 +16,7 @@ const ToggleMenu = () => {
         
         <img class="sna-logo" src="/src/assets/SNA Logo with BG.png" alt="">
 
-        <h2 class="sp-text">Welcome, Admin</h2>
+        <h2 class="sp-text">Welcome <br> Admin</h2>
       <br>
   <hr>
           <div class="menu-toggle-wrap">
@@ -48,17 +48,22 @@ const ToggleMenu = () => {
             </transition>
         </div> -->
         
+        <!-- <router-link class="button" to="/rooms">
+          <span class="material-icons">home</span>
+          <span class="text">Room</span>
+        </router-link> -->
+
           <router-link class="button" to="/items">
             <span class="material-icons">inventory</span>
               <span class="text">Items</span>
           </router-link>
 
-          <router-link class="button" to="/pendingitems">
+          <router-link class="button" to="/borrowing">
             <span class="material-icons">pending</span>
               <span class="text">Borrowing</span>
           </router-link>
 
-          <router-link class="button" to="/itemrecords">
+          <router-link class="button" to="/history">
             <span class="material-icons">save</span>
               <span class="text">History</span>
           </router-link>

@@ -3,9 +3,24 @@
     <!-- toolbar  -->
     <template v-slot:top>
       <v-toolbar flat>
-        <v-toolbar-title class="text-h6 font-weight-black" style="color: #2F3F64">Items</v-toolbar-title>
-        <v-text-field v-model="search" class="w-auto mr-4" label="Search" prepend-inner-icon="mdi-magnify"
-          variant="outlined" dense hide-details single-line></v-text-field>
+        <v-toolbar-title 
+        class="text-h6 font-weight-black" 
+        style="color: #2F3F64">
+      </v-toolbar-title>
+
+      <v-text-field
+      v-model="search"
+      class="w-auto mr-4 "
+      density="compact"
+      label="Search"
+      prepend-inner-icon="mdi-magnify"
+      variant="solo-filled"
+      flat
+      hide-details
+      single-line
+    >
+  </v-text-field>
+
         <v-btn color="primary" variant="flat" dark @click="openDialog()">
           <v-icon left>mdi-plus</v-icon>
           ADD ITEM
@@ -220,12 +235,10 @@ borrowItem(){
 
 
 
-    <style lang="scss">
+<style lang="scss">
       .table {
-        max-height: 700vh;
       }
 
       .v-data-table {
-        height: 100%;
       }
-    </style>
+</style>

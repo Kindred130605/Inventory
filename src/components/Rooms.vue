@@ -1,10 +1,24 @@
 <template>
 
   <v-card>
-    <v-toolbar>
-      <v-toolbar-title class="text-h6 font-weight-black" style="color: #2F3F64">Rooms</v-toolbar-title>
-      <v-text-field v-model="search" class="w-auto mr-4" label="Search" prepend-inner-icon="mdi-magnify"
-        variant="outlined" dense hide-details single-line></v-text-field>
+    <v-toolbar class="p-2">
+      <v-toolbar-title 
+      class="text-h6 font-weight-black" 
+      style="color: #2F3F64">
+    </v-toolbar-title>
+
+    <v-text-field
+    v-model="search"
+    class="w-auto mr-4 "
+    density="compact"
+    label="Search"
+    prepend-inner-icon="mdi-magnify"
+    variant="solo-filled"
+    flat
+    hide-details
+    single-line
+  ></v-text-field>
+  
       <v-btn color="primary" variant="flat" dark @click="openDialog()">
         <v-icon left>mdi-plus</v-icon>
         ADD Rooms
@@ -17,7 +31,8 @@
           <v-img src="src/assets/SNA Logo with BG.png" class="white--text align-end"
             gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)" height="200px" />
           <v-card-actions>
-            <v-card-title v-text="room.rooms_num"></v-card-title>
+            <v-card-title 
+            text="room.rooms_num"></v-card-title>
             <v-spacer />
             <v-btn color="#F50057" variant="flat" dark @click="deleteRoom(room)">DELETE</v-btn>
             <v-btn color="primary" variant="flat" dark @click="openDialogView(room)">VIEW</v-btn>

@@ -12,7 +12,7 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { Bar } from 'vue-chartjs';
-import {
+import {  
   Chart as ChartJS,
   Title,
   Tooltip,

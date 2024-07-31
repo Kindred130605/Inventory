@@ -16,12 +16,12 @@ const router = createRouter({
       component: () => import("../views/Dashboard.vue"),
     },
     {
-      path: "/junior",
-      component: () => import("../views/Junior.vue"),
+      path: "/damaged",
+      component: () => import("../views/DamagedItems.vue"),
     },
     {
-      path: "/senior",
-      component: () => import("../views/Senior.vue"),
+      path: "/unusable",
+      component: () => import("../views/UnusableItems.vue"),
     },
     // {
     //   path: "/rooms",
@@ -35,10 +35,6 @@ const router = createRouter({
       path: "/borrowing",
       component: () => import("../views/Borrowing.vue"),
     },
-    {
-      path: "/history",
-      component: () => import("../views/History.vue"),
-    }
   ],
 });
 

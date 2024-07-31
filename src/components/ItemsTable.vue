@@ -185,8 +185,8 @@ export default {
             this.itemsList.push({ ...this.itemsData });
             this.dialog = false;
             Swal.fire({
-            icon: 'success ',
-            title: 'SUCCESS',
+              title: 'SUCCESS',
+            icon: 'success',
             confirmButtonText: 'OK'
         });
           })
@@ -236,9 +236,5 @@ borrowItem(){
 
 
 <style lang="scss">
-      .table {
-      }
 
-      .v-data-table {
-      }
 </style>

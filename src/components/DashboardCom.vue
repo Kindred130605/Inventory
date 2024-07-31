@@ -1,5 +1,4 @@
 <template>
-    <main>
 <div class="container">
 
   <div class="total-container">
@@ -9,98 +8,39 @@
             <v-list-item-content>
                 <v-list-item-title >
                     <span class="material-icons">school</span>
-                    Total School Equipment 
+                    School Equipment
                 </v-list-item-title>
-                <v-card-text  v-if="dashboardInfo.totals" class="text-h5 font-weight-bold">
-                    All Equipment: {{ dashboardInfo.totals.item_quantity}}
-                </v-card-text> 
-                
-                <v-card-text  v-if="dashboardInfo.totals" class="text-h5 font-weight-bold">
-                    All Borrowed Items: {{ dashboardInfo.totals.borrowed_items}}
-                </v-card-text> 
-                
-                <v-card-text  v-if="dashboardInfo.totals" class="text-h5 font-weight-bold">
-                    All Overdue Items: {{ dashboardInfo.totals.overdue_items}}
-                </v-card-text> 
-                
-                <v-card-text  v-if="dashboardInfo.totals" class="text-h5 font-weight-bold">
-                    All Damage Items: {{ dashboardInfo.totals.damaged_items}}
-                </v-card-text> 
-            
+
+                <div class="top">
+                    <v-card-text  v-if="dashboardInfo.totals" >
+                       <h2>Total Equipment Count:</h2>  <br> <h1> {{ dashboardInfo.totals.item_quantity}}</h1>
+                    </v-card-text> 
+                </div>
+                <hr>
+
+                <div class="bottom">
+                    <v-card-text  v-if="dashboardInfo.totals" >
+                      <h5>Total Borrowed Items:</h5>  <br> <h4>{{ dashboardInfo.totals.borrowed_items}}</h4> 
+                    </v-card-text> 
+                    
+                    <v-card-text  v-if="dashboardInfo.totals" >
+                      <h5>Total Overdue Items:</h5>  <br> <h4> {{ dashboardInfo.totals.overdue_items}}</h4>
+                    </v-card-text> 
+                    
+                    <v-card-text  v-if="dashboardInfo.totals" >
+                      <h5>Total Damage Items:</h5>   <br> <h4>{{ dashboardInfo.totals.damaged_items}}</h4>
+                    </v-card-text> 
+                </div>
+                <hr>
+
         </v-list-item-content>
         </v-list-item>
         </v-card> 
       </div>
     </div>
 
-    <div class="jhs-shs">
-      <div class="jhs">
-        <v-card elevation="2" outlined>
-            <v-list-item two-line>
-                <v-list-item-content>
-                    <v-list-item-title >
-                        <span class="material-icons">school</span>
-                       Junior High Equipment Inventory
-                    </v-list-item-title>
-    
-                    <v-card-text v-if="dashboardInfo.juniorHighInventory" class="text-h5 font-weight-bold">
-                        All Equipment: {{ dashboardInfo.juniorHighInventory.item_quantity}}
-                    </v-card-text>
-    
-                    <v-card-text  v-if="dashboardInfo.juniorHighInventory" class="text-h5 text--primary font-weight-bold">
-                        All Borrowed Items: {{ dashboardInfo.juniorHighInventory.borrowed_items}}
-                    </v-card-text>
-                       
-                    <v-card-text  v-if="dashboardInfo.juniorHighInventory" class="text-h5 font-weight-bold">
-                        All Damaged Items: {{ dashboardInfo.juniorHighInventory.damaged_items}}
-                    </v-card-text>
-    
-                    <v-card-text  v-if="dashboardInfo.juniorHighInventory" class="text-h5 font-weight-bold">
-                        All Ovedue Items: {{ dashboardInfo.juniorHighInventory.overdue_items}}
-                    </v-card-text>
-                
-            </v-list-item-content>
-            </v-list-item>
-    </v-card> 
-            </div>
-    
-        <div class="shs">
-        <v-card elevation="2" outlined>
-            <v-list-item two-line>
-                <v-list-item-content>
-                    <v-list-item-title >
-                        <span class="material-icons">school</span>
-                        Senior High Equipment Inventory 
-                    </v-list-item-title>
-                        
-                    <v-card-text  v-if="dashboardInfo.juniorHighInventory" class="text-h5 font-weight-bold">
-                            All Equipment: {{ dashboardInfo.seniorHighInventory.item_quantity}}
-                        </v-card-text> 
-                        
-                        <v-card-text  v-if="dashboardInfo.juniorHighInventory" class="text-h5 font-weight-bold">
-                            All Borrowed Items: {{ dashboardInfo.seniorHighInventory.borrowed_items}}
-                        </v-card-text> 
-                            
-                        <v-card-text  v-if="dashboardInfo.juniorHighInventory" class="text-h5 font-weight-bold">
-                            All Damaged Items: {{ dashboardInfo.seniorHighInventory.damaged_items}}
-                        </v-card-text> 
-                            
-                        <v-card-text  v-if="dashboardInfo.juniorHighInventory" class="text-h5 font-weight-bold">
-                            All Ovedue Items: {{ dashboardInfo.seniorHighInventory.overdue_items}}
-                        </v-card-text> 
-                
-            </v-list-item-content>
-            </v-list-item>
-    </v-card> 
-            </div>
-
-    </div>
-
-
 
   </div>
-
-</main>
 
 </template>
 
@@ -133,62 +73,55 @@ async getDashboard() {
 </script>
 
 <style lang="scss" scoped>
-* {
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-}
-
-
 
 .container {
   display: flex;
-  min-width: 100%;
-  flex-wrap: wrap;
-  flex-direction: column;
+
   .total-container {
-    margin-right: 1rem;
     border-radius: 10px;
-    flex: 0.5;
-    margin-bottom: 1rem;
+    flex: 1;
+    margin-right: 1.5rem;
 
     .total-equipment{
-      border-left: 5px solid var(--dark);
+      border-left: 6px solid var(--dark);
       border-radius: 10px;
+
+      .top{
+        text-align: center;
+        padding: 1rem;
+        h2{
+          color: var(--dark-alt);
+          font-weight: 900;
+        }
+        h1{
+          font-size: 46px;
+          color: var(--grey);
+        }
+      }
+
+      .bottom{
+        display: flex;
+        padding: 0.5rem;
+        text-align: center;
+        border-radius: 5px;
+        h5{
+          color: var(--dark-alt);
+          font-weight: 700;
+        }
+
+        h4{
+          font-weight: 900;
+          color: var(--grey);
+        }
+      }
 
     }
   }
   
-
-  .jhs-shs {
-    border-radius: 5px;
-    flex: 0.5;
-    display: flex;
-    .jhs{
-      border-radius: 10px;
-      box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
-      border-left: 5px solid var(--dark);
-      margin-right: 1rem;
-      flex: 0.5;
-    }
-
-    .shs{
-      border-radius: 10px;
-      box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
-      border-right: 5px solid var(--dark);
-      flex: 0.5;
-
-    }
-
-  }
-
-
 }
 
 
 .v-card {
-  min-width: 24vw;
-  height: 30vh;
   border-radius: 10px;
   padding: 0.5rem;
 
@@ -202,6 +135,7 @@ async getDashboard() {
     position:relative;
     color: var(--dark);
     padding: 0.5rem;
+    
     .material-icons {
       position:relative;
       font-size: 35px;

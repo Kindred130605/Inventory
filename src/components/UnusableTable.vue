@@ -193,9 +193,5 @@ export default {
 </script>
 
 <style lang="scss">
-.v-data-table {
-  height: 100%;
-
-}
 
 </style>

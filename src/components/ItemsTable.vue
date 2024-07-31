@@ -3,9 +3,18 @@
     <!-- toolbar  -->
     <template v-slot:top>
       <v-toolbar flat>
-        <v-toolbar-title class="text-h6 font-weight-black" style="color: #2F3F64">Items</v-toolbar-title>
-        <v-text-field v-model="search" class="w-auto mr-4" label="Search" prepend-inner-icon="mdi-magnify"
-          variant="outlined" dense hide-details single-line></v-text-field>
+        <v-toolbar-title class="text-h6 font-weight-black" style="color: #2F3F64"></v-toolbar-title>
+        <v-text-field
+        v-model="search"
+        class="w-auto mr-4 "
+        density="compact"
+        label="Search"
+        prepend-inner-icon="mdi-magnify"
+        variant="solo-filled"
+        flat
+        hide-details
+        single-line
+      ></v-text-field>
         <v-btn color="primary" variant="flat" dark @click="openDialog()">
           <v-icon left>mdi-plus</v-icon>
           ADD ITEM
@@ -15,8 +24,8 @@
 
 
     <template v-slot:item= '{ item }'>
-      <tr :key="item.id">
-        <td>{{ item.item_name }}</td>
+      <tr :key="item.id"  >
+        <td >{{ item.item_name }}</td>
         <td>{{ item.item_quantity }}</td>
         <td>{{ item.category}}</td>
         <td>{{ item.unit_of_measure}}</td>
@@ -26,10 +35,10 @@
         <td>{{ item.borrowed_items}}</td>
         <td>{{ item.overdue_items}}</td>
         <td>{{ item.damaged_items}}</td>
-        <td>
-          <v-icon @click="editItem(item)">mdi-pencil</v-icon>
-          <v-icon @click="openBorrowDialog(item)">mdi-handshake</v-icon>
-          <v-icon @click="deleteItem(item)">mdi-delete</v-icon>
+        <td >
+          <v-icon @click="editItem(item)" style="color:blue">mdi-pencil</v-icon>
+          <v-icon @click="openBorrowDialog(item)" style="color:green">mdi-handshake</v-icon>
+          <v-icon @click="deleteItem(item)" style="color:red">mdi-delete</v-icon>
         </td>
       </tr>
     </template>
@@ -62,12 +71,12 @@
     <v-card>
       <v-card-title>Borrow Item</v-card-title>
       <v-card-text>
-        <v-text-field v-model="borrowersData.item_name" label="Item Name" :disabled="true"></v-text-field>
+        <v-text-field v-model="borrowersData.item_name" label="Item Name" :readonly="true"></v-text-field>
       <v-text-field v-model="borrowersData.borrower" label="Borrower" required></v-text-field>
       <v-text-field v-model="borrowersData.quantity" label="Quantity" required></v-text-field>
       <v-text-field v-model="borrowersData.adviser" label="Adviser" required></v-text-field>
       <v-select v-model="borrowersData.unit_of_measure" label="Unit of Measure" :items="chquantity"></v-select>
-      <v-text-field v-model="borrowersData.borrow_date" label="Borrow Date" type="date" :disabled="true"></v-text-field>
+      <v-text-field v-model="borrowersData.borrow_date" label="Borrow Date" type="date" :readonly="true"></v-text-field>
       <v-text-field v-model="borrowersData.return_date" label="Return Date" type="date" :min="minReturnDate" required></v-text-field>
       </v-card-text>
       <v-card-actions>
@@ -104,10 +113,12 @@ export default {
         { title: 'Borrowed Items', key: 'borrowed_items' },
         { title: 'Overdue Items', key: 'overdue_items' },
         { title: 'Damanged Items', key: 'damaged_items' },
+        { title: 'Action' },
       ],
       dialog: false,
       borrowDialog:false,
       editMode: false,
+      
       itemsData: {
       id: null,
       item_name: '',
@@ -251,11 +262,14 @@ openBorrowDialog(item) {
     borrowItem() {
       if (!this.borrowersData.borrower || !this.borrowersData.return_date) {
         Swal.fire('Error!', 'All fields are required.', 'error');
+        this.borrowDialog=false;
         return;
+        
       }
 
       if (this.borrowersData.quantity > this.borrowersData.item_quantity) {
         Swal.fire('Error!', 'Not enough stock available.', 'error');
+        this.borrowDialog=false;
         return;
       }
 
@@ -294,5 +308,9 @@ openBorrowDialog(item) {
 
 
 <style lang="scss">
+.v-table__wrapper{
+  margin: 1rem;
 
+
+}
 </style>

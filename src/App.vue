@@ -44,7 +44,7 @@
     --dark:#2F3F64;
     --dark-alt: #334155;
     --light:#cdd1da;
-    --sidebar-width:300px;
+    --sidebar-width:250px;
     --header-height:70px
 }
 

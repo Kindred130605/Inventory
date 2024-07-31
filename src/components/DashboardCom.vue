@@ -16,22 +16,22 @@
                        <h2>Total Equipment Count:</h2>  <br> <h1> {{ dashboardInfo.totals.item_quantity}}</h1>
                     </v-card-text> 
                 </div>
-                <hr>
+               
 
                 <div class="bottom">
-                    <v-card-text  v-if="dashboardInfo.totals" >
-                      <h5>Total Borrowed Items:</h5>  <br> <h4>{{ dashboardInfo.totals.borrowed_items}}</h4> 
+                    <v-card-text  v-if="dashboardInfo.totals" class="borrowed" >
+                      <h5>Total Borrowed Items:</h5>  <br> <h4 style="color:green">{{ dashboardInfo.totals.borrowed_items}}</h4> 
                     </v-card-text> 
                     
-                    <v-card-text  v-if="dashboardInfo.totals" >
-                      <h5>Total Overdue Items:</h5>  <br> <h4> {{ dashboardInfo.totals.overdue_items}}</h4>
+                    <v-card-text  v-if="dashboardInfo.totals" class="overdue" >
+                      <h5>Total Overdue Items:</h5>  <br> <h4 style="color: orange"> {{ dashboardInfo.totals.overdue_items}}</h4>
                     </v-card-text> 
                     
-                    <v-card-text  v-if="dashboardInfo.totals" >
-                      <h5>Total Damage Items:</h5>   <br> <h4>{{ dashboardInfo.totals.damaged_items}}</h4>
+                    <v-card-text  v-if="dashboardInfo.totals" class="damaged">
+                      <h5>Total Damage Items:</h5>   <br> <h4 style="color: red">{{ dashboardInfo.totals.damaged_items}}</h4>
                     </v-card-text> 
                 </div>
-                <hr>
+            
 
         </v-list-item-content>
         </v-list-item>
@@ -44,7 +44,7 @@
 
   </div>
 
-</main>
+
 
 </template>
 
@@ -88,7 +88,7 @@ async getDashboard() {
 
     .total-equipment{
       border-left: 6px solid var(--dark);
-      border-radius: 10px;
+      border-radius: 15px;
 
       .top{
         text-align: center;
@@ -100,6 +100,7 @@ async getDashboard() {
         h1{
           font-size: 46px;
           color: var(--grey);
+          font-weight: 900;
         }
       }
 
@@ -108,6 +109,8 @@ async getDashboard() {
         padding: 0.5rem;
         text-align: center;
         border-radius: 5px;
+        gap: 1.5rem;
+
         h5{
           color: var(--dark-alt);
           font-weight: 700;
@@ -116,6 +119,27 @@ async getDashboard() {
         h4{
           font-weight: 900;
           color: var(--grey);
+        }
+
+        .borrowed{
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.200);
+          border-radius: 10px;
+          border-top: 8px solid green;
+
+        }
+
+        .overdue{
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.100);
+          border-radius: 10px;
+          border-top: 8px solid orange;
+
+        }
+
+        .damaged{
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.200);
+          border-radius: 10px;
+          border-top: 8px solid red;
+
         }
       }
 

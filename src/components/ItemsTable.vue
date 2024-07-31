@@ -211,11 +211,11 @@ export default {
     });
 },
 borrowItem(){
-               Swal.fire({
-                title: "Good job!",
-                text: "You clicked the button!",
-                icon: "success"
-              });
+  Swal.fire({
+            icon: 'success ',
+            title: 'SUCCESS',
+            confirmButtonText: 'OK'
+        });
 },
     
   },

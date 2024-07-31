@@ -47,10 +47,12 @@
 </template>
 
   <script>
+  import api from '../service/axiosApi';
 export default {
   
   data: () => ({
     search: '',
+    borrowinglist: [],
     dialog: false,
     dialogDelete: false,
     headers: [
@@ -80,121 +82,32 @@ export default {
     
   }),
 
-  computed: {
-    formTitle() {
-      return this.editedIndex === -1 ? 'Add Room' : 'Edit Room';
-    },
-    displayedStudents() {
-      const searchTerm = this.search.toLowerCase(); // Convert search input to lowercase for case-insensitive comparison
-    return this.students.filter(student =>
-      Object.values(student).some(value =>
-        typeof value === 'string' && value.toLowerCase().includes(searchTerm)
-    )
-    );
-    },
-  },
+ mounted(){
+  this.getBorrowers();
+ },
 
-  watch: {
-    dialog(val) {
-      val || this.close();
-    },
-    dialogDelete(val) {
-      val || this.closeDelete();
-    },
-  },
-
-  created() {
-    this.initialize();
-  },
-
-  methods: {
-    initialize() {
-      this.students = [
-        { 
-      Items: 'Chair',
-      status: 'Available',
-      room_number: '101',
-      quantity: '500',
-      Course_name: 'CCS',
-    },
-    { 
-      Items: 'Tables',
-      status: 'Available',
-      room_number: '101',
-      quantity: '250',
-      Course_name: 'CCS',
-    },
-    { 
-      Items: 'TV',
-      status: 'Available',
-      room_number: '101',
-      quantity: '10',
-      Course_name: 'CCS',
-    },
-    // add more items here
-
-    { 
-      Items: 'Whiteboard',
-      status: 'Available',
-      room_number: '101',
-      quantity: '10',
-      Course_name: 'CCS',
-    },
-
-      ];
-      this.students.forEach(student => {
-  student.full_name = `${student.first_name} ${student.middle_name} ${student.last_name} ${student.extension}`.trim();
-    if (student.grade_level < 11 || student.grade_level > 12) {
-        // Remove the strand property
-        student.strand = "N/A";
-    }
-      });
-    },
-
-    editItem(item) {
-      this.editedIndex = this.students.indexOf(item);
-      this.editedItem = Object.assign({}, item);
-      this.dialog = true;
-    },
-
-    deleteItem(item) {
-      this.editedIndex = this.students.indexOf(item);
-      this.editedItem = Object.assign({}, item);
-      this.dialogDelete = true;
-    },
-
-    deleteItemConfirm() {
-      this.students.splice(this.editedIndex, 1);
-      this.closeDelete();
-    },
-
-    close() {
-      this.dialog = false;
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
-      });
-    },
-
-    closeDelete() {
-      this.dialogDelete = false;
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
-      });
-    },
-
-    save() {
-      if (this.editedIndex > -1) {
-        Object.assign(this.students[this.editedIndex], this.editedItem);
-      } else {
-        this.students.push(this.editedItem);
+ methods: {
+    async getBorrowers() {
+      try {
+        const response = await api.get('/borrowed-items');
+        this.borrowinglist = response.data;
+        console.log(this.borrowinglist);
+      } catch (error) {
+        console.error('Error fetching items:', error);
       }
-      this.close();
     },
-    
+
   },
-};
+
+
+  
+}
+
+
+ 
+
+
+ 
 </script>
 
 <style lang="scss">

@@ -3,24 +3,9 @@
     <!-- toolbar  -->
     <template v-slot:top>
       <v-toolbar flat>
-        <v-toolbar-title 
-        class="text-h6 font-weight-black" 
-        style="color: #2F3F64">
-      </v-toolbar-title>
-
-      <v-text-field
-      v-model="search"
-      class="w-auto mr-4 "
-      density="compact"
-      label="Search"
-      prepend-inner-icon="mdi-magnify"
-      variant="solo-filled"
-      flat
-      hide-details
-      single-line
-    >
-  </v-text-field>
-
+        <v-toolbar-title class="text-h6 font-weight-black" style="color: #2F3F64">Items</v-toolbar-title>
+        <v-text-field v-model="search" class="w-auto mr-4" label="Search" prepend-inner-icon="mdi-magnify"
+          variant="outlined" dense hide-details single-line></v-text-field>
         <v-btn color="primary" variant="flat" dark @click="openDialog()">
           <v-icon left>mdi-plus</v-icon>
           ADD ITEM
@@ -43,7 +28,7 @@
         <td>{{ item.damaged_items}}</td>
         <td>
           <v-icon @click="editItem(item)">mdi-pencil</v-icon>
-          <v-icon @click="borrowItem(item)">mdi-handshake</v-icon>
+          <v-icon @click="openBorrowDialog(item)">mdi-handshake</v-icon>
           <v-icon @click="deleteItem(item)">mdi-delete</v-icon>
         </td>
       </tr>
@@ -72,6 +57,27 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+
+  <v-dialog v-model="borrowDialog" max-width="600">
+    <v-card>
+      <v-card-title>Borrow Item</v-card-title>
+      <v-card-text>
+        <v-text-field v-model="borrowersData.item_name" label="Item Name" :disabled="true"></v-text-field>
+      <v-text-field v-model="borrowersData.borrower" label="Borrower" required></v-text-field>
+      <v-text-field v-model="borrowersData.quantity" label="Quantity" required></v-text-field>
+      <v-text-field v-model="borrowersData.adviser" label="Adviser" required></v-text-field>
+      <v-select v-model="borrowersData.unit_of_measure" label="Unit of Measure" :items="chquantity"></v-select>
+      <v-text-field v-model="borrowersData.borrow_date" label="Borrow Date" type="date" :disabled="true"></v-text-field>
+      <v-text-field v-model="borrowersData.return_date" label="Return Date" type="date" :min="minReturnDate" required></v-text-field>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="blue darken-1" text @click="borrowDialog = false">Cancel</v-btn>
+        <v-btn color="blue darken-1" @click="borrowItem()">Borrow</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
 </template>
 
     <script>
@@ -100,6 +106,7 @@ export default {
         { title: 'Damanged Items', key: 'damaged_items' },
       ],
       dialog: false,
+      borrowDialog:false,
       editMode: false,
       itemsData: {
       id: null,
@@ -111,7 +118,21 @@ export default {
       school_level:'',
       acceptedby:'',
       },
-
+      borrowersData: {
+        item_id: null,
+        item_name: '',
+        category: '',
+        unit_of_measure: '',
+        room_number: '',
+        school_level: '',
+        borrower: '',
+        borrow_date: '',
+        return_date: '',
+        status: 'Borrowed',
+        adviser: '',
+        quantity: 1,
+      },
+      minReturnDate: '',
     };
 },
 
@@ -210,16 +231,53 @@ export default {
       console.error('Error deleting item:', error);
     });
 },
-borrowItem(){
-  Swal.fire({
-            icon: 'success ',
-            title: 'SUCCESS',
-            confirmButtonText: 'OK'
-        });
-},
-    
-  },
 
+openBorrowDialog(item) {
+      this.borrowersData = {
+        ...item,
+        item_id: item.id,
+        borrow_date: new Date().toISOString().split('T')[0],
+        return_date: '',
+        quantity: 1,
+        borrower: '',
+        status: 'Borrowed',
+        unit_of_measure: '',
+        adviser:'',
+        acceptedby:null
+      };
+      this.setReturnDateMin();
+      this.borrowDialog = true;
+    },
+    borrowItem() {
+      if (!this.borrowersData.borrower || !this.borrowersData.return_date) {
+        Swal.fire('Error!', 'All fields are required.', 'error');
+        return;
+      }
+
+      if (this.borrowersData.quantity > this.borrowersData.item_quantity) {
+        Swal.fire('Error!', 'Not enough stock available.', 'error');
+        return;
+      }
+
+      api.post('/borrowed-items', this.borrowersData)
+        .then(response => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Item Borrowed',
+            confirmButtonText: 'OK'
+          });
+          this.borrowDialog = false;
+        })
+        .catch(error => {
+          console.error('Error borrowing item:', error);
+          this.borrowDialog = false;
+        });
+    },
+    setReturnDateMin() {
+      const now = new Date();
+      this.minReturnDate = now.toISOString().split('T')[0];
+    }
+  },
 
       computed: {
         filteredItems() {
@@ -235,10 +293,12 @@ borrowItem(){
 
 
 
-<style lang="scss">
+    <style lang="scss">
       .table {
+        max-height: 700vh;
       }
 
       .v-data-table {
+        height: 100%;
       }
-</style>
+    </style>

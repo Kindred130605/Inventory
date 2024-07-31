@@ -35,7 +35,7 @@
         <td>{{ item.quantity }}</td>
         <td>{{ item.Course_name }}</td>
         <td>
-          <v-icon class="me-2" size="small" style="color: #2F3F64" @click="editItem(item)">mdi-pencil</v-icon>
+          <v-icon class="me-2" size="small" style="color: #2F3F64" @click="editItem(item)">mdi-ques</v-icon>
           <v-icon size="small" style="color: #2F3F64" @click="deleteItem(item)">mdi-delete</v-icon>
         </td>
       </tr>

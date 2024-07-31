@@ -96,10 +96,8 @@
 
     </div>
 
-
-
   </div>
-
+  
 </main>
 
 </template>

@@ -59,7 +59,7 @@ const ToggleMenu = () => {
           </router-link>
 
           <router-link class="button" to="/borrowing">
-            <span class="material-icons">pending</span>
+            <span class="material-icons">pending_actions</span>
               <span class="text">Borrowing</span>
           </router-link>
 

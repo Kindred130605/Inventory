@@ -27,7 +27,7 @@
                           <img src="/src/assets/schoolLogo.png" class="logo-logo">
                         </div>
                         <h2 class="text-center lh-0 fs-4 fw-normal">
-                          Welcome to  <span class="sna-text">SNA!</span>
+                          Welcome to  <span class="sna-text">SNACI</span>
                         </h2>
                         <h4 class="text-center pt-0 fs-6">
                           Inventory Panel - ADMIN PORTAL

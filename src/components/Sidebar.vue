@@ -63,9 +63,14 @@ const ToggleMenu = () => {
               <span class="text">Borrowing</span>
           </router-link>
 
-          <router-link class="button" to="/history">
-            <span class="material-icons">save</span>
-              <span class="text">History</span>
+          <router-link class="button" to="/damaged">
+            <span class="material-icons">construction</span>
+              <span class="text">Damaged Items</span>
+          </router-link>
+
+          <router-link class="button" to="/unusable">
+            <span class="material-icons">dangerous</span>
+              <span class="text">Unusable Items</span>
           </router-link>
         </div>
   

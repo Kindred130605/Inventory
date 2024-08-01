@@ -44,7 +44,7 @@
     --dark:#2F3F64;
     --dark-alt: #334155;
     --light:#cdd1da;
-    --sidebar-width:300px;
+    --sidebar-width:250px;
     --header-height:70px
 }
 
@@ -52,7 +52,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Inter';
+    font-family: 'Sofia Sans';
 }
 
 body {

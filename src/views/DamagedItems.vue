@@ -1,10 +1,10 @@
 <template>
     <main>
         <div class="top-container">
-            <h1 class="bg-title">HISTORY</h1>
+            <h1 class="bg-title">DAMAGED ITEMS</h1>
             <div class="studentProfile">
-                <span class="material-icons">save</span>
-                <span class="text fw-bolder">History</span>   
+                <span class="material-icons">construction</span>
+                <span class="text fw-bolder">Damaged Items</span>   
             </div>    
         </div> 
         <hr>
@@ -12,7 +12,7 @@
         <div class="main-content">
 
             <div class="student-table">
-                <RecordsTable/>
+                <DamagedTable/>
             </div>
         </div>
 
@@ -23,12 +23,12 @@
 
 <script>
 // import AddStudent from '../components/AddStudent.vue';
-import RecordsTable from '../components/RecordsTable.vue'; // dalawa dito
+import DamagedTable from '../components/DamagedTable.vue'; // dalawa dito
 
 export default {
   components: {
     // AddStudent,
-    RecordsTable
+    DamagedTable
   }
 };
 </script>

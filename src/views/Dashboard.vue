@@ -8,12 +8,16 @@
       </div>    
   </div> 
   <hr>
-    <hr>
+
+  <div class="bottom-container">
+
     <div class="student-table">
       <DashboardCom />
     </div>
 
-    <section class="mt-8" >
+    <div class="chart" >
+      <h3><span class="material-icons">format_list_numbered</span>JHS and SHS Item Overview</h3>
+
       <div class="chartTB" v-if="hasChartData">
         
         <BarChart 
@@ -21,7 +25,9 @@
           :seniorHighData="seniorHighData"
         />
       </div>
-    </section>
+
+    </div>
+  </div>
   </main>
 </template>
 
@@ -115,21 +121,40 @@ export default {
   }
 }
 
-.main-content {
+.bottom-container {
   display: flex;
-  flex-direction: column;
+  padding: 0.5rem;
 
   .student-table {
-    border-radius: 10px;
-    background-color: #f0f0f0;
-    padding: 0.5rem;
-    height: 100vh;
+    flex: 0.5;
+    border-radius: 5px;
+  }
+
+.chart{
+  flex: 0.5;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.200);
+  padding: 1.5rem;
+  border-right: 6px solid var(--dark);
+  color: var(--dark);
+    h3 {
+      text-shadow: 0 0 1px;
+      font-size: 20px;
+      position:relative;
+      bottom: 15px;
+  }
+  .material-icons{
+      position:relative;
+      font-size: 35px;
+      top: 12px;
+      right: 2px;
+  }
+  .chartTB {
+    width: 100%;
+    height: 30rem;
   }
 }
 
-.chartTB {
-  width: 100%;
-  height: 30rem;
 }
 
 </style>

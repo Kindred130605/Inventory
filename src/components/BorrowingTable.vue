@@ -139,7 +139,7 @@
 
  methods: {
     async getBorrowers() {
-      try {
+      try { 
         const response = await api.get('/borrowed-items');
         this.borrowinglist = response.data;
         console.log(this.borrowinglist);

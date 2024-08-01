@@ -1,6 +1,6 @@
 <template>
     <header class="header">
-        <h2 class="sna-label">Inventory Panel</h2>
+        <h2 class="sna-label">Saint Nicholas Academy Inventory System</h2>
     </header>
 </template>
 
@@ -21,7 +21,7 @@ export default {
         flex: 1;
         color: #e2e2e2;
         align-self: center;
-        margin-left: 1rem;
+        margin-left: 1.5rem;
     }
  
 }

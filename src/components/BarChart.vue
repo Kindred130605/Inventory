@@ -57,8 +57,8 @@ const chartOptions = ref({
 </script>
 <style>
 .chartdes{
-  width: 100%;
-   height: 100%;
+  width: 95%;
+   height: 98%;
 }
 
 </style>

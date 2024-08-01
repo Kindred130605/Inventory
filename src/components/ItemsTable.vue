@@ -1,5 +1,9 @@
 <template>
-  <v-data-table :search="search" :headers="headers" :items="itemsList" :sort-by="[{ key: 'items_name', order: 'asc' }]">
+  <v-data-table 
+  :search="search" 
+  :headers="headers" 
+  :items="itemsList" 
+  :sort-by="[{ key: 'items_name', order: 'asc' }]">
     <!-- toolbar  -->
     <template v-slot:top>
       <v-toolbar flat>
@@ -46,13 +50,6 @@
         </td>
       </tr>
     </template>
-
-    <template v-slot:[`column.action`] >
-      <v-th class="text-center">
-        {{ headers.find(header => header.key === 'action')?.title || 'Action' }}
-      </v-th>
-    </template>
-    
 
   </v-data-table>
 
@@ -114,7 +111,7 @@ export default {
       chschool:['Junior High School', 'Senior High School'],
       itemsList: [],
       headers: [
-        { title: 'Item Name', key: 'item_name',  },
+        { title: 'Item Name', key: 'item_name'  },
         { title: 'Item Quantity', key: 'item_quantity' },
         { title: 'Category', key: 'category' },
         { title: 'Unit Of Measure', key: 'unit_of_measure' },
@@ -124,7 +121,7 @@ export default {
         { title: 'Borrowed Items', key: 'borrowed_items' },
         { title: 'Overdue Items', key: 'overdue_items' },
         { title: 'Damanged Items', key: 'damaged_items' },
-        { title: 'Action', key: 'action' },
+        { title: 'Action' },
       ],
       dialog: false,
       borrowDialog:false,
@@ -397,7 +394,15 @@ openBorrowDialog(item) {
 
 <style lang="scss">
 .v-table__wrapper{
-  margin: 1rem;
+  color: black;
+  padding: 1.5rem;
+  
+  .v-data-table__th {
+    font-size: 17px;
+    font-weight: 800;
+
+  }
+
 
 }
 .icon-container {
@@ -408,4 +413,6 @@ openBorrowDialog(item) {
     font-size: 28px;
   }
 }
+
+
 </style>

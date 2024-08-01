@@ -158,5 +158,25 @@ async unusableItem(item) {
 </script>
 
 <style lang="scss">
+.v-table__wrapper{
+  color: black;
+  padding: 1.5rem;
+
+  .v-data-table__th {
+    font-size: 17px;
+    font-weight: 800;
+
+  }
+
+
+}
+.icon-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  .v-icon{
+    font-size: 28px;
+  }
+}
 
 </style>

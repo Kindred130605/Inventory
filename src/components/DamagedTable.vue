@@ -25,7 +25,7 @@
 
 
     <template v-slot:item= '{ item }'>
-      <tr :key="item.id">
+      <tr :key="item.item_id">
         <td>{{ item.item_name }}</td>
         <td>{{ item.category}}</td>
         <td>{{ item.unit_of_measure}}</td>
@@ -38,8 +38,11 @@
         <td>{{ item.adviser}}</td>
 
         <td>
-          <v-icon @click="returnItem(item)" style="color:green">mdi-checkbox-marked-circle</v-icon>
-          <v-icon @click="returnWithDamage(item)" style="color:red">mdi-alert-circle</v-icon>
+          <div class="icon-container">
+
+          <v-icon @click="returnItem(item)" style="color:green">mdi-clipboard-arrow-left</v-icon>
+          <v-icon @click="unusableItem(item)" style="color:red">mdi-alert-decagram</v-icon>
+          </div>
         </td>
       </tr>
     </template>
@@ -62,7 +65,7 @@ export default {
         { title: 'Unit Of Measure', key: 'unit_of_measure' },
         { title: 'Room Number', key: 'room_number' },
         { title: 'School Level', key: 'school_level' },
-        { title: 'Reported By', key: 'reported_by' },
+        { title: 'Reported By', key: 'report_by' },
         { title: 'Description', key: 'description' },
         { title: 'Item Quantity', key: 'quantity' },
         { title: 'Date Reported', key: 'date_reported' },
@@ -76,7 +79,7 @@ export default {
       unit_of_measure: '',
       room_number: '',
       school_level: '',
-      reported_by: '',
+      report_by: '',
       description: '',
       date_reported: '',
       adviser: '',
@@ -86,11 +89,11 @@ export default {
 },
 
 mounted(){
-this.getBorrowers();
+this.getDamagedItems();
 },
 
 methods: {
-  async getBorrowers() {
+  async getDamagedItems() {
     try {
       const response = await api.get('/damaged-items');
       this.damagelist = response.data;
@@ -100,6 +103,53 @@ methods: {
     }
   },
 
+
+  async returnItem(item) {
+  try {
+    // Ensure the request payload matches the backend validation rules
+    await api.post('/damaged-items/repair', {
+      item_id: item.item_id, // Ensure this field is correct
+      quantity: item.quantity, // Ensure this field is correct
+    });
+
+    // Update local state to remove the repaired item
+    this.damagelist = this.damagelist.filter(d => d.item_id !== item.item_id);
+
+    this.getDamagedItems();
+
+    Swal.fire('Success', 'Item repaired successfully', 'success');
+  } catch (error) {
+    console.error('Error repairing item:', error);
+    Swal.fire('Error', 'Failed to repair item', 'error');
+  }
+},
+
+async unusableItem(item) {
+    try {
+      await api.post('/unusable-items', {
+        item_id: item.item_id,
+        item_name: item.item_name,
+        category: item.category,
+        unit_of_measure: item.unit_of_measure,
+        room_number: item.room_number,
+        school_level: item.school_level,
+        report_by: item.report_by,
+        description: item.description,
+        date_reported: item.date_reported,
+        adviser: item.adviser,
+        quantity: item.quantity,
+      });
+
+      // Optionally remove or update the item from the list
+      this.damagelist = this.damagelist.filter(d => d.item_id !== item.item_id);
+
+      Swal.fire('Success', 'Item marked as unusable successfully', 'success');
+    } catch (error) {
+      console.error('Error marking item as unusable:', error);
+      Swal.fire('Error', 'Failed to mark item as unusable', 'error');
+    }
+  }
+
 },
 }
 
@@ -108,5 +158,25 @@ methods: {
 </script>
 
 <style lang="scss">
+.v-table__wrapper{
+  color: black;
+  padding: 1.5rem;
+
+  .v-data-table__th {
+    font-size: 17px;
+    font-weight: 800;
+
+  }
+
+
+}
+.icon-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  .v-icon{
+    font-size: 28px;
+  }
+}
 
 </style>

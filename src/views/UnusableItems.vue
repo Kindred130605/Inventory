@@ -11,7 +11,7 @@
 
         <div class="main-content">
 
-            <div class="student-table">
+            <div class="unusable-table">
                 <UnusableTable />
             </div>
         </div>
@@ -73,11 +73,10 @@ export default {
     display: flex;
     flex-direction: column;
 
-    .student-table{
+    .unusable-table{
         border-radius: 10px;
         background-color: #f0f0f0;
         padding: 0.5rem;
-        height: 100vh;
     }
 }
 

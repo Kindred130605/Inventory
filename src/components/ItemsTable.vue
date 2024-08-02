@@ -1,5 +1,9 @@
 <template>
-  <v-data-table :search="search" :headers="headers" :items="itemsList" :sort-by="[{ key: 'items_name', order: 'asc' }]">
+  <v-data-table 
+  :search="search" 
+  :headers="headers" 
+  :items="itemsList" 
+  :sort-by="[{ key: 'items_name', order: 'asc' }]">
     <!-- toolbar  -->
     <template v-slot:top>
       <v-toolbar flat>
@@ -30,15 +34,19 @@
         <td>{{ item.category}}</td>
         <td>{{ item.unit_of_measure}}</td>
         <td>{{ item.room_number}}</td>
-        <td>{{ item.school_level}}</td>
+        <td style="padding:1rem;">{{ item.school_level}}</td>
         <td>{{ item.acceptedby}}</td>
-        <td>{{ item.borrowed_items}}</td>
-        <td>{{ item.overdue_items}}</td>
-        <td>{{ item.damaged_items}}</td>
+        <td>{{ totalBorrowedQuantities[item.id] || 0}}</td>
+        <td>{{ item.overdue_items || 0 }}</td>
+        <td>{{ item.damaged_items || 0 }}</td>
         <td >
+
+          <div class="icon-container">
           <v-icon @click="editItem(item)" style="color:blue">mdi-pencil</v-icon>
           <v-icon @click="openBorrowDialog(item)" style="color:green">mdi-handshake</v-icon>
           <v-icon @click="deleteItem(item)" style="color:red">mdi-delete</v-icon>
+          </div>
+          
         </td>
       </tr>
     </template>
@@ -48,8 +56,8 @@
   <!-- Dialog for editing/adding items -->
   <v-dialog v-model="dialog" max-width="600">
     <v-card>
-      <v-card-title v-if="editMode">Edit Item</v-card-title>
-      <v-card-title v-else>Add Item</v-card-title>
+      <v-card-title v-if="editMode" class="fw-bold" style="padding:1rem;background-color: var(--dark); color:white; border-radius:3px;"><span class="material-icons" style="position:relative; right:5px; top:5px;">edit</span>Edit Item</v-card-title>
+      <v-card-title v-else class="fw-bold" style="padding:1rem;background-color: var(--dark); color:white; border-radius:3px;"><span class="material-icons" style="position:relative; right:5px; top:5px;">add</span>Add Item</v-card-title>
       <v-card-text>
         <v-text-field v-model="itemsData.item_name" label="Item Name"></v-text-field>
         <v-text-field v-model="itemsData.item_quantity" label="Item Quantity" type="number"></v-text-field>
@@ -69,7 +77,7 @@
 
   <v-dialog v-model="borrowDialog" max-width="600">
     <v-card>
-      <v-card-title>Borrow Item</v-card-title>
+      <v-card-title class="fw-bold" style="padding:1rem;background-color: var(--dark); color:white; border-radius:3px;"><span class="material-icons" style="position:relative; right:5px; top:5px;">pending_actions</span>Borrow Item</v-card-title>
       <v-card-text>
         <v-text-field v-model="borrowersData.item_name" label="Item Name" :readonly="true"></v-text-field>
       <v-text-field v-model="borrowersData.borrower" label="Borrower" required></v-text-field>
@@ -103,7 +111,7 @@ export default {
       chschool:['Junior High School', 'Senior High School'],
       itemsList: [],
       headers: [
-        { title: 'Item Name', key: 'item_name' },
+        { title: 'Item Name', key: 'item_name'  },
         { title: 'Item Quantity', key: 'item_quantity' },
         { title: 'Category', key: 'category' },
         { title: 'Unit Of Measure', key: 'unit_of_measure' },
@@ -155,13 +163,56 @@ export default {
   methods: {
      async getItems() {
       try {
-        const response = await api.get('/items');
-        this.itemsList = response.data;
-        console.log(this.itemsList);
+        const [itemsResponse, borrowedResponse, overdueResponse, damagedResponse] = await Promise.all([
+          api.get('/items'),
+          api.get('/total-borrowed-quantity-per-item'),
+          api.get('/total-overdue-quantities-per-item'),
+          api.get('/total-damage-quantity-per-item')
+        ]);
+
+        this.itemsList = itemsResponse.data;
+        this.totalBorrowedQuantities = borrowedResponse.data.reduce((acc, item) => {
+          acc[item.item_id] = item.total_quantity;
+          return acc;
+        }, {});
+        this.overdueQuantities = overdueResponse.data.reduce((acc, item) => {
+          acc[item.item_id] = item.total_overdue;
+          return acc;
+        }, {});
+        this.damagedQuantities = damagedResponse.data.reduce((acc, item) => {
+          acc[item.item_id] = item.total_damaged;
+          return acc;
+        }, {});
+
+        this.itemsList.forEach(item => {
+          item.overdue_items = this.overdueQuantities[item.id] || 0;
+          item.damaged_items = this.damagedQuantities[item.id] || 0;
+        });
+
+        this.checkLowStock();
       } catch (error) {
-        console.error('Error fetching items:', error);
+        console.error('Error fetching data:', error);
       }
     },
+
+    checkLowStock() {
+      const lowStockItems = this.itemsList.filter(item => item.item_quantity <= 10);
+
+      if (lowStockItems.length > 0) {
+        const lowStockMessage = lowStockItems.map(item => `${item.item_name}: ${item.item_quantity} left`).join('<br>');
+        Swal.fire({
+          icon: 'warning',
+          title: 'Low Stock Alert',
+          html: `
+            <p>The following items are low in stock:</p>
+            <h5 >${lowStockMessage}</h5>
+          `,
+          confirmButtonText: 'OK'
+        });
+      }
+    },
+
+
 
     openDialog() {
       this.editMode = false;
@@ -175,6 +226,7 @@ export default {
       school_level:'',
       acceptedby:'',
       };
+      this.getItems();
       this.dialog = true;
     },
 
@@ -185,6 +237,9 @@ export default {
     },
 
    saveItem() {
+
+    console.log('Payload:', this.itemsData);
+
   if (this.editMode) {
     api.post(`/items/update/${this.itemsData.id}`, this.itemsData)
       .then(response => {
@@ -228,19 +283,48 @@ export default {
       }
 },
 
- deleteItem(item) {
-  api.post(`/items/delete/${item.id}`)
-    .then(response => {
-      let i = this.itemsList.findIndex(i => i.id === item.id);
-      if (i !== -1) {
-        this.itemsList.splice(i, 1);
-      } else {
-        console.error('Item not found in itemList');
-      }
-    })
-    .catch(error => {
-      console.error('Error deleting item:', error);
-    });
+deleteItem(item) {
+  // Show confirmation dialog
+  Swal.fire({
+    title: 'Are you sure?',
+    text: `You are about to delete ${item.item_name}. This action cannot be undone.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, delete it!',
+    cancelButtonText: 'Cancel'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Proceed with deletion if confirmed
+      api.post(`/items/delete/${item.id}`)
+        .then(response => {
+          let i = this.itemsList.findIndex(i => i.id === item.id);
+          if (i !== -1) {
+            this.itemsList.splice(i, 1);
+            // Show success message
+            Swal.fire({
+              title: 'Deleted!',
+              text: 'The item has been deleted successfully.',
+              icon: 'success',
+              confirmButtonText: 'OK'
+            });
+          } else {
+            console.error('Item not found in itemList');
+          }
+        })
+        .catch(error => {
+          console.error('Error deleting item:', error);
+          // Show error message
+          Swal.fire({
+            title: 'Error!',
+            text: 'There was a problem deleting the item. Please try again later.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+          });
+        });
+    }
+  });
 },
 
 openBorrowDialog(item) {
@@ -280,6 +364,7 @@ openBorrowDialog(item) {
             title: 'Item Borrowed',
             confirmButtonText: 'OK'
           });
+          this.getItems()
           this.borrowDialog = false;
         })
         .catch(error => {
@@ -309,8 +394,25 @@ openBorrowDialog(item) {
 
 <style lang="scss">
 .v-table__wrapper{
-  margin: 1rem;
+  color: black;
+  padding: 1.5rem;
+  
+  .v-data-table__th {
+    font-size: 17px;
+    font-weight: 800;
+
+  }
 
 
 }
+.icon-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  .v-icon{
+    font-size: 28px;
+  }
+}
+
+
 </style>

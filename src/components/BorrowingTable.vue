@@ -25,7 +25,7 @@
   
   
       <template v-slot:item= '{ item }'>
-        <tr :key="item.id">
+        <tr :key="item.item_id">
           <td>{{ item.item_name }}</td>
           <td>{{ item.category}}</td>
           <td>{{ item.unit_of_measure}}</td>
@@ -38,9 +38,12 @@
           <td>{{ item.status}}</td>
           <td>{{ item.adviser}}</td>
 
-          <td style="padding: 30px; text-align:center;">
-            <v-icon @click="returnItem(item)" style="color:green; font-size:25px;">mdi-checkbox-marked-circle</v-icon>
-            <v-icon @click="openDamageDialog(item)" style="color:red; font-size:25px;">mdi-alert-circle</v-icon>
+          <td >
+            <div class="icon-container">
+
+            <v-icon @click="returnItem(item)" style="color:green; font-size:25px;">mdi-thumb-up</v-icon>
+            <v-icon @click="openDamageDialog(item)" style="color:red; font-size:25px;">mdi-account-hard-hat</v-icon>
+            </div>
           </td>
         </tr>
       </template>
@@ -49,12 +52,12 @@
 
     <v-dialog v-model="damageDialog" max-width="600">
       <v-card>
-        <v-card-title>Damaged Item</v-card-title>
+        <v-card-title class="fw-bold" style="padding:1.2rem;background-color: var(--dark); color:white; border-radius:3px;"><span class="material-icons" style="position:relative; right:5px; top:5px;">construction</span>Return with Damage</v-card-title>
         <v-card-text>
               <v-text-field 
-              v-model="damagedItemData.reported_by" 
+              v-model="damagedItemData.report_by" 
               label="Reported By*" 
-              required>
+              readonly>
               </v-text-field>
 
               <v-textarea
@@ -62,7 +65,8 @@
               label="Description"
               required
               auto-grow
-            ></v-textarea>        </v-card-text>
+            ></v-textarea>        
+          </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="blue darken-1" text @click="damageDialog = false">Cancel</v-btn>
@@ -94,7 +98,7 @@
           { title: 'Return Date', key: 'return_date' },
           { title: 'Status', key: 'status' },
           { title: 'Adviser', key: 'adviser' },
-          { title: 'Action' },
+          { title: 'Action', },
         ],     
         dialog: false,
         damageDialog: false,
@@ -120,12 +124,12 @@
         unit_of_measure: '',
         room_number: '',
         school_level: '',
-        reported_by: '',
+        report_by: '',
         description: '',
         date_reported: '',
         adviser: '',
         quantity: 1,
-      },
+      },  
       };
   },
 
@@ -146,8 +150,11 @@
 
     openDamageDialog(item) {
       this.damagedItemData = {
-        reported_by:'',
-        description:'',
+        item_id: item.item_id,
+        report_by: item.borrower, // Set the reported_by from the borrower
+        description: '', // Start with an empty description
+        date_reported: new Date().toISOString(), // Set the current date/time
+
       };
       this.damageDialog = true;
     },
@@ -163,6 +170,8 @@
     // Update local state
     item.status = 'Returned'; // or handle the removal from the list
     item.return_date = new Date().toISOString().split('T')[0]; // Set return date to today
+    
+    this.getBorrowers();
 
     Swal.fire('Success', 'Item returned successfully', 'success');
   } catch (error) {
@@ -171,30 +180,79 @@
   }
 },
   
-async returnWithDamage(item) {
-  try {
-    await api.post('/damaged-items', {
-      item_id: item.id, // Ensure this matches your backend's expected field
-      status: 'Returned with Damage', // Ensure this field is handled correctly by the backend
-      quantity: item.quantity, // Send the quantity of the item being returned
-      date_reported: new Date().toISOString(), // Send the current date/time in ISO format
-      report_by: 'User Name', // Include the user or person reporting the damage
-      description: 'Item was damaged during use.', // Provide a description of the damage
-    });
+async returnWithDamage() {
+    // Validation checks
+    if (!this.damagedItemData.report_by || !this.damagedItemData.description) {
+      Swal.fire('Error!', 'All fields are required.', 'error');
+      return; // Prevent further execution
+    }
 
-    // Update local state
-    item.status = 'Returned with Damage';
-    Swal.fire('Success', 'Item marked as damaged successfully', 'success');
-  } catch (error) {
-    console.error('Error marking item as damaged:', error);
-    Swal.fire('Error', 'Failed to mark item as damaged', 'error');
+    try {
+      // Prepare API payload
+      const payload = {
+        item_id: this.damagedItemData.item_id,
+        report_by: this.damagedItemData.report_by,
+        description: this.damagedItemData.description,
+        date_reported: new Date().toISOString().split('T')[0], // Set report date to today
+      };
+
+      // Make API request to save damaged item
+      await api.post('/damaged-items', payload);
+
+      // Update the item status in the list
+      const item = this.borrowinglist.find(i => i.item_id === this.damagedItemData.item_id);
+      if (item) {
+        item.status = 'Returned with Damage';
+        item.return_date = new Date().toISOString().split('T')[0]; // Set return date to today
+      }
+
+      // Optionally, refresh the list to reflect changes
+      this.getBorrowers();
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Item Marked as Damaged',
+        confirmButtonText: 'OK'
+      });
+
+      // Close the dialog
+      this.damageDialog = false;
+    } catch (error) {
+      console.error('Error marking item as damaged:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: 'There was a problem marking the item as damaged. Please try again later.',
+        confirmButtonText: 'OK'
+      });
+      this.damageDialog = false; // Close the dialog in case of error
+    }
   }
-},
   },
 }
 
 </script>
 
 <style lang="scss">
+.v-table__wrapper{
+  color: black;
+  padding: 1.5rem;
+
+  .v-data-table__th {
+    font-size: 17px;
+    font-weight: 800;
+
+  }
+
+
+}
+.icon-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  .v-icon{
+    font-size: 28px;
+  }
+}
 
 </style>

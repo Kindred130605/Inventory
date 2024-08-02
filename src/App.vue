@@ -74,10 +74,12 @@ button {
         padding: 2rem;
         will-change: transform, opacity;
 
-        @media (max-width: 768px){
-          
-            padding-left: 7rem;
-        }
+        @media (max-width: 1050px){
+          justify-content: center;
+          flex-wrap: wrap;
+          margin: 0;
+          flex-direction: column;
+        }    
     }
     .headerAndContent {
         display: flex;

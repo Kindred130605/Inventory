@@ -374,6 +374,7 @@ openBorrowDialog(item) {
     },
     setReturnDateMin() {
       const now = new Date();
+      now.setDate(now.getDate() + 1);
       this.minReturnDate = now.toISOString().split('T')[0];
     }
   },

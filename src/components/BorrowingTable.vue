@@ -31,7 +31,7 @@
           <td>{{ item.unit_of_measure}}</td>
           <td>{{ item.room_number}}</td>
           <td>{{ item.school_level}}</td>
-          <td>{{ item.borrower}}</td>
+          <td>{{ item.student_id}}</td>
           <td>{{ item.quantity }}</td>
           <td>{{ item.borrow_date}}</td>
           <td>{{ item.return_date}}</td>
@@ -129,7 +129,10 @@
         date_reported: '',
         adviser: '',
         quantity: 1,
-      },  
+      },
+      studentsList:[]
+
+      
       };
   },
 
@@ -178,6 +181,8 @@
     console.error('Error returning item:', error);
     Swal.fire('Error', 'Failed to return item', 'error');
   }
+
+
 },
   
 async returnWithDamage() {
@@ -229,7 +234,11 @@ async returnWithDamage() {
     }
   }
   },
+  
+
 }
+
+
 
 </script>
 

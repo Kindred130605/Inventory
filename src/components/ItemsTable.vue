@@ -80,7 +80,7 @@
       <v-card-title class="fw-bold" style="padding:1rem;background-color: var(--dark); color:white; border-radius:3px;"><span class="material-icons" style="position:relative; right:5px; top:5px;">pending_actions</span>Borrow Item</v-card-title>
       <v-card-text>
         <v-text-field v-model="borrowersData.item_name" label="Item Name" :readonly="true"></v-text-field>
-      <v-text-field v-model="borrowersData.borrower" label="Borrower" required></v-text-field>
+      <v-text-field v-model="borrowersData.student_id" label="Borrower" required></v-text-field>
       <v-text-field v-model="borrowersData.quantity" label="Quantity" required></v-text-field>
       <v-text-field v-model="borrowersData.adviser" label="Adviser" required></v-text-field>
       <v-select v-model="borrowersData.unit_of_measure" label="Unit of Measure" :items="chquantity"></v-select>
@@ -138,7 +138,8 @@ export default {
       acceptedby:'',
       },
       borrowersData: {
-        item_id: null,
+        student_id: null,
+        item_id: '',
         item_name: '',
         category: '',
         unit_of_measure: '',
@@ -152,12 +153,14 @@ export default {
         quantity: 1,
       },
       minReturnDate: '',
+      studentsList: [],
     };
 },
 
       
   mounted() {
     this.getItems();
+    this.getStudents()
       },
   
   methods: {
@@ -334,7 +337,7 @@ openBorrowDialog(item) {
         borrow_date: new Date().toISOString().split('T')[0],
         return_date: '',
         quantity: 1,
-        borrower: '',
+        student_id: '',
         status: 'Borrowed',
         unit_of_measure: '',
         adviser:'',
@@ -344,7 +347,7 @@ openBorrowDialog(item) {
       this.borrowDialog = true;
     },
     borrowItem() {
-      if (!this.borrowersData.borrower || !this.borrowersData.return_date) {
+      if (!this.borrowersData.student_id || !this.borrowersData.return_date) {
         Swal.fire('Error!', 'All fields are required.', 'error');
         this.borrowDialog=false;
         return;
@@ -372,11 +375,22 @@ openBorrowDialog(item) {
           this.borrowDialog = false;
         });
     },
+
     setReturnDateMin() {
       const now = new Date();
       now.setDate(now.getDate() + 1);
       this.minReturnDate = now.toISOString().split('T')[0];
-    }
+    },
+    
+    async getStudents() {
+  try { 
+        const response = await api.get('http://192.168.1.29:8000/api/student');
+        this.studentsList = response.data;
+        console.log(this.studentsList);
+      } catch (error) {
+        console.error('Error fetching items:', error);
+      }
+}
   },
 
       computed: {

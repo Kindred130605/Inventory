@@ -68,12 +68,70 @@
     </v-app>
 </template>
 <script>
+import api from '../service/axiosApi.js';
  export default {
     data: () => ({
       step: 1
     }),
     props: {
       source: String
+    },
+    methods: {
+       async login() {
+  const loginCredentials = new FormData();
+
+  loginCredentials.append('email', this.email);
+  loginCredentials.append('password', this.password);
+
+  try {
+    const response = await api.post('login', loginCredentials);
+    if (response.status === 200) {
+      console.log(response.data);
+      sessionStorage.setItem('token', response.data.access_token);
+
+      this.$router.push('/dashboard');
+      
+      Swal.fire({
+      title: 'Login Successful',
+      icon: 'success',
+      timer: 2000,
+      toast: true,
+      width:'20rem',
+      timerProgressBar: true,
+      position: 'top-end',
+      showConfirmButton: false, 
+      });
+
+    }
+  } catch (error) {
+    if (error.response) {
+      // Server responded with an error status code
+      if (error.response.status === 401) {
+        // Unauthorized: Incorrect email or password
+        Swal.fire({
+              icon: 'error',
+              title: 'Login Failed',
+              text: 'Incorrect email or password'
+            });      
+          } 
+          else {
+            // Other server errors
+            Swal.fire({
+              icon: 'error',
+              title: 'Login Failed',
+              text: 'Invalid credentials. Please try again.'
+            });
+          }
+        } else {
+          // Network or client-side errors
+          Swal.fire({
+            icon: 'error',
+            title: 'Login Failed',
+            text: 'An error occurred while logging in'
+          });
+        }
+      }        
+    }
     }
   }
 </script>

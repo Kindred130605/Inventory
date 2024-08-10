@@ -68,7 +68,7 @@
     </v-app>
 </template>
 <script>
-import api from '../service/axiosApi.js';
+import api from '../services/api.js';
  export default {
     data: () => ({
       step: 1

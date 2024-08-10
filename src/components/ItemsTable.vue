@@ -19,9 +19,13 @@
         hide-details
         single-line
       ></v-text-field>
-        <v-btn color="primary" variant="flat" dark @click="openDialog()">
+        <v-btn color="primary" style="margin: 10px;" variant="flat" dark @click="openDialog()">
           <v-icon left>mdi-plus</v-icon>
           ADD ITEM
+        </v-btn>
+        <v-btn color="primary" variant="flat" dark @click="downloadXLS()">
+          <v-icon left>mdi-download</v-icon>
+          DOWNLOAD EXCELL
         </v-btn>
       </v-toolbar>
     </template>
@@ -97,10 +101,12 @@
 
 </template>
 
-    <script>
+<script>
 import api from '../service/axiosApi.js';
 import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
+import ExcelJS from 'exceljs';
+
 export default {
  
   data() {
@@ -138,7 +144,7 @@ export default {
       acceptedby:'',
       },
       borrowersData: {
-        student_id: null,
+        student_id: '',
         item_id: '',
         item_name: '',
         category: '',
@@ -384,15 +390,135 @@ openBorrowDialog(item) {
     
     async getStudents() {
   try { 
-        const response = await api.get('http://192.168.1.29:8000/api/student');
+        const response = await api.get('http://26.81.173.255:8000/api/student');
         this.studentsList = response.data;
         console.log(this.studentsList);
       } catch (error) {
         console.error('Error fetching items:', error);
       }
-}
+},
+
+async convertExcel(data) {
+  const excel = new ExcelJS.Workbook();
+  const worksheet = excel.addWorksheet("Items");
+
+  try {
+    // Fetch image and convert to base64
+    const imageResponse = await fetch('/src/assets/schoolLogo3.png');
+    const imageBlob = await imageResponse.blob();
+    const imageBase64 = await this.blobToBase64(imageBlob); 
+
+    const logo = excel.addImage({
+      base64: imageBase64,
+      extension: 'png'
+    });
+
+    worksheet.addImage(logo, {
+      tl: { col: 0, row: 0 },
+      ext: { width: 180, height: 120 },
+      editAs: 'absolute'
+    });
+
+    worksheet.addImage(logo, {
+      tl: { col: 7, row: 0 },
+      ext: { width: 180, height: 120 },
+      editAs: 'absolute'
+    });
+
+
+    worksheet.mergeCells('A2:J2');
+    worksheet.getCell('A2').value = 'Saint Nicholas Academy';
+    worksheet.getCell('A2').alignment = { vertical: 'middle', horizontal: 'center' };
+    worksheet.getCell('A2').font = { size: 16, bold: true };
+
+    worksheet.addRow(); 
+
+    worksheet.mergeCells('A3:J3');
+    worksheet.getCell('A3').value = 'Address';
+    worksheet.getCell('A3').alignment = { vertical: 'middle', horizontal: 'center' };
+    worksheet.getCell('A3').font = { size: 12 };
+
+    worksheet.mergeCells('A4:J4');
+    worksheet.getCell('A4').value = 'Contact No';
+    worksheet.getCell('A4').alignment = { vertical: 'middle', horizontal: 'center' };
+    worksheet.getCell('A4').font = { size: 12 };
+
+    worksheet.addRow(); // Add an empty row for separation
+
+    // Add column headers
+    worksheet.addRow([
+      'Item Name',
+      'Item Quantity',
+      'Category',
+      'Unit Of Measure',
+      'Room Number',
+      'School Level',
+      'Accepted By',
+      'Borrowed Items',
+      'Overdue Items',
+      'Damaged Items'
+    ]);
+
+    // Add data rows
+    data.forEach(item => {
+      worksheet.addRow([
+        item.item_name,
+        item.item_quantity,
+        item.category,
+        item.unit_of_measure,
+        item.room_number,
+        item.school_level,
+        item.acceptedby,
+        item.borrowed_items,
+        item.overdue_items,
+        item.damaged_items
+      ]);
+    });
+
+    return excel; // Return the excel workbook
+  } catch (error) {
+    console.error('Error in convertExcel:', error);
+  }
+},
+
+  blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result.split(',')[1]); // Split to get base64 part
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
   },
 
+  async downloadXLS() {
+    try {
+      const data = this.itemsList; // Or any other data you want to export
+      const excel = await this.convertExcel(data); // Make sure convertExcel is awaited
+
+      if (excel instanceof ExcelJS.Workbook) {
+        const buffer = await excel.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Inventory.xlsx';
+        a.click();
+        window.URL.revokeObjectURL(url);
+        
+        Swal.fire({
+          title: 'Download Success!',
+          icon: 'success',
+          confirmButtonText: 'OK'
+        });
+      } else {
+        console.error('Invalid ExcelJS.Workbook instance');
+      }
+    } catch (error) {
+      console.error('Error downloading XLS:', error);
+    }
+  },
+
+},
       computed: {
         filteredItems() {
           return this.itemsList.filter(item => {

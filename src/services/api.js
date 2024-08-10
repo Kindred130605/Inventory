@@ -1,9 +1,6 @@
 import axios from "axios";
 
-// axios.defaults.baseURL = "http://127.0.0.1:8000/api/";
-
-//const API_URL = "http://127.0.0.1:8000/api/";
-const API_URL = "http://192.168.1.29:8000/api/";
+const API_URL = "http://21.86.173.255:8000/api/inventory";
 
 const api = axios.create({
     baseURL: API_URL
@@ -22,7 +19,7 @@ api.interceptors.request.use(
   }
 );
 
-// Function to fetch current user's data
+// Function to fetch current user's datas
 export async function fetchCurrentUser() {
   try {
     const response = await api.get('/user', {

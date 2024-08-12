@@ -1,12 +1,12 @@
 import axios from "axios";
 
-const API_URL = "http://26.81.173.255:8000/api/inventory";
+const API_URL = "http://26.81.173.255:8000/api/";
 
-const api = axios.create({
+const auth = axios.create({
     baseURL: API_URL
 });
 
-api.interceptors.request.use(
+auth.interceptors.request.use(
   (config) => {
     const token = sessionStorage.getItem('token');
     if (token) {
@@ -22,14 +22,14 @@ api.interceptors.request.use(
 // Function to fetch current user's datas
 export async function fetchCurrentUser() {
   try {
-    const response = await api.get('/user', {
+    const response = await auth.get('/user', {
     });
-    console.log('API call response:', response); // Log the entire response object
+    console.log('API call response:', response); 
     return response.data;
   } catch (error) {
-    console.error('Error in API call:', error); // Log the error object
+    console.error('Error in API call:', error);
     throw new Error('Failed to fetch current user');
   }
 }
 
-export default api;
+export default auth;

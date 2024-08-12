@@ -49,6 +49,7 @@
                   </v-form>
                 </v-card-text>
                 <div class="text-center pb-2 mx-md-auto">
+                  <!-- <v-btn rectangle color="var(--dark)"> <router-link to="/dashboard" style="color:white; text-decoration: none; width: auto; font-size: 15px; ">Login</router-link></v-btn> -->
                   <v-btn class="login-button" rectangle color="var(--dark)" @click="login">Login</v-btn>
                 </div>
                 <div class="text-center pb-2">
@@ -66,9 +67,9 @@
 </template>
 
 <script>
-import api from '../service/axiosApi.js';
 import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
+import auth from '../service/auth.js';
  export default {
     data: () => ({
       step: 1,
@@ -87,13 +88,13 @@ import 'sweetalert2/dist/sweetalert2.min.css';
   loginCredentials.append('password', this.password);
 
   try {
-    const response = await api.post('login', loginCredentials);
+    const response = await auth.post('login', loginCredentials);
     if (response.status === 200) {
       console.log(response.data);
       sessionStorage.setItem('token', response.data.access_token);
-
+     
       this.$router.push('/dashboard');
-      
+
       Swal.fire({
       title: 'Login Successful',
       icon: 'success',

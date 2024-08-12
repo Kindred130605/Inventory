@@ -74,7 +74,7 @@ const ToggleMenu = () => {
           </router-link>
         </div>
   
-      <div class="menu-logout">
+      <div class="menu-logout" (click)="logout()">
           <router-link class="button" to="/">
               <span class="material-icons">logout</span>
               <span class="text">Logout</span>
@@ -117,6 +117,7 @@ methods: {
       if (result.isConfirmed) {
           sessionStorage.clear();
           this.$router.push('/login');
+          sessionStorage.removeItem("token")
       }
     });
   }

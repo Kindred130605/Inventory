@@ -74,7 +74,7 @@ const ToggleMenu = () => {
           </router-link>
         </div>
   
-      <div class="menu-logout" (click)="logout()">
+      <div class="menu-logout" @click="logout">
           <router-link class="button" to="/">
               <span class="material-icons">logout</span>
               <span class="text">Logout</span>
@@ -84,6 +84,8 @@ const ToggleMenu = () => {
   </template>
   
  <script> 
+ import Swal from 'sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css'
 export default {
   
   name: "Sidebar",

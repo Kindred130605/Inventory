@@ -74,12 +74,10 @@ const ToggleMenu = () => {
           </router-link>
         </div>
   
-      <div class="menu-logout" @click="logout">
-          <router-link class="button" to="/">
-              <span class="material-icons">logout</span>
-              <span class="text">Logout</span>
-          </router-link>
-      </div>
+        <button class="menu-logout" @click="logout">
+            <span class="material-icons">logout</span>
+            <span class="text">Logout</span>
+        </button>
     </aside>
   </template>
   
@@ -95,14 +93,50 @@ data() {
   };
 },
 methods: {
-  async logout() { 
-    try {
-      await api.get('logout');
-    } finally {
-      this.logoutAlert();      
+  async logout() {
+    const result = await Swal.fire({
+      title: 'Confirm Logout',
+      text: 'Are you sure you want to logout?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#808080',
+      confirmButtonText: 'Yes, logout'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        sessionStorage.clear();
+        localStorage.removeItem("token"); // Remove this line if you don't need it
+        this.router.push('/login');
+      } catch (error) {
+        console.error('Logout failed', error);
+      }
     }
   },
 
+  toggleDropdown() {
+    this.isDropdownOpen = !this.isDropdownOpen;
+  },
+
+  logoutAlert() {
+    Swal.fire({
+      title: 'Confirm Logout',
+      text: 'Are you sure you want to logout?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#808080',
+      confirmButtonText: 'Yes, logout'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        sessionStorage.clear();
+        this.$router.push('/');
+        sessionStorage.removeItem("token");
+      }
+    });
+  },
+    
   toggleDropdown() {
     this.isDropdownOpen = !this.isDropdownOpen;
   },

@@ -49,8 +49,8 @@
                   </v-form>
                 </v-card-text>
                 <div class="text-center pb-2 mx-md-auto">
-                  <!-- <v-btn rectangle color="var(--dark)"> <router-link to="/dashboard" style="color:white; text-decoration: none; width: auto; font-size: 15px; ">Login</router-link></v-btn> -->
-                  <v-btn class="login-button" rectangle color="var(--dark)" @click="login">Login</v-btn>
+                  <v-btn rectangle color="var(--dark)"> <router-link to="/dashboard" style="color:white; text-decoration: none; width: auto; font-size: 15px; ">Login</router-link></v-btn>
+                  <!-- <v-btn class="login-button" rectangle color="var(--dark)" @click="login">Login</v-btn> -->
                 </div>
                 <div class="text-center pb-2">
                   <a href="" style="display: inline-block;">

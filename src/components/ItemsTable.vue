@@ -84,7 +84,17 @@
       <v-card-title class="fw-bold" style="padding:1rem;background-color: var(--dark); color:white; border-radius:3px;"><span class="material-icons" style="position:relative; right:5px; top:5px;">pending_actions</span>Borrow Item</v-card-title>
       <v-card-text>
         <v-text-field v-model="borrowersData.item_name" label="Item Name" :readonly="true"></v-text-field>
-      <v-text-field v-model="borrowersData.student_id" label="Borrower" required></v-text-field>
+        <v-autocomplete
+  v-model="borrowersData.student_id"
+  :items="studentsList"
+  item-text="title" 
+  item-value="student_id"
+  label="Student"
+  clearable
+  required
+></v-autocomplete>
+
+
       <v-text-field v-model="borrowersData.quantity" label="Quantity" required></v-text-field>
       <v-text-field v-model="borrowersData.adviser" label="Adviser" required></v-text-field>
       <v-select v-model="borrowersData.unit_of_measure" label="Unit of Measure" :items="chquantity"></v-select>
@@ -246,7 +256,6 @@ export default {
     },
 
    saveItem() {
-
     console.log('Payload:', this.itemsData);
 
   if (this.editMode) {
@@ -256,10 +265,19 @@ export default {
         if (i !== -1) {
          this.itemsList.splice(i, 1, { ...this.itemsData });
           this.dialog = false;
+          Swal.fire({
+              title: 'SUCCESS',
+            icon: 'success',
+        });
         }
       })
       .catch(error => {
         console.error('Error updating item:', error);
+        Swal.fire({
+              title: 'Error Updating',
+            icon: 'warning',
+            confirmButtonText: 'OK'
+        });
       });
   } else {
         const conflictItem = this.itemsList.find(item => (
@@ -390,12 +408,17 @@ openBorrowDialog(item) {
     
     async getStudents() {
   try { 
-        const response = await api.get('http://26.81.173.255:8000/api/student');
-        this.studentsList = response.data;
-        console.log(this.studentsList);
-      } catch (error) {
-        console.error('Error fetching items:', error);
-      }
+    const response = await api.get('http://26.81.173.255:8000/api/student');
+    console.log(response); 
+    this.studentsList = response.data.student.map(student => ({
+      student_id: student.student_id,
+      title: student.student_id 
+    }));
+    console.log(this.studentsList); 
+  } catch (error) {
+    console.error('Error fetching items:', error);
+  }
+
 },
 
 async convertExcel(data) {

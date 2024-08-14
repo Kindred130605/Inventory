@@ -19,7 +19,10 @@
         hide-details
         single-line
       ></v-text-field>
-      <v-btn color="primary" variant="flat" dark @click="downloadXLS()">
+    <v-btn color="primary" variant="flat" dark @click="downloadXLS()" class="tooltip-button"
+    data-bs-toggle="tooltip" 
+    data-bs-placement="bottom" 
+    data-bs-title="DOWNLOAD EXCELL">
           <v-icon left>mdi-download</v-icon>
           DOWNLOAD EXCELL
         </v-btn>
@@ -78,6 +81,9 @@ export default {
 
 mounted(){
 this.getUnusableItems();
+this.$nextTick(() => {
+      this.initializeTooltips();
+    });
 },
 
 methods: {
@@ -90,6 +96,14 @@ methods: {
       console.error('Error fetching items:', error);
     }
   },
+
+  initializeTooltips() {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+      tooltipTriggerList.forEach(tooltipTriggerEl => {
+        new bootstrap.Tooltip(tooltipTriggerEl);
+      });
+    },
+
   
   async convertExcel(data) {
   const excel = new ExcelJS.Workbook();
@@ -210,9 +224,17 @@ methods: {
   },
 
 },
+
+watch: {
+  itemsList() {
+    this.$nextTick(() => {
+      this.initializeTooltips();
+    });
+  }
 }
 
 
+}
 
 </script>
 

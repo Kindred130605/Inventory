@@ -322,6 +322,7 @@ watch: {
 
 }
 .icon-container {
+  gap: 1rem;
   display: flex;
   justify-content: space-around;
   align-items: center;

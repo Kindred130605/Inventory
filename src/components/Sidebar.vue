@@ -1,147 +1,81 @@
-
-<script setup>
-import { ref } from 'vue'
-
-const is_expanded = ref(localStorage.getItem("is_expanded") === "true")
-
-const ToggleMenu = () => {
-    is_expanded.value = !is_expanded.value
-
-    localStorage.setItem("is_expanded", is_expanded.value)
-}
-</script>
-
 <template>
     <aside :class="`${is_expanded && 'is_expanded'}`">
-        
         <img class="sna-logo" src="/src/assets/SNA Logo with BG.png" alt="">
-
         <h2 class="sp-text">Welcome <br> Admin</h2>
-      <br>
-  <hr>
-          <div class="menu-toggle-wrap">
-              <button class="menu-toggle" @click="ToggleMenu"> 
-                  <span class="material-icons">
-                      keyboard_double_arrow_right
-                      </span> 
-              </button>
-      </div>
-      
-      <div class="menu">
-          <router-link class="button" to="/dashboard">
-              <span class="material-icons">home</span>
-              <span class="text">Dashboard</span>
-          </router-link>
-
-          <router-link class="button" to="/items">
-            <span class="material-icons">inventory</span>
-              <span class="text">Items</span>
-          </router-link>
-
-          <router-link class="button" to="/borrowing">
-            <span class="material-icons">pending_actions</span>
-              <span class="text">Borrowing</span>
-          </router-link>
-
-          <router-link class="button" to="/damaged">
-            <span class="material-icons">construction</span>
-              <span class="text">Damaged Items</span>
-          </router-link>
-
-          <router-link class="button" to="/unusable">
-            <span class="material-icons">dangerous</span>
-              <span class="text">Unusable Items</span>
-          </router-link>
+        <br>
+        <hr>
+        <div class="menu-toggle-wrap">
+            <button class="menu-toggle" @click="ToggleMenu"> 
+                <span class="material-icons">keyboard_double_arrow_right</span> 
+            </button>
         </div>
-  
+        <div class="menu">
+            <router-link class="button" to="/dashboard">
+                <span class="material-icons">home</span>
+                <span class="text">Dashboard</span>
+            </router-link>
+            <router-link class="button" to="/items">
+                <span class="material-icons">inventory</span>
+                <span class="text">Items</span>
+            </router-link>
+            <router-link class="button" to="/borrowing">
+                <span class="material-icons">pending_actions</span>
+                <span class="text">Borrowing</span>
+            </router-link>
+            <router-link class="button" to="/damaged">
+                <span class="material-icons">construction</span>
+                <span class="text">Damaged Items</span>
+            </router-link>
+            <router-link class="button" to="/unusable">
+                <span class="material-icons">dangerous</span>
+                <span class="text">Unusable Items</span>
+            </router-link>
+        </div>
         <button class="menu-logout" @click="logout">
             <span class="material-icons">logout</span>
             <span class="text">Logout</span>
         </button>
     </aside>
-  </template>
-  
- <script> 
- import Swal from 'sweetalert2';
+</template>
+
+<script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import Swal from 'sweetalert2'
 import 'sweetalert2/dist/sweetalert2.min.css'
-export default {
-  
-  name: "Sidebar",
-data() {
-  return {
-    isDropdownOpen: false
-  };
-},
-methods: {
-  async logout() {
+
+const router = useRouter()
+
+const is_expanded = ref(localStorage.getItem("is_expanded") === "true")
+
+const ToggleMenu = () => {
+    is_expanded.value = !is_expanded.value
+    localStorage.setItem("is_expanded", is_expanded.value.toString())
+}
+
+const logout = async () => {
     const result = await Swal.fire({
-      title: 'Confirm Logout',
-      text: 'Are you sure you want to logout?',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#808080',
-      confirmButtonText: 'Yes, logout'
-    });
+        title: 'Confirm Logout',
+        text: 'Are you sure you want to logout?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#808080',
+        confirmButtonText: 'Yes, logout'
+    })
 
     if (result.isConfirmed) {
-      try {
-        sessionStorage.clear();
-        localStorage.removeItem("token"); // Remove this line if you don't need it
-        this.router.push('/login');
-      } catch (error) {
-        console.error('Logout failed', error);
-      }
+        try {
+            sessionStorage.clear()
+            localStorage.removeItem("token")
+            router.push('/login')
+        } catch (error) {
+            console.error('Logout failed', error)
+        }
     }
-  },
-
-  toggleDropdown() {
-    this.isDropdownOpen = !this.isDropdownOpen;
-  },
-
-  logoutAlert() {
-    Swal.fire({
-      title: 'Confirm Logout',
-      text: 'Are you sure you want to logout?',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#808080',
-      confirmButtonText: 'Yes, logout'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        sessionStorage.clear();
-        this.$router.push('/');
-        sessionStorage.removeItem("token");
-      }
-    });
-  },
-    
-  toggleDropdown() {
-    this.isDropdownOpen = !this.isDropdownOpen;
-  },
-  logoutAlert() {
-    Swal.fire({
-      title: 'Confirm Logout',
-      text: 'Are you sure you want to logout?',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#808080',
-      confirmButtonText: 'Yes, logout'
-    }).then((result) => {
-      if (result.isConfirmed) {
-          sessionStorage.clear();
-          this.$router.push('/login');
-          sessionStorage.removeItem("token")
-      }
-    });
-  }
 }
-};
+</script>
 
- </script>
-  
   <style lang="scss" scoped>
    aside {
   display: flex;

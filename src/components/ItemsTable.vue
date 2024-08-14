@@ -130,7 +130,7 @@ export default {
   data() {
     return {
       search: '',
-      chmeasure:['Classroom', 'Office Items', 'Library Items', 'Science Lab Items', 'Art Room Items', 'Music Room Items', 'Gymnasium and Sports Items', 'Cafeteria Items', 'Maintenance Items', 'Playground Item', 'Miscellaneous Items'],
+      chmeasure:['Classroom Items', 'Office Items', 'Library Items', 'Science Lab Items', 'Art Room Items', 'Music Room Items', 'Gymnasium and Sports Items', 'Cafeteria Items', 'Maintenance Items', 'Playground Item', 'Miscellaneous Items'],
       chquantity:['Sets', 'Pieces', 'Packs Items', 'Kits'],
       chschool:['Junior High School', 'Senior High School'],
       itemsList: [],
@@ -305,16 +305,16 @@ export default {
           item.room_number.toString().toLowerCase() === this.itemsData.room_number.toString() &&
           item.acceptedby.toLowerCase() === this.itemsData.acceptedby.toString()
         ));
-
         if (conflictItem) {
           Swal.fire('Duplicate!', 'An item with the same details already exists. You should check it first', 'error');
           this.dialog = false;
           return
         }
-        api.post('/items/add', this.itemsData)
+        api.post('/items/add', toLowerCase(this.itemsData))
           .then(response => {
             this.itemsList.push({ ...this.itemsData });
             this.dialog = false;
+            this.getItems()
             Swal.fire({
               title: 'SUCCESS',
             icon: 'success',
@@ -328,7 +328,6 @@ export default {
 },
 
 deleteItem(item) {
-  // Show confirmation dialog
   Swal.fire({
     title: 'Are you sure?',
     text: `You are about to delete ${item.item_name}. This action cannot be undone.`,
@@ -563,7 +562,7 @@ async convertExcel(data) {
         filteredItems() {
           return this.itemsList.filter(item => {
             return item.item_name.toLowerCase().includes(this.search.toLowerCase()) ||
-              item.item_quantity.toString().includes(this.search);
+              item.item_quantity.toString().includes(this.search) || item.acceptedby.toLowerCase().includes(this.search.toLowerCase());
           });
         }
 },

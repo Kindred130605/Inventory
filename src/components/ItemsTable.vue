@@ -19,11 +19,20 @@
         hide-details
         single-line
       ></v-text-field>
-        <v-btn color="primary" style="margin: 10px;" variant="flat" dark @click="openDialog()">
+      <v-btn  color="primary" style="margin: 10px;" variant="flat"  dark 
+    @click="openDialog()"
+    class="tooltip-button"
+    data-bs-toggle="tooltip" 
+    data-bs-placement="bottom" 
+    data-bs-title="ADD ITEM"
+  >
           <v-icon left>mdi-plus</v-icon>
           ADD ITEM
         </v-btn>
-        <v-btn color="primary" variant="flat" dark @click="downloadXLS()">
+        <v-btn color="primary" variant="flat" dark @click="downloadXLS()" class="tooltip-button"
+    data-bs-toggle="tooltip" 
+    data-bs-placement="bottom" 
+    data-bs-title="DOWNLOAD EXCELL">
           <v-icon left>mdi-download</v-icon>
           DOWNLOAD EXCELL
         </v-btn>
@@ -44,11 +53,10 @@
         <td>{{ item.overdue_items || 0 }}</td>
         <td>{{ item.damaged_items || 0 }}</td>
         <td >
-
           <div class="icon-container">
-          <v-icon @click="editItem(item)" style="color:blue">mdi-pencil</v-icon>
-          <v-icon @click="openBorrowDialog(item)" style="color:green">mdi-handshake</v-icon>
-          <v-icon @click="deleteItem(item)" style="color:red">mdi-delete</v-icon>
+         <v-btn @click="editItem(item)" style="color:blue" class="tooltip-button" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Update Items"><v-icon>mdi-pencil</v-icon></v-btn>
+          <v-btn @click="openBorrowDialog(item)" style="color:green" class="tooltip-button" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Borrow Items"><v-icon>mdi-handshake</v-icon></v-btn>
+          <v-btn @click="deleteItem(item)" style="color:red" class="tooltip-button" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Delete Items"><v-icon>mdi-delete</v-icon></v-btn>
           </div>
           
         </td>
@@ -176,7 +184,10 @@ export default {
       
   mounted() {
     this.getItems();
-    this.getStudents()
+    this.getStudents();
+    this.$nextTick(() => {
+      this.initializeTooltips();
+    });
       },
   
   methods: {
@@ -231,6 +242,12 @@ export default {
       }
     },
 
+    initializeTooltips() {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+      tooltipTriggerList.forEach(tooltipTriggerEl => {
+        new bootstrap.Tooltip(tooltipTriggerEl);
+      });
+    },
 
 
     openDialog() {
@@ -549,6 +566,13 @@ async convertExcel(data) {
               item.item_quantity.toString().includes(this.search);
           });
         }
+},
+watch: {
+  itemsList() {
+    this.$nextTick(() => {
+      this.initializeTooltips();
+    });
+  }
 }
       
 };
@@ -570,12 +594,17 @@ async convertExcel(data) {
 
 }
 .icon-container {
+  gap: 1rem;
   display: flex;
   justify-content: space-around;
   align-items: center;
   .v-icon{
     font-size: 28px;
   }
+}
+
+.tooltip-button {
+  position: relative;
 }
 
 

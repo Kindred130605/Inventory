@@ -19,7 +19,10 @@
           hide-details
           single-line
         ></v-text-field>
-        <v-btn color="primary" variant="flat" dark @click="downloadXLS()">
+        <v-btn color="primary" variant="flat" dark @click="downloadXLS()" class="tooltip-button"
+          data-bs-toggle="tooltip" 
+          data-bs-placement="bottom" 
+          data-bs-title="DOWNLOAD EXCELL">
           <v-icon left>mdi-download</v-icon>
           DOWNLOAD EXCELL
         </v-btn>
@@ -41,11 +44,10 @@
           <td>{{ item.status}}</td>
           <td>{{ item.adviser}}</td>
 
-          <td >
+          <td>
             <div class="icon-container">
-
-            <v-icon @click="returnItem(item)" style="color:green; font-size:25px;">mdi-thumb-up</v-icon>
-            <v-icon @click="openDamageDialog(item)" style="color:red; font-size:25px;">mdi-account-hard-hat</v-icon>
+            <v-btn @click="returnItem(item)" style="color:green; font-size:25px;" class="tooltip-button" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Return Item"><v-icon>mdi-thumb-up </v-icon></v-btn>
+            <v-btn @click="openDamageDialog(item)" style="color:red; font-size:25px;"class="tooltip-button" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Return With Damage"><v-icon>mdi-account-hard-hat</v-icon></v-btn>
             </div>
           </td>
         </tr>
@@ -144,14 +146,23 @@
  },
 
  methods: {
-    async getBorrowers() {
+  async getBorrowers() {
       try { 
         const response = await api.get('/borrowed-items');
         this.borrowinglist = response.data;
-        console.log(this.borrowinglist);
+        this.$nextTick(() => {
+          this.initializeTooltips();
+        });
       } catch (error) {
         console.error('Error fetching items:', error);
       }
+    },
+
+    initializeTooltips() {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+      tooltipTriggerList.forEach(tooltipTriggerEl => {
+        new bootstrap.Tooltip(tooltipTriggerEl);
+      });
     },
 
     openDamageDialog(item) {
@@ -362,15 +373,25 @@ async returnWithDamage() {
       console.error('Error downloading XLS:', error);
     }
   },
-
-
+  computed: {
+        filteredItems() {
+          return this.itemsList.filter(item => {
+            return item.item_name.toLowerCase().includes(this.search.toLowerCase()) ||
+              item.item_quantity.toString().includes(this.search);
+          });
+        }
 
   },
-  
+  watch: {
+  itemsList() {
+    this.$nextTick(() => {
+      this.initializeTooltips();
+    });
+  }
+}
+ }
 
 }
-
-
 
 </script>
 

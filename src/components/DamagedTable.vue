@@ -19,7 +19,10 @@
         hide-details
         single-line
       ></v-text-field>
-      <v-btn color="primary" variant="flat" dark @click="downloadXLS()">
+    <v-btn color="primary" variant="flat" dark @click="downloadXLS()" class="tooltip-button"
+    data-bs-toggle="tooltip" 
+    data-bs-placement="bottom" 
+    data-bs-title="DOWNLOAD EXCELL">
           <v-icon left>mdi-download</v-icon>
           DOWNLOAD EXCELL
         </v-btn>
@@ -43,8 +46,8 @@
         <td>
           <div class="icon-container">
 
-          <v-icon @click="returnItem(item)" style="color:green">mdi-clipboard-arrow-left</v-icon>
-          <v-icon @click="unusableItem(item)" style="color:red">mdi-alert-decagram</v-icon>
+          <v-btn @click="returnItem(item)" style="color:green" class="tooltip-button" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Return Item"><v-icon>mdi-clipboard-arrow-left</v-icon></v-btn>
+          <v-btn @click="unusableItem(item)" style="color:red" class="tooltip-button" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Unusable Item"><v-icon>mdi-alert-decagram</v-icon></v-btn>
           </div>
         </td>
       </tr>
@@ -101,12 +104,21 @@ methods: {
     try {
       const response = await api.get('/damaged-items');
       this.damagelist = response.data;
+      this.$nextTick(() => {
+          this.initializeTooltips();
+        });
       console.log(this.damagelist);
     } catch (error) {
       console.error('Error fetching items:', error);
     }
   },
 
+  initializeTooltips() {
+      const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+      tooltipTriggerList.forEach(tooltipTriggerEl => {
+        new bootstrap.Tooltip(tooltipTriggerEl);
+      });
+    },
 
   async returnItem(item) {
   try {
@@ -279,6 +291,17 @@ async unusableItem(item) {
   },
 
 },
+watch: {
+  itemsList() {
+    this.$nextTick(() => {
+      this.initializeTooltips();
+    });
+  }
+}
+
+
+
+
 }
 
 

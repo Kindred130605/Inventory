@@ -72,7 +72,7 @@ export default {
         { title: 'Unit Of Measure', key: 'unit_of_measure' },
         { title: 'Room Number', key: 'room_number' },
         { title: 'School Level', key: 'school_level' },
-        { title: 'Reported By', key: 'report_by' },
+        { title: 'Damaged By', key: 'report_by' },
         { title: 'Description', key: 'description' },
         { title: 'Item Quantity', key: 'quantity' },
         { title: 'Date Reported', key: 'date_reported' },

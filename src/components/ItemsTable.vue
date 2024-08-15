@@ -309,7 +309,7 @@ export default {
         });
       });
   } else {
-        api.post('/items/add', toLowerCase(this.itemsData))
+        api.post('/items/add', this.itemsData)
           .then(response => {
             this.itemsList.push({ ...this.itemsData });
             this.dialog = false;

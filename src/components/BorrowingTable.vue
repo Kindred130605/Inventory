@@ -61,10 +61,9 @@
         <v-card-text>
               <v-text-field 
               v-model="damagedItemData.report_by" 
-              label="Reported By*" 
+              label="Damaged By*" 
               >
               </v-text-field>
-
               <v-textarea
               v-model="damagedItemData.description"
               label="Description"
@@ -168,7 +167,7 @@
     openDamageDialog(item) {
       this.damagedItemData = {
         item_id: item.item_id,
-        report_by: item.borrower, // Set the reported_by from the borrower
+        report_by: item.student_id, 
         description: '', // Start with an empty description
         date_reported: new Date().toISOString(), // Set the current date/time
 

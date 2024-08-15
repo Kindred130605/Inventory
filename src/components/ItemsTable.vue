@@ -29,12 +29,12 @@
           <v-icon left>mdi-plus</v-icon>
           ADD ITEM
         </v-btn>
-        <v-btn color="primary" variant="flat" dark @click="downloadXLS()" class="tooltip-button"
+        <v-btn color="primary" variant="flat" dark @click="showFilterDialog()" class="tooltip-button"
     data-bs-toggle="tooltip" 
     data-bs-placement="bottom" 
     data-bs-title="DOWNLOAD EXCELL">
           <v-icon left>mdi-download</v-icon>
-          DOWNLOAD EXCELL
+          GENERATE REPORT
         </v-btn>
       </v-toolbar>
     </template>
@@ -93,24 +93,45 @@
       <v-card-text>
         <v-text-field v-model="borrowersData.item_name" label="Item Name" :readonly="true"></v-text-field>
         <v-autocomplete
-        v-model="borrowersData.student_id"
-        :items="studentsList"
-        item-text="title" 
-        item-value="student_id"
-        label="Student"
-        clearable
-        required
-      ></v-autocomplete>
-      <v-text-field v-model="borrowersData.adviser" label="Adviser":readonly="true"></v-text-field>
-      <v-text-field v-model="borrowersData.quantity" label="Quantity" required></v-text-field>
-      <v-select v-model="borrowersData.unit_of_measure" label="Unit of Measure" :items="chquantity"></v-select>
-      <v-text-field v-model="borrowersData.borrow_date" label="Borrow Date" type="date" :readonly="true"></v-text-field>
-      <v-text-field v-model="borrowersData.return_date" label="Return Date" type="date" :min="minReturnDate" required></v-text-field>
+          v-model="borrowersData.student_id"
+          :items="studentsList"
+          item-text="title" 
+          item-value="student_id"
+          label="Student"
+          clearable
+          required
+        ></v-autocomplete>
+        <v-text-field v-model="borrowersData.quantity" label="Quantity" required></v-text-field>
+        <v-text-field v-model="borrowersData.adviser" label="Adviser" required></v-text-field>
+        <v-text-field v-model="borrowersData.unit_of_measure" label="Unit of Measure" :readonly="true"></v-text-field>
+        <v-text-field v-model="borrowersData.borrow_date" label="Borrow Date" type="date" :readonly="true"></v-text-field>
+        <v-text-field v-model="borrowersData.return_date" label="Return Date" type="date" :min="minReturnDate" required></v-text-field>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="blue darken-1" text @click="borrowDialog = false">Cancel</v-btn>
         <v-btn color="blue darken-1" @click="borrowItem()">Borrow</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!-- Add a dialog for filtering -->
+  <v-dialog v-model="filterDialog" max-width="500">
+    <v-card>
+      <v-card-title>Filter Report</v-card-title>
+      <v-card-text>
+        <v-form ref="filterForm">
+          <v-select v-model="filter.category" :items="chmeasure" label="Category"></v-select>
+          <v-select v-model="filter.unitOfMeasure" :items="chquantity" label="Unit of Measure"></v-select>
+          <v-select v-model="filter.roomNumber" :items="roomNumbers" label="Room Number"></v-select>
+          <v-select v-model="filter.schoolLevel" :items="chschool" label="School Level"></v-select>
+          <v-select v-model="filter.acceptedBy" :items="acceptedBy" label="Accepted By"></v-select>
+        </v-form>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="primary" @click="downloadXLS()">Generate Report</v-btn>
+        <v-btn color="error" @click="filterDialog = false">Cancel</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -176,6 +197,16 @@ export default {
       },
       minReturnDate: '',
       studentsList: [],
+
+      filter: {
+        category: null,
+        unitOfMeasure: null,
+        roomNumber: null,
+        schoolLevel: null,
+        acceptedBy: null
+      },
+      filterDialog: false,
+
     };
 },
 
@@ -217,14 +248,14 @@ export default {
           item.damaged_items = this.damagedQuantities[item.id] || 0;
         });
 
+        this.$nextTick(() => {
+          this.initializeTooltips();
+        });
+
         this.checkLowStock();
       } catch (error) {
         console.error('Error fetching data:', error);
       }
-      
-      this.$nextTick(() => {
-      this.initializeTooltips();
-    });
     },
 
     checkLowStock() {
@@ -279,12 +310,12 @@ export default {
 
     const conflictItem = this.itemsList.find(item => (
           item.item_name.toLowerCase() === this.itemsData.item_name.toLowerCase() &&
+          item.item_quantity.toString().toLowerCase() === this.itemsData.item_quantity.toString().toLowerCase() &&
           item.category.toLowerCase() === this.itemsData.category.toLowerCase() &&
           item.unit_of_measure.toLowerCase() === this.itemsData.unit_of_measure.toLowerCase() &&
           item.school_level.toLowerCase() === this.itemsData.school_level.toLowerCase() &&
           item.room_number.toString().toLowerCase() === this.itemsData.room_number.toString() &&
-          item.acceptedby.toLowerCase() === this.itemsData.acceptedby.toString() &&
-          item.item_quantity.toString().toLowerCase() === this.itemsData.item_quantity.toString().toLowerCase() 
+          item.acceptedby.toLowerCase() === this.itemsData.acceptedby.toString()
         ));
         if (conflictItem) {
           Swal.fire('Duplicate!', 'An item with the same details already exists. You should check it first', 'error');
@@ -299,31 +330,22 @@ export default {
         if (i !== -1) {
          this.itemsList.splice(i, 1, { ...this.itemsData });
           this.dialog = false;
-          Swal.fire({
-              title: 'SUCCESS',
-            icon: 'success',
-        });
+          Swal.fire('Success!', 'Items updated successfully!', 'success');
+
         }
       })
       .catch(error => {
         console.error('Error updating item:', error);
-        Swal.fire({
-              title: 'Error Updating',
-            icon: 'warning',
-            confirmButtonText: 'OK'
-        });
+        Swal.fire('Success!', 'Error updating!', 'error');
+
       });
   } else {
-        api.post('/items/add', this.itemsData)
+        api.post('/items/add', toLowerCase(this.itemsData))
           .then(response => {
             this.itemsList.push({ ...this.itemsData });
             this.dialog = false;
             this.getItems()
-            Swal.fire({
-              title: 'SUCCESS',
-            icon: 'success',
-            confirmButtonText: 'OK'
-        });
+            Swal.fire('Success!', 'Items added successfully!', 'success');
           })
           .catch(error => {
             console.error('Error adding item:', error);
@@ -352,7 +374,7 @@ deleteItem(item) {
             // Show success message
             Swal.fire({
               title: 'Deleted!',
-              text: 'The item has been deleted successfully.',
+              text: 'Item deleted successfully.',
               icon: 'success',
               confirmButtonText: 'OK'
             });
@@ -383,7 +405,7 @@ openBorrowDialog(item) {
         quantity: 1,
         student_id: '',
         status: 'Borrowed',
-        unit_of_measure: '',
+        unit_of_measure: item.unit_of_measure,
         adviser:'',
         acceptedby:null
       };
@@ -391,7 +413,8 @@ openBorrowDialog(item) {
       this.borrowDialog = true;
     },
     borrowItem() {
-      if (!this.borrowersData.student_id || !this.borrowersData.return_date) {
+      if (!this.borrowersData.student_id || !this.borrowersData.return_date 
+      || !this.borrowersData.adviser) {
         Swal.fire('Error!', 'All fields are required.', 'error');
         this.borrowDialog=false;
         return;
@@ -406,11 +429,8 @@ openBorrowDialog(item) {
 
       api.post('/borrowed-items', this.borrowersData)
         .then(response => {
-          Swal.fire({
-            icon: 'success',
-            title: 'Item Borrowed',
-            confirmButtonText: 'OK'
-          });
+          Swal.fire('Success!', 'Items borrowed successfully!', 'success');
+
           this.getItems()
           this.borrowDialog = false;
         })
@@ -427,20 +447,20 @@ openBorrowDialog(item) {
     },
     
     async getStudents() {
-  try {
+  try { 
     const response = await api.get('http://26.81.173.255:8000/api/student');
-    console.log(response)
+    console.log(response); 
     this.studentsList = response.data.student.map(student => ({
       student_id: student.student_id,
       title: student.student_id,
       adviser: student.adviser ? student.adviser.full_name : ''
     }));
-    console.log(this.studentsList)
+    console.log(this.studentsList); 
   } catch (error) {
-    console.error('Error fetching students:', error);
+    console.error('Error fetching items:', error);
   }
-},
 
+},
 
 async convertExcel(data) {
   const excel = new ExcelJS.Workbook();
@@ -536,9 +556,8 @@ async convertExcel(data) {
 
   async downloadXLS() {
     try {
-      const data = this.itemsList; // Or any other data you want to export
+      const data = this.applyFilters(this.itemsList); 
       const excel = await this.convertExcel(data); // Make sure convertExcel is awaited
-
       if (excel instanceof ExcelJS.Workbook) {
         const buffer = await excel.xlsx.writeBuffer();
         const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
@@ -548,12 +567,6 @@ async convertExcel(data) {
         a.download = 'Inventory.xlsx';
         a.click();
         window.URL.revokeObjectURL(url);
-        
-        Swal.fire({
-          title: 'Download Success!',
-          icon: 'success',
-          confirmButtonText: 'OK'
-        });
       } else {
         console.error('Invalid ExcelJS.Workbook instance');
       }
@@ -562,6 +575,30 @@ async convertExcel(data) {
     }
   },
 
+  applyFilters(data) {
+  let filteredData = data;
+  if (this.filter.category) {
+    filteredData = filteredData.filter(item => item.category === this.filter.category);
+  }
+  if (this.filter.unit_of_measure) {
+    filteredData = filteredData.filter(item => item.unit_of_measure === this.filter.unit_of_measure);
+  }
+  if (this.filter.room_number) {
+    filteredData = filteredData.filter(item => item.room_number === this.filter.room_number);
+  }
+  if (this.filter.school_level) {
+    filteredData = filteredData.filter(item => item.school_level === this.filter.school_level);
+  }
+  if (this.filter.acceptedby) {
+    filteredData = filteredData.filter(item => item.acceptedby === this.filter.acceptedby);
+  }
+  return filteredData;
+},
+
+showFilterDialog() {
+  this.filterDialog = true;
+}
+
 },
       computed: {
         filteredItems() {
@@ -569,8 +606,17 @@ async convertExcel(data) {
             return item.item_name.toLowerCase().includes(this.search.toLowerCase()) ||
               item.item_quantity.toString().includes(this.search) || item.acceptedby.toLowerCase().includes(this.search.toLowerCase());
           });
+        },
+
+        roomNumbers() {
+          return [...new Set(this.itemsList.map(item => item.room_number))];
+        },
+
+        acceptedBy() {
+          return [...new Set(this.itemsList.map(item => item.acceptedby))];
         }
-},
+      },
+
 watch: {
   itemsList() {
     this.$nextTick(() => {

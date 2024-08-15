@@ -93,18 +93,16 @@
       <v-card-text>
         <v-text-field v-model="borrowersData.item_name" label="Item Name" :readonly="true"></v-text-field>
         <v-autocomplete
-  v-model="borrowersData.student_id"
-  :items="studentsList"
-  item-text="title" 
-  item-value="student_id"
-  label="Student"
-  clearable
-  required
-></v-autocomplete>
-
-
+        v-model="borrowersData.student_id"
+        :items="studentsList"
+        item-text="title" 
+        item-value="student_id"
+        label="Student"
+        clearable
+        required
+      ></v-autocomplete>
+      <v-text-field v-model="borrowersData.adviser" label="Adviser":readonly="true"></v-text-field>
       <v-text-field v-model="borrowersData.quantity" label="Quantity" required></v-text-field>
-      <v-text-field v-model="borrowersData.adviser" label="Adviser" required></v-text-field>
       <v-select v-model="borrowersData.unit_of_measure" label="Unit of Measure" :items="chquantity"></v-select>
       <v-text-field v-model="borrowersData.borrow_date" label="Borrow Date" type="date" :readonly="true"></v-text-field>
       <v-text-field v-model="borrowersData.return_date" label="Return Date" type="date" :min="minReturnDate" required></v-text-field>
@@ -424,19 +422,20 @@ openBorrowDialog(item) {
     },
     
     async getStudents() {
-  try { 
+  try {
     const response = await api.get('http://26.81.173.255:8000/api/student');
-    console.log(response); 
+    console.log(response)
     this.studentsList = response.data.student.map(student => ({
       student_id: student.student_id,
-      title: student.student_id 
+      title: student.student_id,
+      adviser: student.adviser ? student.adviser.full_name : ''
     }));
-    console.log(this.studentsList); 
+    console.log(this.studentsList)
   } catch (error) {
-    console.error('Error fetching items:', error);
+    console.error('Error fetching students:', error);
   }
-
 },
+
 
 async convertExcel(data) {
   const excel = new ExcelJS.Workbook();
@@ -573,7 +572,21 @@ watch: {
       this.initializeTooltips();
     });
   }
-}
+},
+
+watch: {
+  'borrowersData.student_id': function (newStudentId) {
+    // Find the selected student from the studentsList
+    const selectedStudent = this.studentsList.find(student => student.student_id === newStudentId);
+    
+    // Update the adviser field based on the selected student
+    if (selectedStudent) {
+      this.borrowersData.adviser = selectedStudent.adviser;
+    } else {
+      this.borrowersData.adviser = '';
+    }
+  }
+},
       
 };
 </script>

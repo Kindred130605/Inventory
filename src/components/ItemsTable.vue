@@ -580,17 +580,17 @@ async convertExcel(data) {
   if (this.filter.category) {
     filteredData = filteredData.filter(item => item.category === this.filter.category);
   }
-  if (this.filter.unit_of_measure) {
-    filteredData = filteredData.filter(item => item.unit_of_measure === this.filter.unit_of_measure);
+  if (this.filter.unitOfMeasure) {
+    filteredData = filteredData.filter(item => item.unit_of_measure === this.filter.unitOfMeasure);
   }
-  if (this.filter.room_number) {
-    filteredData = filteredData.filter(item => item.room_number === this.filter.room_number);
+  if (this.filter.roomNumber) {
+    filteredData = filteredData.filter(item => item.room_number === this.filter.roomNumber);
   }
-  if (this.filter.school_level) {
-    filteredData = filteredData.filter(item => item.school_level === this.filter.school_level);
+  if (this.filter.schoolLevel) {
+    filteredData = filteredData.filter(item => item.school_level === this.filter.schoolLevel);
   }
-  if (this.filter.acceptedby) {
-    filteredData = filteredData.filter(item => item.acceptedby === this.filter.acceptedby);
+  if (this.filter.acceptedBy) {
+    filteredData = filteredData.filter(item => item.acceptedby === this.filter.acceptedBy);
   }
   return filteredData;
 },

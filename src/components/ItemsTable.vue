@@ -279,7 +279,8 @@ export default {
           item.unit_of_measure.toLowerCase() === this.itemsData.unit_of_measure.toLowerCase() &&
           item.school_level.toLowerCase() === this.itemsData.school_level.toLowerCase() &&
           item.room_number.toString().toLowerCase() === this.itemsData.room_number.toString() &&
-          item.acceptedby.toLowerCase() === this.itemsData.acceptedby.toString()
+          item.acceptedby.toLowerCase() === this.itemsData.acceptedby.toString() &&
+          item.item_quantity.toString().toLowerCase() === this.itemsData.item_quantity.toString().toLowerCase() 
         ));
         if (conflictItem) {
           Swal.fire('Duplicate!', 'An item with the same details already exists. You should check it first', 'error');

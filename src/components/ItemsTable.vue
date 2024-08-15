@@ -275,6 +275,20 @@ export default {
    saveItem() {
     console.log('Payload:', this.itemsData);
 
+    const conflictItem = this.itemsList.find(item => (
+          item.item_name.toLowerCase() === this.itemsData.item_name.toLowerCase() &&
+          item.category.toLowerCase() === this.itemsData.category.toLowerCase() &&
+          item.unit_of_measure.toLowerCase() === this.itemsData.unit_of_measure.toLowerCase() &&
+          item.school_level.toLowerCase() === this.itemsData.school_level.toLowerCase() &&
+          item.room_number.toString().toLowerCase() === this.itemsData.room_number.toString() &&
+          item.acceptedby.toLowerCase() === this.itemsData.acceptedby.toString()
+        ));
+        if (conflictItem) {
+          Swal.fire('Duplicate!', 'An item with the same details already exists. You should check it first', 'error');
+          this.dialog = false;
+          return
+        }
+
   if (this.editMode) {
     api.post(`/items/update/${this.itemsData.id}`, this.itemsData)
       .then(response => {
@@ -297,19 +311,6 @@ export default {
         });
       });
   } else {
-        const conflictItem = this.itemsList.find(item => (
-          item.item_name.toLowerCase() === this.itemsData.item_name.toLowerCase() &&
-          item.category.toLowerCase() === this.itemsData.category.toLowerCase() &&
-          item.unit_of_measure.toLowerCase() === this.itemsData.unit_of_measure.toLowerCase() &&
-          item.school_level.toLowerCase() === this.itemsData.school_level.toLowerCase() &&
-          item.room_number.toString().toLowerCase() === this.itemsData.room_number.toString() &&
-          item.acceptedby.toLowerCase() === this.itemsData.acceptedby.toString()
-        ));
-        if (conflictItem) {
-          Swal.fire('Duplicate!', 'An item with the same details already exists. You should check it first', 'error');
-          this.dialog = false;
-          return
-        }
         api.post('/items/add', toLowerCase(this.itemsData))
           .then(response => {
             this.itemsList.push({ ...this.itemsData });

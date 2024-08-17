@@ -128,7 +128,7 @@
           <v-select v-model="filter.acceptedBy" :items="acceptedBy" label="Accepted By"></v-select>
         </v-form>
       </v-card-text>
-      <v-card-actions>
+      <v-card-actions>s
         <v-spacer></v-spacer>
         <v-btn color="primary" @click="downloadXLS()">Generate Report</v-btn>
         <v-btn color="error" @click="filterDialog = false">Cancel</v-btn>
@@ -331,7 +331,7 @@ export default {
          this.itemsList.splice(i, 1, { ...this.itemsData });
           this.dialog = false;
           Swal.fire('Success!', 'Items updated successfully!', 'success');
-
+            this.getItems();
         }
       })
       .catch(error => {
@@ -340,11 +340,11 @@ export default {
 
       });
   } else {
-        api.post('/items/add', toLowerCase(this.itemsData))
+        api.post('/items/add', this.itemsData)
           .then(response => {
             this.itemsList.push({ ...this.itemsData });
             this.dialog = false;
-            this.getItems()
+            this.getItems();
             Swal.fire('Success!', 'Items added successfully!', 'success');
           })
           .catch(error => {
@@ -506,6 +506,11 @@ async convertExcel(data) {
     worksheet.getCell('A4').value = 'Contact No';
     worksheet.getCell('A4').alignment = { vertical: 'middle', horizontal: 'center' };
     worksheet.getCell('A4').font = { size: 12 };
+
+    worksheet.mergeCells('A5:J5');
+    worksheet.getCell('A5').value = `As of: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' })}`;
+    worksheet.getCell('A5').alignment = { vertical: 'middle', horizontal: 'center' };
+    worksheet.getCell('A5').font = { size: 12 };
 
     worksheet.addRow(); // Add an empty row for separation
 

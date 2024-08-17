@@ -46,8 +46,8 @@
         <td>
           <div class="icon-container">
 
-          <v-btn @click="returnItem(item)" style="color:green" class="tooltip-button" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Return Item"><v-icon>mdi-clipboard-arrow-left</v-icon></v-btn>
-          <v-btn @click="unusableItem(item)" style="color:red" class="tooltip-button" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Unusable Item"><v-icon>mdi-alert-decagram</v-icon></v-btn>
+          <v-btn @click="returnItem(item)" style="color:green"><v-icon>mdi-clipboard-arrow-left</v-icon></v-btn>
+          <v-btn @click="unusableItem(item)" style="color:red"><v-icon>mdi-alert-decagram</v-icon></v-btn>
           </div>
         </td>
       </tr>
@@ -209,6 +209,11 @@ async unusableItem(item) {
     worksheet.getCell('A4').value = 'Contact No';
     worksheet.getCell('A4').alignment = { vertical: 'middle', horizontal: 'center' };
     worksheet.getCell('A4').font = { size: 12 };
+
+    worksheet.mergeCells('A5:J5');
+    worksheet.getCell('A5').value = `As of: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' })}`;
+    worksheet.getCell('A5').alignment = { vertical: 'middle', horizontal: 'center' };
+    worksheet.getCell('A5').font = { size: 12 };
 
     worksheet.addRow(); // Add an empty row for separation
 

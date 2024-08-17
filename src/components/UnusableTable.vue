@@ -149,6 +149,11 @@ methods: {
     worksheet.getCell('A4').alignment = { vertical: 'middle', horizontal: 'center' };
     worksheet.getCell('A4').font = { size: 12 };
 
+    worksheet.mergeCells('A5:J5');
+    worksheet.getCell('A5').value = `As of: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' })}`;
+    worksheet.getCell('A5').alignment = { vertical: 'middle', horizontal: 'center' };
+    worksheet.getCell('A5').font = { size: 12 };
+
     worksheet.addRow(); // Add an empty row for separation
 
     // Add column headers

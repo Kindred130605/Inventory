@@ -19,12 +19,12 @@
           hide-details
           single-line
         ></v-text-field>
-        <v-btn color="primary" variant="flat" dark @click="downloadXLS()" class="tooltip-button"
+        <v-btn color="primary" variant="flat" dark @click="showFilterDialog()" class="tooltip-button"
           data-bs-toggle="tooltip" 
           data-bs-placement="bottom" 
           data-bs-title="DOWNLOAD EXCELL">
           <v-icon left>mdi-download</v-icon>
-          DOWNLOAD EXCELL
+          GENERATE REPORT
         </v-btn>
         </v-toolbar>
       </template>
@@ -46,14 +46,13 @@
 
           <td>
             <div class="icon-container">
-            <v-btn @click="returnItem(item)" style="color:green; font-size:25px;" class="tooltip-button" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Return Item"><v-icon>mdi-thumb-up </v-icon></v-btn>
-            <v-btn @click="openDamageDialog(item)" style="color:red; font-size:25px;"class="tooltip-button" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Return With Damage"><v-icon>mdi-account-hard-hat</v-icon></v-btn>
+            <v-btn @click="returnItem(item)" style="color:green; font-size:25px;"><v-icon>mdi-thumb-up </v-icon></v-btn>
+            <v-btn @click="openDamageDialog(item)" style="color:red; font-size:25px;"><v-icon>mdi-account-hard-hat</v-icon></v-btn>
             </div>
           </td>
         </tr>
       </template>
     </v-data-table>
-
 
     <v-dialog v-model="damageDialog" max-width="600">
       <v-card>
@@ -78,6 +77,28 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+      <!-- Add a dialog for filtering -->
+  <v-dialog v-model="filterDialog" max-width="500">
+    <v-card>
+      <v-card-title>Filter Report</v-card-title>
+      <v-card-text>
+        <v-form ref="filterForm">
+          <v-select v-model="filter.category" :items="category" label="Category"></v-select>
+          <v-select v-model="filter.unitOfMeasure" :items="unitOfMeasure" label="Unit of Measure"></v-select>
+          <v-select v-model="filter.roomNumber" :items="roomNumbers" label="Room Number"></v-select>
+          <v-select v-model="filter.schoolLevel" :items="schoolLevel" label="School Level"></v-select>
+          <v-select v-model="filter.acceptedBy" :items="acceptedBy" label="Accepted By"></v-select>
+        </v-form>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="primary" @click="downloadXLS()">Generate Report</v-btn>
+        <v-btn color="error" @click="filterDialog = false">Cancel</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
 </template>
 
   <script>
@@ -134,8 +155,16 @@
         adviser: '',
         quantity: 1,
       },
-      studentsList:[]
+      studentsList:[],
 
+      filter: {
+        category: null,
+        unitOfMeasure: null,
+        roomNumber: null,
+        schoolLevel: null,
+        acceptedBy: null
+      },
+      filterDialog: false,
       
       };
   },
@@ -247,6 +276,22 @@ async returnWithDamage() {
     }
   },
 
+  async getStudents() {
+  try { 
+    const response = await api.get('http://192.168.16.165:8000/api/student');
+    console.log(response); 
+    this.studentsList = response.data.student.map(student => ({
+      student_id: student.student_id,
+      title: student.student_id,
+      adviser: student.adviser ? student.adviser.full_name : ''
+    }));
+    console.log(this.studentsList); 
+  } catch (error) {
+    console.error('Error fetching items:', error);
+  }
+
+},
+
   async convertExcel(data) {
   const excel = new ExcelJS.Workbook();
   const worksheet = excel.addWorksheet("Items");
@@ -290,6 +335,11 @@ async returnWithDamage() {
     worksheet.getCell('A4').value = 'Contact No';
     worksheet.getCell('A4').alignment = { vertical: 'middle', horizontal: 'center' };
     worksheet.getCell('A4').font = { size: 12 };
+
+    worksheet.mergeCells('A5:J5');
+    worksheet.getCell('A5').value = `As of: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' })}`;
+    worksheet.getCell('A5').alignment = { vertical: 'middle', horizontal: 'center' };
+    worksheet.getCell('A5').font = { size: 12 };
 
     worksheet.addRow(); // Add an empty row for separation
 
@@ -342,7 +392,7 @@ async returnWithDamage() {
 
   async downloadXLS() {
     try {
-      const data = this.borrowinglist; // Or any other data you want to export
+      const data = this.applyFilters(this.borrowinglist); // Or any other data you want to export
       const excel = await this.convertExcel(data); // Make sure convertExcel is awaited
 
       if (excel instanceof ExcelJS.Workbook) {
@@ -372,12 +422,58 @@ async returnWithDamage() {
       console.error('Error downloading XLS:', error);
     }
   },
+
+  applyFilters(data) {
+  let filteredData = data;
+  if (this.filter.category) {
+    filteredData = filteredData.filter(item => item.category === this.filter.category);
+  }
+  if (this.filter.unitOfMeasure) {
+    filteredData = filteredData.filter(item => item.unit_of_measure === this.filter.unitOfMeasure);
+  }
+  if (this.filter.roomNumber) {
+    filteredData = filteredData.filter(item => item.room_number === this.filter.roomNumber);
+  }
+  if (this.filter.schoolLevel) {
+    filteredData = filteredData.filter(item => item.school_level === this.filter.schoolLevel);
+  }
+  if (this.filter.acceptedBy) {
+    filteredData = filteredData.filter(item => item.adviser === this.filter.acceptedBy);
+  }
+  return filteredData;
+},
+
+showFilterDialog() {
+  this.filterDialog = true;
+}
+},
+
   computed: {
         filteredItems() {
-          return this.itemsList.filter(item => {
+          return this.borrowinglist.filter(item => {
             return item.item_name.toLowerCase().includes(this.search.toLowerCase()) ||
               item.item_quantity.toString().includes(this.search);
           });
+        },
+
+        category() {
+          return [...new Set(this.borrowinglist.map(item => item.category))];
+        },
+
+        unitOfMeasure() {
+          return [...new Set(this.borrowinglist.map(item => item.unit_of_measure))];
+        },
+
+        roomNumbers() {
+          return [...new Set(this.borrowinglist.map(item => item.room_number))];
+        },
+
+        schoolLevel() {
+          return [...new Set(this.borrowinglist.map(item => item.school_level))];
+        },
+
+        acceptedBy() {
+          return [...new Set(this.borrowinglist.map(item => item.adviser))];
         }
 
   },
@@ -387,10 +483,8 @@ async returnWithDamage() {
       this.initializeTooltips();
     });
   }
-}
- }
-
-}
+},
+};
 
 </script>
 

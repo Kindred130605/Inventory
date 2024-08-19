@@ -102,7 +102,7 @@
           required
         ></v-autocomplete>
         <v-text-field v-model="borrowersData.quantity" label="Quantity" required></v-text-field>
-        <v-text-field v-model="borrowersData.adviser" label="Adviser" required></v-text-field>
+        <v-text-field v-model="borrowersData.adviser" label="Adviser" :readonly="true"></v-text-field>
         <v-text-field v-model="borrowersData.unit_of_measure" label="Unit of Measure" :readonly="true"></v-text-field>
         <v-text-field v-model="borrowersData.borrow_date" label="Borrow Date" type="date" :readonly="true"></v-text-field>
         <v-text-field v-model="borrowersData.return_date" label="Return Date" type="date" :min="minReturnDate" required></v-text-field>
@@ -110,7 +110,7 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="blue darken-1" text @click="borrowDialog = false">Cancel</v-btn>
-        <v-btn color="blue darken-1" @click="borrowItem()">Borrow</v-btn>
+        <v-btn color="blue darken-1" :disabled="!isValid" @click="borrowItem()">Borrow</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -128,7 +128,7 @@
           <v-select v-model="filter.acceptedBy" :items="acceptedBy" label="Accepted By"></v-select>
         </v-form>
       </v-card-text>
-      <v-card-actions>s
+      <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="primary" @click="downloadXLS()">Generate Report</v-btn>
         <v-btn color="error" @click="filterDialog = false">Cancel</v-btn>
@@ -217,7 +217,7 @@ export default {
     this.$nextTick(() => {
       this.initializeTooltips();
     });
-      },
+  },
   
   methods: {
      async getItems() {
@@ -331,7 +331,7 @@ export default {
          this.itemsList.splice(i, 1, { ...this.itemsData });
           this.dialog = false;
           Swal.fire('Success!', 'Items updated successfully!', 'success');
-            this.getItems();
+
         }
       })
       .catch(error => {
@@ -340,11 +340,11 @@ export default {
 
       });
   } else {
-        api.post('/items/add', this.itemsData)
+        api.post('/items/add', toLowerCase(this.itemsData))
           .then(response => {
             this.itemsList.push({ ...this.itemsData });
             this.dialog = false;
-            this.getItems();
+            this.getItems()
             Swal.fire('Success!', 'Items added successfully!', 'success');
           })
           .catch(error => {
@@ -413,14 +413,6 @@ openBorrowDialog(item) {
       this.borrowDialog = true;
     },
     borrowItem() {
-      if (!this.borrowersData.student_id || !this.borrowersData.return_date 
-      || !this.borrowersData.adviser) {
-        Swal.fire('Error!', 'All fields are required.', 'error');
-        this.borrowDialog=false;
-        return;
-        
-      }
-
       if (this.borrowersData.quantity > this.borrowersData.item_quantity) {
         Swal.fire('Error!', 'Not enough stock available.', 'error');
         this.borrowDialog=false;
@@ -449,6 +441,7 @@ openBorrowDialog(item) {
     async getStudents() {
   try { 
     const response = await api.get('http://26.81.173.255:8000/api/student');
+    //const response = await api.get('http://localhost:8000/api/student');
     console.log(response); 
     this.studentsList = response.data.student.map(student => ({
       student_id: student.student_id,
@@ -506,11 +499,6 @@ async convertExcel(data) {
     worksheet.getCell('A4').value = 'Contact No';
     worksheet.getCell('A4').alignment = { vertical: 'middle', horizontal: 'center' };
     worksheet.getCell('A4').font = { size: 12 };
-
-    worksheet.mergeCells('A5:J5');
-    worksheet.getCell('A5').value = `As of: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' })}`;
-    worksheet.getCell('A5').alignment = { vertical: 'middle', horizontal: 'center' };
-    worksheet.getCell('A5').font = { size: 12 };
 
     worksheet.addRow(); // Add an empty row for separation
 
@@ -581,29 +569,28 @@ async convertExcel(data) {
   },
 
   applyFilters(data) {
-  let filteredData = data;
-  if (this.filter.category) {
-    filteredData = filteredData.filter(item => item.category === this.filter.category);
-  }
-  if (this.filter.unitOfMeasure) {
-    filteredData = filteredData.filter(item => item.unit_of_measure === this.filter.unitOfMeasure);
-  }
-  if (this.filter.roomNumber) {
-    filteredData = filteredData.filter(item => item.room_number === this.filter.roomNumber);
-  }
-  if (this.filter.schoolLevel) {
-    filteredData = filteredData.filter(item => item.school_level === this.filter.schoolLevel);
-  }
-  if (this.filter.acceptedBy) {
-    filteredData = filteredData.filter(item => item.acceptedby === this.filter.acceptedBy);
-  }
-  return filteredData;
-},
+    let filteredData = data;
+    if (this.filter.category) {
+      filteredData = filteredData.filter(item => item.category === this.filter.category);
+    }
+    if (this.filter.unitOfMeasure) {
+      filteredData = filteredData.filter(item => item.unit_of_measure === this.filter.unitOfMeasure);
+    }
+    if (this.filter.roomNumber) {
+      filteredData = filteredData.filter(item => item.room_number === this.filter.roomNumber);
+    }
+    if (this.filter.schoolLevel) {
+      filteredData = filteredData.filter(item => item.school_level === this.filter.schoolLevel);
+    }
+    if (this.filter.acceptedBy) {
+      filteredData = filteredData.filter(item => item.acceptedby === this.filter.acceptedBy);
+    }
+    return filteredData;
+  },
 
-showFilterDialog() {
-  this.filterDialog = true;
-}
-
+  showFilterDialog() {
+    this.filterDialog = true;
+  }
 },
       computed: {
         filteredItems() {
@@ -619,7 +606,12 @@ showFilterDialog() {
 
         acceptedBy() {
           return [...new Set(this.itemsList.map(item => item.acceptedby))];
-        }
+        },
+
+        isValid() {
+          return !!this.borrowersData.student_id && !!this.borrowersData.return_date && 
+          !!this.borrowersData.adviser;
+        },
       },
 
 watch: {

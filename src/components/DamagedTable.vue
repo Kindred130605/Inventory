@@ -19,12 +19,12 @@
         hide-details
         single-line
       ></v-text-field>
-    <v-btn color="primary" variant="flat" dark @click="downloadXLS()" class="tooltip-button"
+      <v-btn color="primary" variant="flat" dark @click="downloadXLS()" class="tooltip-button"
     data-bs-toggle="tooltip" 
     data-bs-placement="bottom" 
     data-bs-title="DOWNLOAD EXCELL">
           <v-icon left>mdi-download</v-icon>
-          DOWNLOAD EXCELL
+          GENERATE REPORT
         </v-btn>
       </v-toolbar>
     </template>
@@ -46,13 +46,35 @@
         <td>
           <div class="icon-container">
 
-          <v-btn @click="returnItem(item)" style="color:green"><v-icon>mdi-clipboard-arrow-left</v-icon></v-btn>
-          <v-btn @click="unusableItem(item)" style="color:red"><v-icon>mdi-alert-decagram</v-icon></v-btn>
+          <v-btn @click="returnItem(item)" style="color:green" class="tooltip-button" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Return Item"><v-icon>mdi-clipboard-arrow-left</v-icon></v-btn>
+          <v-btn @click="unusableItem(item)" style="color:red" class="tooltip-button" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Unusable Item"><v-icon>mdi-alert-decagram</v-icon></v-btn>
           </div>
         </td>
       </tr>
     </template>
   </v-data-table>
+
+    <!-- Add a dialog for filtering -->
+    <v-dialog v-model="filterDialog" max-width="500">
+    <v-card>
+      <v-card-title>Filter Report</v-card-title>
+      <v-card-text>
+        <v-form ref="filterForm">
+          <v-select v-model="filter.category" :items="chmeasure" label="Category"></v-select>
+          <v-select v-model="filter.unitOfMeasure" :items="chquantity" label="Unit of Measure"></v-select>
+          <v-select v-model="filter.roomNumber" :items="roomNumbers" label="Room Number"></v-select>
+          <v-select v-model="filter.schoolLevel" :items="chschool" label="School Level"></v-select>
+          <v-select v-model="filter.acceptedBy" :items="acceptedBy" label="Accepted By"></v-select>
+        </v-form>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="primary" @click="downloadXLS()">Generate Report</v-btn>
+        <v-btn color="error" @click="filterDialog = false">Cancel</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
 </template>
 
 <script>
@@ -72,7 +94,7 @@ export default {
         { title: 'Unit Of Measure', key: 'unit_of_measure' },
         { title: 'Room Number', key: 'room_number' },
         { title: 'School Level', key: 'school_level' },
-        { title: 'Damaged By', key: 'report_by' },
+        { title: 'Reported By', key: 'report_by' },
         { title: 'Description', key: 'description' },
         { title: 'Item Quantity', key: 'quantity' },
         { title: 'Date Reported', key: 'date_reported' },
@@ -92,11 +114,27 @@ export default {
       adviser: '',
       quantity: 1,
     },
+
+    studentsList: [],
+
+      filter: {
+        category: null,
+        unitOfMeasure: null,
+        roomNumber: null,
+        schoolLevel: null,
+        acceptedBy: null
+      },
+      filterDialog: false,
+
     };
 },
 
 mounted(){
 this.getDamagedItems();
+    //this.getStudents();
+    this.$nextTick(() => {
+      this.initializeTooltips();
+    });
 },
 
 methods: {
@@ -141,7 +179,17 @@ methods: {
 },
 
 async unusableItem(item) {
-    try {
+  try {
+    const result = await Swal.fire({
+      title: 'Confirm',
+      text: `Are you sure you want to mark ${item.item_name} as unusable?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, mark as unusable',
+      cancelButtonText: 'No, cancel',
+    });
+
+    if (result.isConfirmed) {
       await api.post('/unusable-items', {
         item_id: item.item_id,
         item_name: item.item_name,
@@ -160,11 +208,12 @@ async unusableItem(item) {
       this.damagelist = this.damagelist.filter(d => d.item_id !== item.item_id);
 
       Swal.fire('Success', 'Item marked as unusable successfully', 'success');
-    } catch (error) {
-      console.error('Error marking item as unusable:', error);
-      Swal.fire('Error', 'Failed to mark item as unusable', 'error');
     }
-  },
+  } catch (error) {
+    console.error('Error marking item as unusable:', error);
+    Swal.fire('Error', 'Failed to mark item as unusable', 'error');
+  }
+},
 
   async convertExcel(data) {
   const excel = new ExcelJS.Workbook();
@@ -209,11 +258,6 @@ async unusableItem(item) {
     worksheet.getCell('A4').value = 'Contact No';
     worksheet.getCell('A4').alignment = { vertical: 'middle', horizontal: 'center' };
     worksheet.getCell('A4').font = { size: 12 };
-
-    worksheet.mergeCells('A5:J5');
-    worksheet.getCell('A5').value = `As of: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' })}`;
-    worksheet.getCell('A5').alignment = { vertical: 'middle', horizontal: 'center' };
-    worksheet.getCell('A5').font = { size: 12 };
 
     worksheet.addRow(); // Add an empty row for separation
 
@@ -265,6 +309,7 @@ async unusableItem(item) {
   async downloadXLS() {
     try {
       const data = this.damagelist; // Or any other data you want to export
+      //const data = this.applyFilters(this.damagelist); // Or any other data you want to export
       const excel = await this.convertExcel(data); // Make sure convertExcel is awaited
 
       if (excel instanceof ExcelJS.Workbook) {
@@ -277,11 +322,8 @@ async unusableItem(item) {
         a.click();
         window.URL.revokeObjectURL(url);
         
-        Swal.fire({
-          title: 'Download Success!',
-          icon: 'success',
-          confirmButtonText: 'OK'
-        });
+        Swal.fire('Success!', 'Generate report successfully', 'success');
+
       } else {
         Swal.fire({
           title: 'Cannot Download',
@@ -295,19 +337,54 @@ async unusableItem(item) {
     }
   },
 
+  applyFilters(data) {
+      let filteredData = data;
+      if (this.filter.category) {
+        filteredData = filteredData.filter(item => item.category === this.filter.category);
+      }
+      if (this.filter.unitOfMeasure) {
+        filteredData = filteredData.filter(item => item.unit_of_measure === this.filter.unitOfMeasure);
+      }
+      if (this.filter.roomNumber) {
+        filteredData = filteredData.filter(item => item.room_number === this.filter.roomNumber);
+      }
+      if (this.filter.schoolLevel) {
+        filteredData = filteredData.filter(item => item.school_level === this.filter.schoolLevel);
+      }
+      if (this.filter.acceptedBy) {
+        filteredData = filteredData.filter(item => item.acceptedby === this.filter.acceptedBy);
+      }
+      return filteredData;
+    },
+
+    showFilterDialog() {
+      this.filterDialog = true;
+    }
 },
 watch: {
-  itemsList() {
+  damagelist() {
     this.$nextTick(() => {
       this.initializeTooltips();
     });
   }
 }
 
+//computed: {
+//  filteredItems() {
+//    return this.damagelist.filter(item => {
+//      return item.item_name.toLowerCase().includes(this.search.toLowerCase()) ||
+//        item.item_quantity.toString().includes(this.search) || item.acceptedby.toLowerCase().includes(this.search.toLowerCase());
+//    });
+//}
+//  roomNumbers() {
+//    return [...new Set(this.damagelist.map(item => item.room_number))];
+//}
+//  acceptedBy() {
+//    return [...new Set(this.damagelist.map(item => item.acceptedby))];
+//  }
+//},
 
-
-
-}
+};
 
 </script>
 

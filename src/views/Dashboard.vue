@@ -16,80 +16,79 @@
         <div class="total-container">
           <h3><span class="material-icons">school</span>Student Total</h3>
 
-        <v-card flat >
-            <v-list-item >
+          <v-card flat >
+              <v-list-item >
 
-                <v-list-item-content>
+                  <v-list-item-content>
 
-                  <div class="total-equipment">
-                    <div class="top">
-                        <v-card-text  v-if="dashboardInfo.totals" >
-                           <h2>Total Equipment Count:</h2>  <br> <h1> {{ dashboardInfo.totals.item_quantity}}</h1>
-                        </v-card-text> 
-                    </div>
-                   
-    
-                    <div class="bottom">
-                      <div class="per-item">
-                        <v-card-text  v-if="dashboardInfo.totals" class="borrowed" >
-                          <h5>Total Borrowed Items:</h5>  <br> <h4 style="color:green">{{ dashboardInfo.totals.borrowed_items}}</h4> 
-                        </v-card-text> 
-                        
-                        <v-card-text  v-if="dashboardInfo.totals" class="overdue" >
-                          <h5>Total Overdue Items:</h5>  <br> <h4 style="color: orange"> {{ dashboardInfo.totals.overdue_items}}</h4>
-                        </v-card-text> 
-                        
-                        <v-card-text  v-if="dashboardInfo.totals" class="damaged">
-                          <h5>Total Damage Items:</h5>   <br> <h4 style="color: red">{{ dashboardInfo.totals.damaged_items}}</h4>
-                        </v-card-text> 
+                    <div class="total-equipment">
+                      <div class="top">
+                          <v-card-text  v-if="dashboardInfo.totals" >
+                            <h2>Total Equipment Count:</h2>  <br> <h1> {{ dashboardInfo.totals.item_quantity}}</h1>
+                          </v-card-text> 
+                      </div>
+                    
+      
+                      <div class="bottom">
+                        <div class="per-item">
+                          <v-card-text  v-if="dashboardInfo.totals" class="borrowed" >
+                            <h5>Total Borrowed Items:</h5>  <br> <h4 style="color:green">{{ dashboardInfo.totals.borrowed_items}}</h4> 
+                          </v-card-text> 
+                          
+                          <v-card-text  v-if="dashboardInfo.totals" class="overdue" >
+                            <h5>Total Overdue Items:</h5>  <br> <h4 style="color: orange"> {{ dashboardInfo.totals.overdue_items}}</h4>
+                          </v-card-text> 
+                          
+                          <v-card-text  v-if="dashboardInfo.totals" class="damaged">
+                            <h5>Total Damage Items:</h5>   <br> <h4 style="color: red">{{ dashboardInfo.totals.damaged_items}}</h4>
+                          </v-card-text> 
+                        </div>
                       </div>
                     </div>
-                  </div>
-    
-            </v-list-item-content>
-            </v-list-item>
-            </v-card> 
-          </div>
-     
-    
-    <div class="trend-container">
-      <h3><span class="material-icons">trending_up</span>Item Trend</h3>
-
-      <div class="item-container">
-
-        <div class="most-borrowed">
-          <h3>Most Borrowed Items</h3>
-
-          <PieChart :data="mostBorrowedItems" label="Most Borrowed Items" />
-
-
-        </div>
-
-
-        <div class="most-damaged">
-          <h3>Most Damaged Items</h3>
-
-          <PieChart :data="mostDamagedItems" label="Most Damaged Items" />
-
-
-        </div>
-      </div>
-      </div>
-    </div>
-
-    <div class="right">
       
-    <div class="chart" >
-      <h3><span class="material-icons">format_list_numbered</span>JHS and SHS Item Overview</h3>
+              </v-list-item-content>
+              </v-list-item>
+            </v-card> 
+        </div>
 
-      <div class="chartTB" v-if="hasChartData">
-        
-        <BarChart 
-          :juniorHighData="juniorHighData"
-          :seniorHighData="seniorHighData"
-        />
+    </div>
+     
+    <div class="right">
+      <div class="trend-container">
+        <h3><span class="material-icons">trending_up</span>Item Trend</h3>
+
+        <div class="item-container">
+
+          <div class="most-borrowed">
+            <h3>Most Borrowed Items</h3>
+
+            <PieChart :data="mostBorrowedItems" label="Most Borrowed Items" />
+
+
+          </div>
+
+
+          <div class="most-damaged">
+            <h3>Most Damaged Items</h3>
+
+            <PieChart :data="mostDamagedItems" label="Most Damaged Items" />
+
+
+          </div>
         </div>
       </div>
+      
+      <div class="chart1" >
+        <h3><span class="material-icons">format_list_numbered</span>JHS and SHS Item Overview</h3>
+
+        <div class="chartTB" v-if="hasChartData">
+          
+          <BarChart 
+            :juniorHighData="juniorHighData"
+            :seniorHighData="seniorHighData"
+          />
+          </div>
+        </div>
     </div>
   </div>
   </main>
@@ -200,18 +199,16 @@ export default {
 
   .left{
     flex: 0.5;
-    border-radius: 5px;
-    margin-bottom: 1rem;
-    display: flex;
+    margin-bottom: 1.5rem;
       
-
       .total-container{
-        margin-right: 1rem;
+        // margin-right: 1rem;
         flex: 0.5;
         border-radius: 10px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.200);
         padding: 1.5rem;
         border-left: 6px solid var(--dark);
+        border-right: 6px solid var(--dark);
         color: var(--dark);
 
         h3 {
@@ -315,18 +312,43 @@ export default {
      
       }
     }
-    
+} 
+  
 
-    .trend-container{
-      flex: 0.5;
+
+
+.right{
+  flex: 3;
+  border-radius: 5px;
+  display: flex;
+  
+
+  // h3 {
+  //     text-shadow: 0 0 1px;
+  //     font-size: 20px;
+  //     position:relative;
+  //     bottom: 15px;
+      
+  //     .material-icons{
+  //       position:relative;
+  //       font-size: 35px;
+  //       top: 12px;
+  //       right: 2px;
+  //     }
+  //   }
+  
+
+
+  .trend-container{
+      // flex: 0.5;
       flex-direction: column;
       border-radius: 10px;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.200);
-      padding: 1.5rem;
-      border-right: 6px solid var(--dark);
+      padding: 2rem;
+      border-left: 6px solid var(--dark);
       color: var(--dark);
-
-
+      margin-right: 1rem;
+      width: 100%;
 
       h3 {
         text-shadow: 0 0 1px;
@@ -375,20 +397,11 @@ export default {
 
     }
 
-
-} 
-  
-
-
-
-.right{
-  flex: 0.5;
-
-  .chart{
+  .chart1 {
+    width: 60%;
     border-radius: 15px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.200);
-    padding: 1.5rem;
-    border-left: 6px solid var(--dark);
+    padding: 2rem;
     border-right: 6px solid var(--dark);
     color: var(--dark);
     height: 80%;

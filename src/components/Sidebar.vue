@@ -39,19 +39,20 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import Swal from 'sweetalert2'
-import 'sweetalert2/dist/sweetalert2.min.css'
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import Swal from 'sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
+import store from '../store'; // Import Vuex store
 
-const router = useRouter()
+const router = useRouter();
 
-const is_expanded = ref(localStorage.getItem("is_expanded") === "true")
+const is_expanded = ref(localStorage.getItem("is_expanded") === "true");
 
 const ToggleMenu = () => {
-    is_expanded.value = !is_expanded.value
-    localStorage.setItem("is_expanded", is_expanded.value.toString())
-}
+    is_expanded.value = !is_expanded.value;
+    localStorage.setItem("is_expanded", is_expanded.value.toString());
+};
 
 const logout = async () => {
     const result = await Swal.fire({
@@ -62,19 +63,24 @@ const logout = async () => {
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#808080',
         confirmButtonText: 'Yes, logout'
-    })
+    });
 
     if (result.isConfirmed) {
         try {
-            sessionStorage.clear()
-            localStorage.removeItem("token")
-            router.push('/login')
+            
+            sessionStorage.clear();
+            localStorage.removeItem("token");
+
+            store.dispatch('logout');
+
+            router.push('/login');
         } catch (error) {
-            console.error('Logout failed', error)
+            console.error('Logout failed', error);
         }
     }
-}
+};
 </script>
+
 
   <style lang="scss" scoped>
    aside {

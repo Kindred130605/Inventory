@@ -29,19 +29,23 @@
                     Inventory Panel - ADMIN PORTAL
                   </h4>
                   <v-form>
+                    <label for="email">Email/ID</label> 
                     <v-text-field 
                       v-model="email"
+                      id="email" 
                       label="Email/ID"
-                      name="Email"
+                      name="email" 
                       prepend-icon="mdi-email"
                       type="text"
                       color="var(--dark)"
                     />
+
+                    <label for="password">Password</label>
                     <v-text-field
                       v-model="password"
-                      id="password"
+                      id="password" 
                       label="Password"
-                      name="Password"
+                      name="password" 
                       prepend-icon="mdi-lock"
                       type="password"
                       color="var(--dark)"
@@ -49,7 +53,6 @@
                   </v-form>
                 </v-card-text>
                 <div class="text-center pb-2 mx-md-auto">
-                  <!-- <v-btn rectangle color="var(--dark)"> <router-link to="/dashboard" style="color:white; text-decoration: none; width: auto; font-size: 15px; ">Login</router-link></v-btn> -->
                   <v-btn class="login-button" rectangle color="var(--dark)" @click="login">Login</v-btn>
                 </div>
                 <div class="text-center pb-2">
@@ -70,56 +73,49 @@
 import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
 import auth from '../service/auth.js';
- export default {
-    data: () => ({
-      step: 1,
+import store from '../store'; 
+
+export default {
+  data() {
+    return {
       email: '',
       password: ''
+    };
+  },
+  methods: {
+    async login() {
+      const loginCredentials = new FormData();
+      loginCredentials.append('email', this.email);
+      loginCredentials.append('password', this.password);
 
-    }),
-    props: {
-      source: String
-    },
-    methods: {
-      async login() {
-  const loginCredentials = new FormData();
+      try {
+        const response = await auth.post('login', loginCredentials);
+        if (response.status === 200) {
+          console.log(response.data);
+          store.dispatch('login', response.data.access_token);
 
-  loginCredentials.append('email', this.email);
-  loginCredentials.append('password', this.password);
+          this.$router.push('/dashboard');
 
-  try {
-    const response = await auth.post('login', loginCredentials);
-    if (response.status === 200) {
-      console.log(response.data);
-      sessionStorage.setItem('token', response.data.access_token);
-     
-      this.$router.push('/dashboard');
-
-      Swal.fire({
-      title: 'Login Successful',
-      icon: 'success',
-      timer: 2000,
-      toast: true,
-      width:'20rem',
-      timerProgressBar: true,
-      position: 'top-end',
-      showConfirmButton: false, 
-      });
-
-    }
-  } catch (error) {
-    if (error.response) {
-      // Server responded with an error status code
-      if (error.response.status === 401) {
-        // Unauthorized: Incorrect email or password
-        Swal.fire({
+          Swal.fire({
+            title: 'Login Successful',
+            icon: 'success',
+            timer: 2000,
+            toast: true,
+            width: '20rem',
+            timerProgressBar: true,
+            position: 'top-end',
+            showConfirmButton: false,
+          });
+        }
+      } catch (error) {
+        if (error.response) {
+          if (error.response.status === 401) {
+            Swal.fire({
               icon: 'error',
               title: 'Login Failed',
               text: 'Incorrect email or password'
-            });      
-          } 
-          else {
-            // Other server errors
+            });
+          } else {
             Swal.fire({
               icon: 'error',
               title: 'Login Failed',
@@ -127,18 +123,19 @@ import auth from '../service/auth.js';
             });
           }
         } else {
-          // Network or client-side errors
           Swal.fire({
             icon: 'error',
             title: 'Login Failed',
             text: 'An error occurred while logging in'
           });
         }
-      }        
-    }
+      }
     }
   }
+};
 </script>
+
+
 
 <style scoped> 
 
@@ -207,4 +204,3 @@ import auth from '../service/auth.js';
 
 
 </style>
-

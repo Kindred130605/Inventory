@@ -19,6 +19,7 @@
         hide-details
         single-line
       ></v-text-field>
+      
       <v-btn color="primary" variant="flat" dark @click="downloadXLS()" class="tooltip-button"
     data-bs-toggle="tooltip" 
     data-bs-placement="bottom" 
@@ -26,6 +27,25 @@
           <v-icon left>mdi-download</v-icon>
           GENERATE REPORT
         </v-btn>
+
+        <v-menu offset-y>
+          <template v-slot:activator="{ props }">
+            <v-btn color="primary" style="margin: 10px;" variant="flat" dark v-bind="props">
+              GENERATE REPORT <v-icon right>mdi-download</v-icon>
+            </v-btn>
+          </template>
+          <v-list dense>
+            <v-list-item @click="prepareReport('PDF')">
+              <v-icon left>mdi-download</v-icon>
+              PDF
+            </v-list-item>
+            <v-list-item @click="prepareReport('EXCEL')">
+              <v-icon left>mdi-download</v-icon>
+              EXCEL
+            </v-list-item>
+          </v-list>
+        </v-menu>
+
       </v-toolbar>
     </template>
 
@@ -69,7 +89,7 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="primary" @click="downloadXLS()">Generate Report</v-btn>
+        <v-btn color="primary" @click="generateReport()">Generate Report</v-btn>
         <v-btn color="error" @click="filterDialog = false">Cancel</v-btn>
       </v-card-actions>
     </v-card>
@@ -82,6 +102,9 @@ import api from '../service/axiosApi.js';
 import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
 import ExcelJS from 'exceljs';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+
 export default {
  
   data() {
@@ -125,7 +148,7 @@ export default {
         acceptedBy: null
       },
       filterDialog: false,
-
+       reportType: ''
     };
 },
 
@@ -215,6 +238,21 @@ async unusableItem(item) {
   }
 },
 
+
+prepareReport(type) {
+      this.reportType = type;
+      this.filterDialog = true; // Open the filter dialog
+    },
+
+    async generateReport() {
+      if (this.reportType === 'PDF') {
+        await this.downloadPDF();
+      } else if (this.reportType === 'EXCEL') {
+        await this.downloadXLS();
+      }
+      this.filterDialog = false;
+    },
+
   async convertExcel(data) {
   const excel = new ExcelJS.Workbook();
   const worksheet = excel.addWorksheet("Items");
@@ -297,6 +335,56 @@ async unusableItem(item) {
   }
 },
 
+async convertPDF(data) {
+      const doc = new jsPDF();
+
+      // Fetch image and convert to base64
+      const imageResponse = await fetch('/src/assets/schoolLogo3.png');
+      const imageBlob = await imageResponse.blob();
+      const imageBase64 = await this.blobToBase64(imageBlob);
+
+      // Add the image
+      doc.addImage(imageBase64, 'PNG', 25, 10, 40, 40);
+
+
+      // Add the school name and other info
+      doc.setFontSize(12);
+      doc.text('Saint Nicholas Academy', 105, 20, null, null, 'center');
+      doc.setFontSize(12);
+      doc.text('Address', 105, 30, null, null, 'center');
+      doc.text('Contact No', 105, 35, null, null, 'center');
+      doc.text(`As of: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' })}`, 105, 40, null, null, 'center');
+
+      const headers = [
+        ['Item Name', 'Item Quantity', 'Category', 'Unit Of Measure', 'Room Number', 'School Level', 'Accepted By', 'Borrowed Items', 'Overdue Items', 'Damaged Items']
+      ];
+
+      const rows = data.map(item => [
+        item.item_name,
+        item.item_quantity,
+        item.category,
+        item.unit_of_measure,
+        item.room_number,
+        item.school_level,
+        item.acceptedby,
+        item.borrowed_items,
+        item.overdue_items,
+        item.damaged_items
+      ]);
+
+      // Add the table to the PDF
+      doc.autoTable({
+        head: headers,
+        body: rows,
+        startY: 90,
+        theme: 'striped',
+
+        startY: 50,
+      });
+
+      return doc;
+    },
+
   blobToBase64(blob) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -336,6 +424,17 @@ async unusableItem(item) {
       console.error('Error downloading XLS:', error);
     }
   },
+
+  
+  async downloadPDF() {
+      try {
+        const data = this.applyFilters(this.itemsList);
+        const pdf = await this.convertPDF(data);
+        pdf.save('report.pdf');
+      } catch (error) {
+        console.error('Error in downloadPDF:', error);
+      }
+    },
 
   applyFilters(data) {
       let filteredData = data;

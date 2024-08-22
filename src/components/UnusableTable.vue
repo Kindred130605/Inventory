@@ -122,72 +122,78 @@ methods: {
       const excel = new ExcelJS.Workbook();
       const worksheet = excel.addWorksheet("Items");
 
-      try {
-        // Fetch image and convert to base64
-        const imageResponse = await fetch('/src/assets/SNA Logo no BG.png');
-        const imageBlob = await imageResponse.blob();
-        const imageBase64 = await this.blobToBase64(imageBlob);
+    try {
+    // Fetch image and convert to base64
+    const imageResponse = await fetch('/src/assets/SNA Logo no BG.png');
+    const imageBlob = await imageResponse.blob();
+    const imageBase64 = await this.blobToBase64(imageBlob);
 
-        const logo = excel.addImage({
-          base64: imageBase64,
-          extension: 'png'
-        });
+    const logo = excel.addImage({
+      base64: imageBase64,
+      extension: 'png'
+    });
 
-        worksheet.getCell('A6').fill = {
-          type: 'pattern',
-          pattern: 'solid',
-          fgColor: { argb: 'FFFFFF' } // White background color
-        };
+    // Style the header with a white background
+    worksheet.getCell('A6').fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFFFFF' }
+    };
 
-        for (let col = 1; col <= 9; col++) { // Columns A to I
-          const cell = worksheet.getCell(6, col);
-          cell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: 'FFFFFF' } // White background color
-          };
-        }
+    for (let col = 1; col <= 9; col++) { // Columns A to I
+      const cell = worksheet.getCell(6, col);
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFFFFF' }
+      };
+    }
 
-        // Make sure other parts of the code remain unchanged
-        worksheet.addImage(logo, {
-          tl: { col: 1, row: 0 }, // Starting at B1 (col: 1, row: 0)
-          ext: { width: 180, height: 120 },
-          editAs: 'absolute'
-        });
+    worksheet.addImage(logo, {
+    tl: { col: 0.5, row: 0 }, // Left logo starting at B1
+    ext: { width: 150, height: 150 },
+    editAs: 'absolute'
+});
 
-        worksheet.addImage(logo, {
-          tl: { col: 7, row: 0 }, // Starting at H1 (col: 7, row: 0)
-          ext: { width: 180, height: 120 },
-          editAs: 'absolute'
-        });
+// Adjust the right logo to bring it closer to the center
+worksheet.addImage(logo, {
+    tl: { col: 5.9, row: 0 }, // Right logo starting between columns G and H
+    ext: { width: 150, height: 150 },
+    editAs: 'absolute'
+});
 
-        worksheet.mergeCells('B1:C4');  // Left logo space
-        worksheet.mergeCells('H1:I4');  // Right logo space
-        worksheet.mergeCells('D1:G2');  // Title space
-        worksheet.mergeCells('D3:G4');  // Subtitle space
-        worksheet.mergeCells('D5:G6');  // Date space
 
-        const titleCell = worksheet.getCell('D1');
-        titleCell.value = "School Name";
-        titleCell.font = { size: 16, bold: true };
-        titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
 
-        const subtitleCell = worksheet.getCell('D3');
-        subtitleCell.value = "Items Report";
-        subtitleCell.font = { size: 12, bold: true };
-        subtitleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+worksheet.mergeCells('C1:F2');  // Title space
+worksheet.mergeCells('C3:F4');  // Subtitle space
+worksheet.mergeCells('C5:F6');  // Date space
 
-        const dateCell = worksheet.getCell('D5');
-        dateCell.value = `As of: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' })}`;
-        dateCell.font = { size: 12, bold: true };
-        dateCell.alignment = { horizontal: 'center', vertical: 'middle' };
+// Title cell styling
+const titleCell = worksheet.getCell('C1');
+titleCell.value = "Saint Nicholas Academy";
+titleCell.font = { size: 16, bold: true };
+titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
 
-        worksheet.getRow(1).height = 40; // Adjust as needed
-        worksheet.getRow(3).height = 40; // Adjust as needed
-        worksheet.getRow(5).height = 40; // Adjust as needed
+// Subtitle cell styling
+const subtitleCell = worksheet.getCell('C3');
+subtitleCell.value = "Items Report";
+subtitleCell.font = { size: 14, bold: true };
+subtitleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+// Date cell styling
+const dateCell = worksheet.getCell('C5');
+dateCell.value = `As of: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' })}`;
+dateCell.font = { size: 14, bold: true };
+dateCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+        // Adjust row heights
+        worksheet.getRow(1).height = 40;
+        worksheet.getRow(3).height = 40;
+        worksheet.getRow(5).height = 40;
+
+        // Add a row gap before the data table
         worksheet.addRow();
 
-        const startRow = 7; 
 
     const headers = [
       'Item Name',
@@ -200,19 +206,19 @@ methods: {
     ];
 
     const headerRow = worksheet.addRow(headers);
-        headerRow.eachCell((cell) => {
-          cell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: '4167B8' }
-          };
-          cell.font = { color: { argb: 'FFFFFF' }, bold: true };
-          cell.alignment = { horizontal: 'center', vertical: 'middle' };
-        });
+    headerRow.eachCell((cell) => {
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: '4167B8' } // Blue header background
+      };
+      cell.font = { color: { argb: 'FFFFFF' }, bold: true }; // White font
+      cell.alignment = { horizontal: 'center', vertical: 'middle' };
+    });
 
     // Add data rows
     data.forEach(item => {
-      worksheet.addRow([
+    const row = worksheet.addRow([
       item.item_name,
       item.category,
       item.school_level,
@@ -221,16 +227,21 @@ methods: {
       item.quantity,
       item.date_reported,
       ]);
-    });
 
+   // Center align each cell in the row
+   row.eachCell((cell) => {
+    cell.alignment = { horizontal: 'center', vertical: 'middle' };
+  });
+});
+
+    // Adjust column widths based on content
     worksheet.columns.forEach((column) => {
-          const maxLength = column.values.reduce((acc, val) => {
-            const length = val ? val.toString().length : 0;
-            return Math.max(acc, length);
-          }, 5);
-          column.width = Math.min(maxLength + 2, 15); // Reduce padding and set a maximum width
-        });
-
+      const maxLength = column.values.reduce((acc, val) => {
+        const length = val ? val.toString().length : 0;
+        return Math.max(acc, length);
+      }, 5);
+      column.width = Math.min(maxLength + 2, 20); // Reduce padding and set a maximum width
+    });
 
     return excel; // Return the excel workbook
   } catch (error) {
@@ -242,11 +253,11 @@ async convertPDF(data) {
       const doc = new jsPDF();
 
       // Fetch image and convert to base64
-      const imgData = await fetch('/src/assets/schoolLogo3.png')
+      const imgData = await fetch('/src/assets/SNA Logo no BG.png')
         .then(res => res.blob())
         .then(this.blobToBase64);
 
-      doc.addImage(imgData, 'PNG', 25, 10, 40, 40);
+      doc.addImage(imgData, 'PNG', 25, 10, 30, 30);
 
 
       // Add the school name and other info
@@ -268,7 +279,7 @@ async convertPDF(data) {
       item.quantity,
       item.date_reported
     ]),
-    startY: 50, 
+    startY: 60, 
   });
 
   return doc;

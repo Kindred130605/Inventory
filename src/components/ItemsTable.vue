@@ -509,14 +509,14 @@ export default {
 
         // Make sure other parts of the code remain unchanged
         worksheet.addImage(logo, {
-          tl: { col: 1, row: 0 }, // Starting at B1 (col: 1, row: 0)
-          ext: { width: 180, height: 120 },
+          tl: { col: 1, row: 1}, // Starting at B1 (col: 1, row: 0)
+          ext: { width: 150, height: 150 },
           editAs: 'absolute'
         });
 
         worksheet.addImage(logo, {
-          tl: { col: 7, row: 0 }, // Starting at H1 (col: 7, row: 0)
-          ext: { width: 180, height: 120 },
+          tl: { col: 7, row: 1 }, // Starting at H1 (col: 7, row: 0)
+          ext: { width: 150, height: 150 },
           editAs: 'absolute'
         });
 
@@ -527,19 +527,19 @@ export default {
         worksheet.mergeCells('D5:G6');  // Date space
 
         const titleCell = worksheet.getCell('D1');
-        titleCell.value = "School Name";
+        titleCell.value = "Saint Nicholas Academy";
         titleCell.font = { size: 16, bold: true };
-        titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+        titleCell.alignment = { horizontal: 'center', vertical: 'middle' };  // Centered within the merged range D1:G2
 
         const subtitleCell = worksheet.getCell('D3');
         subtitleCell.value = "Items Report";
-        subtitleCell.font = { size: 12, bold: true };
-        subtitleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+        subtitleCell.font = { size: 14, bold: true };
+        subtitleCell.alignment = { horizontal: 'center', vertical: 'middle' };  // Centered within the merged range D3:G4
 
         const dateCell = worksheet.getCell('D5');
         dateCell.value = `As of: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' })}`;
-        dateCell.font = { size: 12, bold: true };
-        dateCell.alignment = { horizontal: 'center', vertical: 'middle' };
+        dateCell.font = { size: 14, bold: true };
+        dateCell.alignment = { horizontal: 'center', vertical: 'middle' };  // Centered within the merged range D5:G6
 
         worksheet.getRow(1).height = 40; // Adjust as needed
         worksheet.getRow(3).height = 40; // Adjust as needed
@@ -577,17 +577,22 @@ export default {
       
         data.forEach((item) => {
           const row = worksheet.addRow([
-            item.item_name,
-            item.item_quantity,
-            item.category,
-            item.unit_of_measure,
-            item.room_number,
-            item.school_level,
-            item.acceptedby,
-            item.borrowed_items,
-            item.overdue_items,
-            item.damaged_items
+              item.item_name,
+              item.item_quantity,
+              item.category,
+              item.unit_of_measure,
+              item.room_number,
+              item.school_level,
+              item.acceptedby,
+              this.totalBorrowedQuantities[item.id] || 0,
+              item.overdue_items || 0,
+              item.damaged_items || 0
           ]);
+
+              row.eachCell((cell) => {
+            cell.alignment = { horizontal: 'center', vertical: 'middle' }; // Center align the data cells
+          });
+
         });
 
 
@@ -596,8 +601,8 @@ export default {
             const length = val ? val.toString().length : 0;
             return Math.max(acc, length);
           }, 5);
-          column.width = Math.min(maxLength + 2, 15); // Reduce padding and set a maximum width
-        });
+          column.width = Math.min(maxLength + 2, 27); // Reduce padding and set a maximum width
+        });5
 
         return excel; // Return the excel workbook
       } catch (error) {

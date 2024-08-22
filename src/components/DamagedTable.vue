@@ -246,54 +246,85 @@ prepareReport(type) {
       this.filterDialog = false;
     },
 
-  async convertExcel(data) {
+    async convertExcel(data) {
   const excel = new ExcelJS.Workbook();
   const worksheet = excel.addWorksheet("Items");
 
   try {
-    const imageResponse = await fetch('/src/assets/schoolLogo3.png');
+    // Fetch image and convert to base64
+    const imageResponse = await fetch('/src/assets/SNA Logo no BG.png');
     const imageBlob = await imageResponse.blob();
-    const imageBase64 = await this.blobToBase64(imageBlob); // Use `this` to access the method
+    const imageBase64 = await this.blobToBase64(imageBlob);
 
     const logo = excel.addImage({
       base64: imageBase64,
       extension: 'png'
     });
 
-    worksheet.addImage(logo, {
-      tl: { col: 0, row: 0 },
-      ext: { width: 180, height: 120 },
-      editAs: 'absolute'
+    // Style the header with a white background
+    worksheet.getCell('A6').fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFFFFF' }
+    };
+
+    for (let col = 1; col <= 9; col++) { // Columns A to I
+      const cell = worksheet.getCell(6, col);
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFFFFF' }
+      };
+    }
+
+
+        // Make sure other parts of the code remain unchanged
+        worksheet.addImage(logo, {
+        tl: { col: 1, row: 1 }, // Starting at B1 (col: 1, row: 0)
+        ext: { width: 150, height: 150 },
+        editAs: 'absolute'
     });
 
-    worksheet.addImage(logo, {
-      tl: { col: 7, row: 0 },
-      ext: { width: 180, height: 120 },
-      editAs: 'absolute'
+        worksheet.addImage(logo, {
+        tl: { col: 7, row: 1 }, // Starting at H1 (col: 7, row: 0)
+        ext: { width: 150, height: 150 },
+        editAs: 'absolute'
     });
 
+        worksheet.mergeCells('B1:C4');  // Left logo space
+        worksheet.mergeCells('H1:I4');  // Right logo space
+        worksheet.mergeCells('D1:G2');  // Title space
+        worksheet.mergeCells('D3:G4');  // Subtitle space
+        worksheet.mergeCells('D5:G6');  // Date space
 
-    worksheet.mergeCells('A2:J2');
-    worksheet.getCell('A2').value = 'Saint Nicholas Academy';
-    worksheet.getCell('A2').alignment = { vertical: 'middle', horizontal: 'center' };
-    worksheet.getCell('A2').font = { size: 16, bold: true };
+        // Title cell styling
+        const titleCell = worksheet.getCell('D1');
+        titleCell.value = "Saint Nicholas Academy";
+        titleCell.font = { size: 16, bold: true };
+        titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
 
-    worksheet.addRow(); 
+        // Subtitle cell styling
+        const subtitleCell = worksheet.getCell('D3');
+        subtitleCell.value = "Items Report";
+        subtitleCell.font = { size: 14, bold: true };
+        subtitleCell.alignment = { horizontal: 'center', vertical: 'middle' };
 
-    worksheet.mergeCells('A3:J3');
-    worksheet.getCell('A3').value = 'Address';
-    worksheet.getCell('A3').alignment = { vertical: 'middle', horizontal: 'center' };
-    worksheet.getCell('A3').font = { size: 12 };
+        // Date cell styling
+        const dateCell = worksheet.getCell('D5');
+        dateCell.value = `As of: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' })}`;
+        dateCell.font = { size: 14, bold: true };
+        dateCell.alignment = { horizontal: 'center', vertical: 'middle' };
 
-    worksheet.mergeCells('A4:J4');
-    worksheet.getCell('A4').value = 'Contact No';
-    worksheet.getCell('A4').alignment = { vertical: 'middle', horizontal: 'center' };
-    worksheet.getCell('A4').font = { size: 12 };
+        // Adjust row heights
+        worksheet.getRow(1).height = 40;
+        worksheet.getRow(3).height = 40;
+        worksheet.getRow(5).height = 40;
 
-    worksheet.addRow(); // Add an empty row for separation
+        // Add a row gap before the data table
+        worksheet.addRow();
 
-    // Add column headers
-    worksheet.addRow([
+
+    const headers = [
       'Item Name',
       'Category',
       'Unit Of Measure',
@@ -304,11 +335,23 @@ prepareReport(type) {
       'Item Quantity',
       'Date Reported', 
       'Adviser'
-    ]);
+    ];
+
+    const headerRow = worksheet.addRow(headers);
+    headerRow.eachCell((cell) => {
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: '4167B8' } // Blue header background
+      };
+      cell.font = { color: { argb: 'FFFFFF' }, bold: true }; // White font
+      cell.alignment = { horizontal: 'center', vertical: 'middle' };
+    });
+
 
     // Add data rows
     data.forEach(item => {
-      worksheet.addRow([
+      const row = worksheet.addRow([
       item.item_name,
       item.category,
       item.unit_of_measure,
@@ -320,6 +363,19 @@ prepareReport(type) {
       item.date_reported,
       item.adviser,
       ]);
+         // Center align each cell in the row
+         row.eachCell((cell) => {
+        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      });
+    });
+
+    // Adjust column widths to fit content
+    worksheet.columns.forEach((column) => {
+      const maxLength = column.values.reduce((acc, val) => {
+        const length = val ? val.toString().length : 0;
+        return Math.max(acc, length);
+      }, 10);
+      column.width = maxLength + 2; // Adjust padding as needed
     });
 
     return excel; // Return the excel workbook
@@ -340,11 +396,11 @@ async downloadXLS() {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'Damage.xlsx';
+        a.download = 'DamageReport.xlsx';
         a.click();
         window.URL.revokeObjectURL(url);
         
-        Swal.fire('Success!', 'Generate report successfully', 'success');
+        Swal.fire('Download Success!', 'Generate report successfully', 'success');
 
       } else {
         Swal.fire({
@@ -374,11 +430,11 @@ async downloadPDF() {
       const doc = new jsPDF();
       
 
-      const imgData = await fetch('/src/assets/schoolLogo3.png')
+      const imgData = await fetch('/src/assets/SNA Logo no BG.png')
         .then(res => res.blob())
         .then(this.blobToBase64);
 
-      doc.addImage(imgData, 'PNG', 25, 10, 40, 40);
+      doc.addImage(imgData, 'PNG', 25, 10, 30, 30);
 
       doc.setFontSize(12);
       doc.text('Saint Nicholas Academy', 105, 20, null, null, 'center');
@@ -412,11 +468,12 @@ async downloadPDF() {
         startY: 40,
         theme: 'striped',
         
-        startY: 50,
+        startY: 60,
       });
 
       // Save the PDF
       doc.save('DamagedReport.pdf');
+
 
       Swal.fire({
           title: 'Download Success!',

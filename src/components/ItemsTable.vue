@@ -347,7 +347,7 @@ export default {
 
           });
       } else {
-        api.post('/items/add', toLowerCase(this.itemsData))
+        api.post('/items/add', this.itemsData)
           .then(response => {
             this.itemsList.push({ ...this.itemsData });
             this.dialog = false;
@@ -574,7 +574,7 @@ export default {
           cell.alignment = { horizontal: 'center', vertical: 'middle' };
         });
 
-        // Add data rows starting from the defined row
+      
         data.forEach((item) => {
           const row = worksheet.addRow([
             item.item_name,
@@ -590,7 +590,7 @@ export default {
           ]);
         });
 
-        // Adjust column widths based on the data
+
         worksheet.columns.forEach((column) => {
           const maxLength = column.values.reduce((acc, val) => {
             const length = val ? val.toString().length : 0;
@@ -631,7 +631,7 @@ export default {
       const doc = new jsPDF();
 
       // Fetch image and convert to base64
-      const imageResponse = await fetch('/src/assets/schoolLogo3.png');
+      const imageResponse = await fetch('/src/assets/SNA Logo no BG.png');
       const imageBlob = await imageResponse.blob();
       const imageBase64 = await this.blobToBase64(imageBlob);
 

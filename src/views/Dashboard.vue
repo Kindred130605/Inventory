@@ -14,7 +14,7 @@
     <div class="left">
 
         <div class="total-container">
-          <h3><span class="material-icons">school</span>Student Total</h3>
+          <!-- <h3><span class="material-icons">school</span>Student Total</h3> -->
 
           <v-card flat >
               <v-list-item >
@@ -22,15 +22,18 @@
                   <v-list-item-content>
 
                     <div class="total-equipment">
-                      <div class="top">
+                      <!-- <div class="top">
                           <v-card-text  v-if="dashboardInfo.totals" >
                             <h2>Total Equipment Count:</h2>  <br> <h1> {{ dashboardInfo.totals.item_quantity}}</h1>
                           </v-card-text> 
-                      </div>
+                      </div> -->
                     
-      
                       <div class="bottom">
                         <div class="per-item">
+                          <v-card-text  v-if="dashboardInfo.totals"  class="total" >
+                            <h5>Total Equipment Count:</h5>  <br> <h4 style="color: var(--dark)">{{ dashboardInfo.totals.item_quantity}}</h4>
+                          </v-card-text> 
+
                           <v-card-text  v-if="dashboardInfo.totals" class="borrowed" >
                             <h5>Total Borrowed Items:</h5>  <br> <h4 style="color:green">{{ dashboardInfo.totals.borrowed_items}}</h4> 
                           </v-card-text> 
@@ -203,13 +206,13 @@ export default {
       
       .total-container{
         // margin-right: 1rem;
-        flex: 0.5;
-        border-radius: 10px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.200);
-        padding: 1.5rem;
-        border-left: 6px solid var(--dark);
-        border-right: 6px solid var(--dark);
-        color: var(--dark);
+        // flex: 0.5;
+        // border-radius: 10px;
+        // box-shadow: 0 2px 5px rgba(0, 0, 0, 0.200);
+        // padding: 0.3rem;
+        // border-left: 6px solid var(--dark);
+        // border-right: 6px solid var(--dark);
+        // color: var(--dark);
 
         h3 {
           text-shadow: 0 0 1px;
@@ -230,7 +233,7 @@ export default {
 
         .top{
           text-align: center;
-          padding: 1rem;
+          // padding: 1rem;
           flex: 0.5;
 
           h2{
@@ -241,7 +244,7 @@ export default {
   
           }
           h1{
-            font-size: 46px;
+            font-size: 30px;
             color: var(--grey);
             font-weight: 900;
           }
@@ -249,7 +252,8 @@ export default {
   
         .bottom{
           flex: 0.5;
-          padding: 1rem;
+          // padding: 1rem;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.200);
           h5{
             color: var(--dark-alt);
             font-weight: 700;
@@ -267,7 +271,14 @@ export default {
             border-radius: 5px;
             gap: 1.5rem;
             padding: 1rem;
-        
+
+
+          .total{
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.200);
+          border-radius: 10px;
+          border-top: 8px solid var(--dark);
+          }
+
           .borrowed{
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.200);
             border-radius: 10px;
@@ -321,6 +332,7 @@ export default {
   flex: 3;
   border-radius: 5px;
   display: flex;
+  height: auto;
   
 
   // h3 {
@@ -344,7 +356,7 @@ export default {
       flex-direction: column;
       border-radius: 10px;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.200);
-      padding: 2rem;
+      padding: 2rem 2rem 1rem 2rem;
       border-left: 6px solid var(--dark);
       color: var(--dark);
       margin-right: 1rem;
@@ -366,6 +378,12 @@ export default {
 
       .item-container{
         display: flex;
+
+        .chart {
+          height: 16rem;
+          display: flex;
+          justify-content: space-evenly;
+        }
         
         .most-borrowed{
           padding:2rem;
@@ -401,10 +419,9 @@ export default {
     width: 60%;
     border-radius: 15px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.200);
-    padding: 2rem;
+    padding: 2rem 2rem 1rem 2rem;
     border-right: 6px solid var(--dark);
     color: var(--dark);
-    height: 80%;
 
       h3 {
         text-shadow: 0 0 1px;
@@ -422,8 +439,9 @@ export default {
 
     .chartTB {
       width: 100%;
-      height: 30rem;
+      height: 20rem;
     }
+
   }
 }
 }

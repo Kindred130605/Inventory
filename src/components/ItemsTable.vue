@@ -74,7 +74,14 @@
       <v-card-text>
         <v-text-field v-model="itemsData.item_name" label="Item Name"></v-text-field>
         <v-text-field v-model="itemsData.item_quantity" label="Item Quantity" type="number"></v-text-field>
-        <v-select v-model="itemsData.category" label="Category" :items="chmeasure"></v-select>
+        <v-combobox
+            v-model="itemsData.category"
+            :items="chmeasure"
+            label="Category"
+            clearable
+            return-object
+            dense
+        ></v-combobox>
         <v-select v-model="itemsData.unit_of_measure" label="Unit of Measure" :items="chquantity"></v-select>
         <v-text-field v-model="itemsData.room_number" label="Room Number"></v-text-field>
         <v-select v-model="itemsData.school_level" label="School Level" :items="chschool"></v-select>
@@ -440,14 +447,14 @@ export default {
 
     async getStudents() {
       try {
-        const response = await api.get('http://26.81.173.255:8000/api/student');
+        const response = await api.get('http://26.11.249.89:8000/api/student');
         //const response = await api.get('http://localhost:8000/api/student');
         console.log(response);
         this.studentsList = response.data.student.map(student => ({
-          student_id: student.student_id,
-          title: student.student_id,
-          adviser: student.adviser ? student.adviser.full_name : ''
-        }));
+      student_id: student.student_id,
+      title: `${student.first_name} ${student.last_name}`, // Combine first and last name
+      adviser: student.adviser ? student.adviser.full_name : ''
+    }));
         console.log(this.studentsList);
       } catch (error) {
         console.error('Error fetching items:', error);
@@ -629,7 +636,7 @@ export default {
       const imageBase64 = await this.blobToBase64(imageBlob);
 
       // Add the image
-      doc.addImage(imageBase64, 'PNG', 25, 10, 40, 40);
+      doc.addImage(imageBase64, 'PNG', 25, 10, 40, 40); 
 
 
       // Add the school name and other info
@@ -639,6 +646,8 @@ export default {
       doc.text('Address', 105, 30, null, null, 'center');
       doc.text('Contact No', 105, 35, null, null, 'center');
       doc.text(`As of: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' })}`, 105, 40, null, null, 'center');
+
+
 
       const headers = [
         ['Item Name', 'Item Quantity', 'Category', 'Unit Of Measure', 'Room Number', 'School Level', 'Accepted By', 'Borrowed Items', 'Overdue Items', 'Damaged Items']
@@ -664,22 +673,13 @@ export default {
         startY: 90,
         theme: 'striped',
 
-        startY: 50,
+        startY: 50, 
       });
 
       return doc;
     },
 
 
-    async downloadPDF() {
-      try {
-        const data = this.applyFilters(this.itemsList);
-        const pdf = await this.convertPDF(data);
-        pdf.save('report.pdf');
-      } catch (error) {
-        console.error('Error in downloadPDF:', error);
-      }
-    },
 
 
     blobToBase64(blob) {
@@ -691,7 +691,22 @@ export default {
       });
     },
 
+    async downloadPDF() {
+      try {
+        const data = this.applyFilters(this.itemsList);
+        const pdf = await this.convertPDF(data);
+        pdf.save('ItemsReport.pdf');
 
+        Swal.fire({
+          title: 'Download Success!',
+          icon: 'success',
+          confirmButtonText: 'OK'
+        });
+
+      } catch (error) {
+        console.error('Error in downloadPDF:', error);
+      }
+    },
 
 
     applyFilters(data) {

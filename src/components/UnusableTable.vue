@@ -74,7 +74,7 @@ export default {
         { title: 'Item Name', key: 'item_name' },
         { title: 'Category', key: 'category' },
         { title: 'School Level', key: 'school_level' },
-        { title: 'Reported By', key: 'report_by' },
+        { title: 'Damaged By', key: 'report_by' },
         { title: 'Description', key: 'description' },
         { title: 'Item Quantity', key: 'quantity' },
         { title: 'Date Reported', key: 'date_reported' },
@@ -220,34 +220,21 @@ async convertPDF(data) {
       doc.text('Contact No', 105, 35, null, null, 'center');
       doc.text(`As of: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' })}`, 105, 40, null, null, 'center');
 
-      const headers = [
-        ['Item Name', 'Item Quantity', 'Category', 'Unit Of Measure', 'Room Number', 'School Level', 'Accepted By', 'Borrowed Items', 'Overdue Items', 'Damaged Items']
-      ];
-
-      const rows = data.map(item => [
-        item.item_name,
-        item.item_quantity,
-        item.category,
-        item.unit_of_measure,
-        item.room_number,
-        item.school_level,
-        item.acceptedby,
-        item.borrowed_items,
-        item.overdue_items,
-        item.damaged_items
-      ]);
-
-      // Add the table to the PDF
       doc.autoTable({
-        head: headers,
-        body: rows,
-        startY: 90,
-        theme: 'striped',
+    head: [['Item Name', 'Category', 'School Level', 'Damaged By', 'Description', 'Item Quantity', 'Date Reported']],
+    body: data.map(item => [
+      item.item_name,
+      item.category,
+      item.school_level,
+      item.report_by,
+      item.description,
+      item.quantity,
+      item.date_reported
+    ]),
+    startY: 50, 
+  });
 
-        startY: 50,
-      });
-
-      return doc;
+  return doc;
     },
 
 
@@ -297,7 +284,13 @@ async convertPDF(data) {
     try {
       const data = this.unusablelist;
       const pdf = await this.convertPDF(data);
-      pdf.save('report.pdf');
+      pdf.save('UnusableReport.pdf');
+
+      Swal.fire({
+          title: 'Download Success!',
+          icon: 'success',
+          confirmButtonText: 'OK'
+        });
     } catch (error) {
       console.error('Error in downloadPDF:', error);
     }

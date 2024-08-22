@@ -20,14 +20,6 @@
         single-line
       ></v-text-field>
       
-      <v-btn color="primary" variant="flat" dark @click="downloadXLS()" class="tooltip-button"
-    data-bs-toggle="tooltip" 
-    data-bs-placement="bottom" 
-    data-bs-title="DOWNLOAD EXCELL">
-          <v-icon left>mdi-download</v-icon>
-          GENERATE REPORT
-        </v-btn>
-
         <v-menu offset-y>
           <template v-slot:activator="{ props }">
             <v-btn color="primary" style="margin: 10px;" variant="flat" dark v-bind="props">
@@ -337,48 +329,36 @@ prepareReport(type) {
 
 async convertPDF(data) {
       const doc = new jsPDF();
+      
 
-      // Fetch image and convert to base64
-      const imageResponse = await fetch('/src/assets/schoolLogo3.png');
-      const imageBlob = await imageResponse.blob();
-      const imageBase64 = await this.blobToBase64(imageBlob);
+      const imgData = await fetch('/src/assets/schoolLogo3.png')
+        .then(res => res.blob())
+        .then(this.blobToBase64);
 
-      // Add the image
-      doc.addImage(imageBase64, 'PNG', 25, 10, 40, 40);
+      doc.addImage(imgData, 'PNG', 25, 10, 40, 40);
 
+      doc.setFontSize(16);
+      doc.text('Saint Nicholas Academy', 105, 20, null, null, 'center'); 
 
-      // Add the school name and other info
-      doc.setFontSize(12);
-      doc.text('Saint Nicholas Academy', 105, 20, null, null, 'center');
       doc.setFontSize(12);
       doc.text('Address', 105, 30, null, null, 'center');
       doc.text('Contact No', 105, 35, null, null, 'center');
       doc.text(`As of: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' })}`, 105, 40, null, null, 'center');
 
-      const headers = [
-        ['Item Name', 'Item Quantity', 'Category', 'Unit Of Measure', 'Room Number', 'School Level', 'Accepted By', 'Borrowed Items', 'Overdue Items', 'Damaged Items']
-      ];
-
-      const rows = data.map(item => [
-        item.item_name,
-        item.item_quantity,
-        item.category,
-        item.unit_of_measure,
-        item.room_number,
-        item.school_level,
-        item.acceptedby,
-        item.borrowed_items,
-        item.overdue_items,
-        item.damaged_items
-      ]);
-
-      // Add the table to the PDF
       doc.autoTable({
-        head: headers,
-        body: rows,
-        startY: 90,
-        theme: 'striped',
-
+        head: [['Item Name', 'Category','Unit of Measure', 'Room Number', 'School Level', 'Reported By', 'Description', 'Item Quantity', 'Date Reported', 'Adviser']],
+        body: data.map(item => [
+            item.item_name,
+            item.category,
+            item.unit_of_measure,
+            item.room_number,
+            item.school_level,
+            item.report_by,
+            item.description,
+            item.quantity,
+            item.date_reported,
+            item.adviser,
+        ]),
         startY: 50,
       });
 
@@ -425,64 +405,146 @@ async convertPDF(data) {
     }
   },
 
-  
+  async convertPDF(data) {
+      const doc = new jsPDF();
+
+      // Fetch image and convert to base64
+      const imageResponse = await fetch('/src/assets/schoolLogo3.png');
+      const imageBlob = await imageResponse.blob();
+      const imageBase64 = await this.blobToBase64(imageBlob);
+
+      // Add the image
+      doc.addImage(imageBase64, 'PNG', 25, 10, 40, 40); 
+
+
+      // Add the school name and other info
+      doc.setFontSize(12);
+      doc.text('Saint Nicholas Academy', 105, 20, null, null, 'center');
+      doc.setFontSize(12);
+      doc.text('Address', 105, 30, null, null, 'center');
+      doc.text('Contact No', 105, 35, null, null, 'center');
+      doc.text(`As of: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' })}`, 105, 40, null, null, 'center');
+
+
+
+      const headers = [
+        ['Item Name', 'Item Quantity', 'Category', 'Unit Of Measure', 'Room Number', 'School Level', 'Accepted By', 'Borrowed Items', 'Overdue Items', 'Damaged Items']
+      ];
+
+      const rows = data.map(item => [
+        item.item_name,
+        item.item_quantity,
+        item.category,
+        item.unit_of_measure,
+        item.room_number,
+        item.school_level,
+        item.acceptedby,
+        item.borrowed_items,
+        item.overdue_items,
+        item.damaged_items
+      ]);
+
+      // Add the table to the PDF
+      doc.autoTable({
+        head: headers,
+        body: rows,
+        startY: 90,
+        theme: 'striped',
+
+        startY: 50, 
+      });
+
+      return doc;
+    },
+
+
+  blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result.split(',')[1]); // Split to get base64 part
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  },
+
   async downloadPDF() {
       try {
         const data = this.applyFilters(this.itemsList);
         const pdf = await this.convertPDF(data);
-        pdf.save('report.pdf');
+        pdf.save('ItemsReport.pdf');
+
+        Swal.fire({
+          title: 'Download Success!',
+          icon: 'success',
+          confirmButtonText: 'OK'
+        });
+
       } catch (error) {
         console.error('Error in downloadPDF:', error);
       }
     },
 
   applyFilters(data) {
-      let filteredData = data;
-      if (this.filter.category) {
-        filteredData = filteredData.filter(item => item.category === this.filter.category);
-      }
-      if (this.filter.unitOfMeasure) {
-        filteredData = filteredData.filter(item => item.unit_of_measure === this.filter.unitOfMeasure);
-      }
-      if (this.filter.roomNumber) {
-        filteredData = filteredData.filter(item => item.room_number === this.filter.roomNumber);
-      }
-      if (this.filter.schoolLevel) {
-        filteredData = filteredData.filter(item => item.school_level === this.filter.schoolLevel);
-      }
-      if (this.filter.acceptedBy) {
-        filteredData = filteredData.filter(item => item.acceptedby === this.filter.acceptedBy);
-      }
-      return filteredData;
-    },
-
-    showFilterDialog() {
-      this.filterDialog = true;
-    }
+  let filteredData = data;
+  if (this.filter.category) {
+    filteredData = filteredData.filter(item => item.category === this.filter.category);
+  }
+  if (this.filter.unitOfMeasure) {
+    filteredData = filteredData.filter(item => item.unit_of_measure === this.filter.unitOfMeasure);
+  }
+  if (this.filter.roomNumber) {
+    filteredData = filteredData.filter(item => item.room_number === this.filter.roomNumber);
+  }
+  if (this.filter.schoolLevel) {
+    filteredData = filteredData.filter(item => item.school_level === this.filter.schoolLevel);
+  }
+  if (this.filter.acceptedBy) {
+    filteredData = filteredData.filter(item => item.adviser === this.filter.acceptedBy);
+  }
+  return filteredData;
 },
-watch: {
-  damagelist() {
+
+showFilterDialog() {
+  this.filterDialog = true;
+}
+},
+
+  computed: {
+        filteredItems() {
+          return this.borrowinglist.filter(item => {
+            return item.item_name.toLowerCase().includes(this.search.toLowerCase()) ||
+              item.item_quantity.toString().includes(this.search);
+          });
+        },
+
+        category() {
+          return [...new Set(this.borrowinglist.map(item => item.category))];
+        },
+
+        unitOfMeasure() {
+          return [...new Set(this.borrowinglist.map(item => item.unit_of_measure))];
+        },
+
+        roomNumbers() {
+          return [...new Set(this.borrowinglist.map(item => item.room_number))];
+        },
+
+        schoolLevel() {
+          return [...new Set(this.borrowinglist.map(item => item.school_level))];
+        },
+
+        acceptedBy() {
+          return [...new Set(this.borrowinglist.map(item => item.adviser))];
+        }
+
+  },
+  watch: {
+  itemsList() {
     this.$nextTick(() => {
       this.initializeTooltips();
     });
   }
-}
-
-//computed: {
-//  filteredItems() {
-//    return this.damagelist.filter(item => {
-//      return item.item_name.toLowerCase().includes(this.search.toLowerCase()) ||
-//        item.item_quantity.toString().includes(this.search) || item.acceptedby.toLowerCase().includes(this.search.toLowerCase());
-//    });
-//}
-//  roomNumbers() {
-//    return [...new Set(this.damagelist.map(item => item.room_number))];
-//}
-//  acceptedBy() {
-//    return [...new Set(this.damagelist.map(item => item.acceptedby))];
-//  }
-//},
-
+},
 };
 
 </script>

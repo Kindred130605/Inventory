@@ -100,7 +100,7 @@
           <v-select v-model="filter.unitOfMeasure" :items="unitOfMeasure" label="Unit of Measure"></v-select>
           <v-select v-model="filter.roomNumber" :items="roomNumbers" label="Room Number"></v-select>
           <v-select v-model="filter.schoolLevel" :items="schoolLevel" label="School Level"></v-select>
-          <v-select v-model="filter.acceptedBy" :items="acceptedBy" label="Accepted By"></v-select>
+          <v-select v-model="filter.acceptedBy" :items="acceptedBy" label="Adviser"></v-select>
         </v-form>
       </v-card-text>
       <v-card-actions>
@@ -427,16 +427,15 @@ async downloadXLS() {
     }
   },
 
-async convertPDF(data) {
+  async downloadPDF() {
       const doc = new jsPDF();
-
-      // Fetch image and convert to base64
+      
       const imageResponse = await fetch('/src/assets/schoolLogo3.png');
       const imageBlob = await imageResponse.blob();
       const imageBase64 = await this.blobToBase64(imageBlob);
 
       // Add the image
-      doc.addImage(imageBase64, 'PNG', 25, 10, 40, 40);
+      doc.addImage(imageBase64, 'PNG', 25, 10, 40, 40); 
 
 
       // Add the school name and other info
@@ -447,47 +446,48 @@ async convertPDF(data) {
       doc.text('Contact No', 105, 35, null, null, 'center');
       doc.text(`As of: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' })}`, 105, 40, null, null, 'center');
 
+      // Add table
+      const filteredData = this.applyFilters(this.borrowinglist);
 
-
-      const headers = [
-        ['Item Name', 'Item Quantity', 'Category', 'Unit Of Measure', 'Room Number', 'School Level', 'Accepted By', 'Borrowed Items', 'Overdue Items', 'Damaged Items']
+      const columns = [
+        'Item Name', 'Category', 'Unit Of Measure', 'Room Number', 'School Level', 'Borrower', 'Quantity', 'Borrow Date', 'Return Date', 'Status', 'Adviser'
       ];
 
-      const rows = data.map(item => [
-        item.item_name,
-        item.item_quantity,
-        item.category,
-        item.unit_of_measure,
-        item.room_number,
-        item.school_level,
-        item.acceptedby,
-        item.borrowed_items,
-        item.overdue_items,
-        item.damaged_items
+      const rows = filteredData.map(item => [
+      item.item_name,
+      item.category,
+      item.unit_of_measure,
+      item.room_number,
+      item.school_level,
+      item.student_name, 
+      item.quantity,
+      item.borrow_date,
+      item.return_date,
+      item.status,
+      item.adviser
       ]);
 
-      // Add the table to the PDF
       doc.autoTable({
-        head: headers,
+        head: [columns],
         body: rows,
-        startY: 90,
+        startY: 40,
         theme: 'striped',
-
+        
         startY: 50,
       });
 
-      return doc;
+      // Save the PDF
+      doc.save('BorrowingReport.pdf');
+
+      Swal.fire({
+          title: 'Download Success!',
+          icon: 'success',
+          confirmButtonText: 'OK'
+        });
+        
     },
 
-    async downloadPDF() {
-      try {
-        const data = this.applyFilters(this.getBorrowers);
-        const pdf = await this.convertPDF(data);
-        pdf.save('report.pdf');
-      } catch (error) {
-        console.error('Error in downloadPDF:', error);
-      }
-    },
+
 
   blobToBase64(blob) {
     return new Promise((resolve, reject) => {
@@ -497,7 +497,6 @@ async convertPDF(data) {
       reader.readAsDataURL(blob);
     });
   },
-
 
 
   applyFilters(data) {

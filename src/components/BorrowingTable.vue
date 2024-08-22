@@ -476,7 +476,7 @@ async downloadXLS() {
       const imageBase64 = await this.blobToBase64(imageBlob);
 
       // Add the image
-      doc.addImage(imageBase64, 'PNG', 25, 10, 40, 40); 
+      doc.addImage(imageBase64, 'PNG', 25, 10, 30, 30);  
 
 
       // Add the school name and other info
@@ -514,7 +514,7 @@ async downloadXLS() {
         startY: 40,
         theme: 'striped',
         
-        startY: 50,
+        startY: 60,
       });
 
       // Save the PDF

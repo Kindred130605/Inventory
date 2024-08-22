@@ -246,79 +246,54 @@ prepareReport(type) {
       this.filterDialog = false;
     },
 
-    async convertExcel(data) {
-      const excel = new ExcelJS.Workbook();
-      const worksheet = excel.addWorksheet("Items");
+  async convertExcel(data) {
+  const excel = new ExcelJS.Workbook();
+  const worksheet = excel.addWorksheet("Items");
 
-      try {
-        // Fetch image and convert to base64
-        const imageResponse = await fetch('/src/assets/SNA Logo no BG.png');
-        const imageBlob = await imageResponse.blob();
-        const imageBase64 = await this.blobToBase64(imageBlob);
+  try {
+    const imageResponse = await fetch('/src/assets/schoolLogo3.png');
+    const imageBlob = await imageResponse.blob();
+    const imageBase64 = await this.blobToBase64(imageBlob); // Use `this` to access the method
 
-        const logo = excel.addImage({
-          base64: imageBase64,
-          extension: 'png'
-        });
+    const logo = excel.addImage({
+      base64: imageBase64,
+      extension: 'png'
+    });
 
-        worksheet.getCell('A6').fill = {
-          type: 'pattern',
-          pattern: 'solid',
-          fgColor: { argb: 'FFFFFF' } // White background color
-        };
+    worksheet.addImage(logo, {
+      tl: { col: 0, row: 0 },
+      ext: { width: 180, height: 120 },
+      editAs: 'absolute'
+    });
 
-        for (let col = 1; col <= 9; col++) { // Columns A to I
-          const cell = worksheet.getCell(6, col);
-          cell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: 'FFFFFF' } // White background color
-          };
-        }
+    worksheet.addImage(logo, {
+      tl: { col: 7, row: 0 },
+      ext: { width: 180, height: 120 },
+      editAs: 'absolute'
+    });
 
-        // Make sure other parts of the code remain unchanged
-        worksheet.addImage(logo, {
-          tl: { col: 1, row: 0 }, // Starting at B1 (col: 1, row: 0)
-          ext: { width: 180, height: 120 },
-          editAs: 'absolute'
-        });
 
-        worksheet.addImage(logo, {
-          tl: { col: 7, row: 0 }, // Starting at H1 (col: 7, row: 0)
-          ext: { width: 180, height: 120 },
-          editAs: 'absolute'
-        });
+    worksheet.mergeCells('A2:J2');
+    worksheet.getCell('A2').value = 'Saint Nicholas Academy';
+    worksheet.getCell('A2').alignment = { vertical: 'middle', horizontal: 'center' };
+    worksheet.getCell('A2').font = { size: 16, bold: true };
 
-        worksheet.mergeCells('B1:C4');  // Left logo space
-        worksheet.mergeCells('H1:I4');  // Right logo space
-        worksheet.mergeCells('D1:G2');  // Title space
-        worksheet.mergeCells('D3:G4');  // Subtitle space
-        worksheet.mergeCells('D5:G6');  // Date space
+    worksheet.addRow(); 
 
-        const titleCell = worksheet.getCell('D1');
-        titleCell.value = "School Name";
-        titleCell.font = { size: 16, bold: true };
-        titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+    worksheet.mergeCells('A3:J3');
+    worksheet.getCell('A3').value = 'Address';
+    worksheet.getCell('A3').alignment = { vertical: 'middle', horizontal: 'center' };
+    worksheet.getCell('A3').font = { size: 12 };
 
-        const subtitleCell = worksheet.getCell('D3');
-        subtitleCell.value = "Items Report";
-        subtitleCell.font = { size: 12, bold: true };
-        subtitleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+    worksheet.mergeCells('A4:J4');
+    worksheet.getCell('A4').value = 'Contact No';
+    worksheet.getCell('A4').alignment = { vertical: 'middle', horizontal: 'center' };
+    worksheet.getCell('A4').font = { size: 12 };
 
-        const dateCell = worksheet.getCell('D5');
-        dateCell.value = `As of: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' })}`;
-        dateCell.font = { size: 12, bold: true };
-        dateCell.alignment = { horizontal: 'center', vertical: 'middle' };
+    worksheet.addRow(); // Add an empty row for separation
 
-        worksheet.getRow(1).height = 40; // Adjust as needed
-        worksheet.getRow(3).height = 40; // Adjust as needed
-        worksheet.getRow(5).height = 40; // Adjust as needed
-        worksheet.addRow();
-
-        // Define starting row for items
-        const startRow = 7;  //
     // Add column headers
-    const headers = [
+    worksheet.addRow([
       'Item Name',
       'Category',
       'Unit Of Measure',
@@ -329,21 +304,9 @@ prepareReport(type) {
       'Item Quantity',
       'Date Reported', 
       'Adviser'
-    ];
+    ]);
 
-    const headerRow = worksheet.addRow(headers);
-        headerRow.eachCell((cell) => {
-          cell.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: '4167B8' }
-          };
-          cell.font = { color: { argb: 'FFFFFF' }, bold: true };
-          cell.alignment = { horizontal: 'center', vertical: 'middle' };
-        });
-
-
-
+    // Add data rows
     data.forEach(item => {
       worksheet.addRow([
       item.item_name,
@@ -359,15 +322,6 @@ prepareReport(type) {
       ]);
     });
 
-    worksheet.columns.forEach((column) => {
-          const maxLength = column.values.reduce((acc, val) => {
-            const length = val ? val.toString().length : 0;
-            return Math.max(acc, length);
-          }, 5);
-          column.width = Math.min(maxLength + 2, 15); // Reduce padding and set a maximum width
-        });
-
-        
     return excel; // Return the excel workbook
   } catch (error) {
     console.error('Error in convertExcel:', error);
@@ -416,33 +370,40 @@ async downloadPDF() {
       });
     },
 
-    async convertPDF(data) {
+    async downloadPDF() {
       const doc = new jsPDF();
       
 
-      const imgData = await fetch('/src/assets/SNA Logo no BG.png')
+      const imgData = await fetch('/src/assets/schoolLogo3.png')
         .then(res => res.blob())
         .then(this.blobToBase64);
 
       doc.addImage(imgData, 'PNG', 25, 10, 40, 40);
 
-      doc.setFontSize(16);
-      doc.text('Saint Nicholas Academy', 105, 20, null, null, 'center'); 
+      doc.setFontSize(12);
+      doc.text('Saint Nicholas Academy', 105, 20, null, null, 'center');
+      doc.setFontSize(12);
+      doc.text('Address', 105, 30, null, null, 'center');
+      doc.text('Contact No', 105, 35, null, null, 'center');
+      doc.text(`As of: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' })}`, 105, 40, null, null, 'center'); 
 
-      const filteredData = this.applyFilters(this.borrowinglist);
+      const filteredData = this.applyFilters(this.damagelist);
 
       const columns = [
         'Item Name', 'Category', 'Unit Of Measure', 'Room Number', 'School Level', 'Borrower', 'Quantity', 'Borrow Date', 'Return Date', 'Status', 'Adviser'
       ];
 
       const rows = filteredData.map(item => [
-          item.item_name,
-          item.category,
-          item.school_level,
-          item.report_by,
-          item.description,
-          item.quantity,
-          item.date_reported
+              item.item_name,
+              item.category,
+              item.unit_of_measure,
+              item.room_number,
+              item.school_level,
+              item.report_by,
+              item.description,
+              item.quantity,
+              item.date_reported,
+              item.adviser,
       ]);
 
       doc.autoTable({
@@ -538,20 +499,7 @@ watch: {
   }
 }
 
-//computed: {
-//  filteredItems() {
-//    return this.damagelist.filter(item => {
-//      return item.item_name.toLowerCase().includes(this.search.toLowerCase()) ||
-//        item.item_quantity.toString().includes(this.search) || item.acceptedby.toLowerCase().includes(this.search.toLowerCase());
-//    });
-//}
-//  roomNumbers() {
-//    return [...new Set(this.damagelist.map(item => item.room_number))];
-//}
-//  acceptedBy() {
-//    return [...new Set(this.damagelist.map(item => item.acceptedby))];
-//  }
-//},
+
 
 };
 

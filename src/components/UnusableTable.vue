@@ -242,12 +242,11 @@ async convertPDF(data) {
       const doc = new jsPDF();
 
       // Fetch image and convert to base64
-      const imageResponse = await fetch('/src/assets/SNA Logo no BG.png.png');
-      const imageBlob = await imageResponse.blob();
-      const imageBase64 = await this.blobToBase64(imageBlob);
+      const imgData = await fetch('/src/assets/schoolLogo3.png')
+        .then(res => res.blob())
+        .then(this.blobToBase64);
 
-      // Add the image
-      doc.addImage(imageBase64, 'PNG', 25, 10, 40, 40);
+      doc.addImage(imgData, 'PNG', 25, 10, 40, 40);
 
 
       // Add the school name and other info

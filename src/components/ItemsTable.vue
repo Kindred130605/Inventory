@@ -121,7 +121,7 @@
   </v-dialog>
 
   <!-- Add a dialog for filtering -->
-  <v-dialog v-if="download == PDF" v-model="filterDialog" max-width="500">
+  <v-dialog v-model="filterDialog" max-width="500">
     <v-card>
       <v-card-title>Filter Report</v-card-title>
       <v-card-text>
@@ -636,7 +636,7 @@ export default {
       const imageBase64 = await this.blobToBase64(imageBlob);
 
       // Add the image
-      doc.addImage(imageBase64, 'PNG', 25, 10, 40, 40); 
+      doc.addImage(imageBase64, 'PNG', 25, 10, 30, 30); 
 
 
       // Add the school name and other info
@@ -654,26 +654,25 @@ export default {
       ];
 
       const rows = data.map(item => [
-        item.item_name,
-        item.item_quantity,
-        item.category,
-        item.unit_of_measure,
-        item.room_number,
-        item.school_level,
-        item.acceptedby,
-        item.borrowed_items,
-        item.overdue_items,
-        item.damaged_items
+              item.item_name,
+              item.item_quantity,
+              item.category,
+              item.unit_of_measure,
+              item.room_number,
+              item.school_level,
+              item.acceptedby,
+              this.totalBorrowedQuantities[item.id] || 0,
+              item.overdue_items || 0,
+              item.damaged_items || 0
       ]);
 
       // Add the table to the PDF
       doc.autoTable({
         head: headers,
         body: rows,
-        startY: 90,
         theme: 'striped',
 
-        startY: 50, 
+        startY: 60, 
       });
 
       return doc;

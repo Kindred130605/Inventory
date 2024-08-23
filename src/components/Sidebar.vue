@@ -20,7 +20,7 @@
             </router-link>
             <router-link class="button" to="/borrowing">
                 <span class="material-icons">pending_actions</span>
-                <span class="text">Borrowing</span>
+                <span class="text">Borrowed Items</span>
             </router-link>
             <router-link class="button" to="/damaged">
                 <span class="material-icons">construction</span>

@@ -1,17 +1,22 @@
 <template>
-  <v-data-table :search="search" :headers="headers" :items="itemsList" :sort-by="[{ key: 'items_name', order: 'asc' }]">
-
+  <v-data-table :headers="headers" :items="filteredItems" :sort-by="[{ key: 'items_name', order: 'asc' }]">
     <template v-slot:top>
       <v-toolbar flat>
         <v-toolbar-title class="text-h6 font-weight-black" style="color: #2F3F64"></v-toolbar-title>
-        <v-text-field v-model="search" class="w-auto mr-4 " density="compact" label="Search"
-          prepend-inner-icon="mdi-magnify" variant="solo-filled" flat hide-details single-line></v-text-field>
-        <v-btn color="primary" style="margin: 10px;" variant="flat" dark @click="openDialog()" class="tooltip-button"
-          data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="ADD ITEM">
+        
+        <v-text-field v-model="search" class="w-auto mr-4" density="compact" label="Search" 
+        prepend-inner-icon="mdi-magnify" variant="solo-filled" flat hide-details single-line></v-text-field>
+        
+        <v-select v-model="searchColumn" :items="searchableColumns" label="Search by column" 
+        density="compact" variant="solo-filled" flat></v-select>
+        
+        <v-btn color="primary" style="margin: 10px;"
+         variant="flat" dark @click="openDialog()" class="tooltip-button" data-bs-toggle="tooltip" 
+         data-bs-placement="bottom" data-bs-title="ADD ITEM">
           <v-icon left>mdi-plus</v-icon>
           ADD ITEM
         </v-btn>
-
+        
         <v-menu offset-y>
           <template v-slot:activator="{ props }">
             <v-btn color="primary" style="margin: 10px;" variant="flat" dark v-bind="props">
@@ -90,7 +95,7 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="blue darken-1" text @click="dialog = false">Cancel</v-btn>
-        <v-btn color="blue darken-1" @click="saveItem()">Save</v-btn>
+        <v-btn color="blue darken-1" :disabled="!addValidation" @click="saveItem()">Save</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -156,8 +161,11 @@ export default {
   data() {
     return {
       search: '',
+      searchColumn: 'item_name',
+      searchableColumns: ['item_name', 'category', 'unit_of_measure', 'room_number', 'school_level',
+       'acceptedby'],
       chmeasure: ['Classroom Items', 'Office Items', 'Library Items', 'Science Lab Items', 'Art Room Items', 'Music Room Items', 'Gymnasium and Sports Items', 'Cafeteria Items', 'Maintenance Items', 'Playground Item', 'Miscellaneous Items'],
-      chquantity: ['Sets', 'Pieces', 'Packs Items', 'Kits'],
+      chquantity: ['Sets', 'Pieces', 'Packs', 'Kits'],
       chschool: ['Junior High School', 'Senior High School'],
       itemsList: [],
       headers: [
@@ -321,8 +329,8 @@ export default {
         item.category.toLowerCase() === this.itemsData.category.toLowerCase() &&
         item.unit_of_measure.toLowerCase() === this.itemsData.unit_of_measure.toLowerCase() &&
         item.school_level.toLowerCase() === this.itemsData.school_level.toLowerCase() &&
-        item.room_number.toString().toLowerCase() === this.itemsData.room_number.toString() &&
-        item.acceptedby.toLowerCase() === this.itemsData.acceptedby.toString()
+        item.room_number.toString().toLowerCase() === this.itemsData.room_number.toString().toLowerCase() &&
+        item.acceptedby.toLowerCase() === this.itemsData.acceptedby.toLowerCase()
       ));
       if (conflictItem) {
         Swal.fire('Duplicate!', 'An item with the same details already exists. You should check it first', 'error');
@@ -509,7 +517,7 @@ export default {
 
         // Make sure other parts of the code remain unchanged
         worksheet.addImage(logo, {
-          tl: { col: 1, row: 1}, // Starting at B1 (col: 1, row: 0)
+          tl: { col: 1, row: 1 }, // Starting at B1 (col: 1, row: 0)
           ext: { width: 150, height: 150 },
           editAs: 'absolute'
         });
@@ -529,17 +537,17 @@ export default {
         const titleCell = worksheet.getCell('D1');
         titleCell.value = "Saint Nicholas Academy";
         titleCell.font = { size: 16, bold: true };
-        titleCell.alignment = { horizontal: 'center', vertical: 'middle' };  // Centered within the merged range D1:G2
+        titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
 
         const subtitleCell = worksheet.getCell('D3');
         subtitleCell.value = "Items Report";
         subtitleCell.font = { size: 14, bold: true };
-        subtitleCell.alignment = { horizontal: 'center', vertical: 'middle' };  // Centered within the merged range D3:G4
+        subtitleCell.alignment = { horizontal: 'center', vertical: 'middle' };
 
         const dateCell = worksheet.getCell('D5');
         dateCell.value = `As of: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' })}`;
         dateCell.font = { size: 14, bold: true };
-        dateCell.alignment = { horizontal: 'center', vertical: 'middle' };  // Centered within the merged range D5:G6
+        dateCell.alignment = { horizontal: 'center', vertical: 'middle' };
 
         worksheet.getRow(1).height = 40; // Adjust as needed
         worksheet.getRow(3).height = 40; // Adjust as needed
@@ -574,35 +582,34 @@ export default {
           cell.alignment = { horizontal: 'center', vertical: 'middle' };
         });
 
-      
+        // Add data rows starting from the defined row
         data.forEach((item) => {
           const row = worksheet.addRow([
-              item.item_name,
-              item.item_quantity,
-              item.category,
-              item.unit_of_measure,
-              item.room_number,
-              item.school_level,
-              item.acceptedby,
-              this.totalBorrowedQuantities[item.id] || 0,
-              item.overdue_items || 0,
-              item.damaged_items || 0
+            item.item_name,
+            item.item_quantity,
+            item.category,
+            item.unit_of_measure,
+            item.room_number,
+            item.school_level,
+            item.acceptedby,
+            this.totalBorrowedQuantities[item.id] || 0,
+            item.overdue_items || 0,
+            item.damaged_items || 0
           ]);
 
-              row.eachCell((cell) => {
+          row.eachCell((cell) => {
             cell.alignment = { horizontal: 'center', vertical: 'middle' }; // Center align the data cells
           });
-
         });
 
-
+        // Adjust column widths based on the data
         worksheet.columns.forEach((column) => {
           const maxLength = column.values.reduce((acc, val) => {
             const length = val ? val.toString().length : 0;
             return Math.max(acc, length);
           }, 5);
           column.width = Math.min(maxLength + 2, 27); // Reduce padding and set a maximum width
-        });5
+        });
 
         return excel; // Return the excel workbook
       } catch (error) {
@@ -636,12 +643,12 @@ export default {
       const doc = new jsPDF();
 
       // Fetch image and convert to base64
-      const imageResponse = await fetch('/src/assets/SNA Logo no BG.png');
+      const imageResponse = await fetch('/src/assets/schoolLogo3.png');
       const imageBlob = await imageResponse.blob();
       const imageBase64 = await this.blobToBase64(imageBlob);
 
       // Add the image
-      doc.addImage(imageBase64, 'PNG', 25, 10, 30, 30); 
+      doc.addImage(imageBase64, 'PNG', 25, 10, 40, 40); 
 
 
       // Add the school name and other info
@@ -659,16 +666,16 @@ export default {
       ];
 
       const rows = data.map(item => [
-              item.item_name,
-              item.item_quantity,
-              item.category,
-              item.unit_of_measure,
-              item.room_number,
-              item.school_level,
-              item.acceptedby,
-              this.totalBorrowedQuantities[item.id] || 0,
-              item.overdue_items || 0,
-              item.damaged_items || 0
+        item.item_name,
+        item.item_quantity,
+        item.category,
+        item.unit_of_measure,
+        item.room_number,
+        item.school_level,
+        item.acceptedby,
+        this.totalBorrowedQuantities[item.id] || 0,
+        item.overdue_items || 0,
+        item.damaged_items || 0
       ]);
 
       // Add the table to the PDF
@@ -700,12 +707,6 @@ export default {
         const data = this.applyFilters(this.itemsList);
         const pdf = await this.convertPDF(data);
         pdf.save('ItemsReport.pdf');
-
-        Swal.fire({
-          title: 'Download Success!',
-          icon: 'success',
-          confirmButtonText: 'OK'
-        });
 
       } catch (error) {
         console.error('Error in downloadPDF:', error);
@@ -740,9 +741,14 @@ export default {
   },
   computed: {
     filteredItems() {
+      if (!this.search) return this.itemsList;
       return this.itemsList.filter(item => {
-        return item.item_name.toLowerCase().includes(this.search.toLowerCase()) ||
-          item.item_quantity.toString().includes(this.search) || item.acceptedby.toLowerCase().includes(this.search.toLowerCase());
+        const columnValue = item[this.searchColumn];
+        if (typeof columnValue === 'string') {
+          return columnValue.toLowerCase().includes(this.search.toLowerCase());
+        } else {
+          return columnValue.toString().includes(this.search);
+        }
       });
     },
 
@@ -758,6 +764,12 @@ export default {
       return !!this.borrowersData.student_id && !!this.borrowersData.return_date &&
         !!this.borrowersData.adviser;
     },
+
+    addValidation(){
+      return !!this.itemsData.item_name && !!this.itemsData.item_quantity && !!this.itemsData.category
+       && !!this.itemsData.unit_of_measure && !!this.itemsData.room_number && !!this.itemsData.school_level
+       && !!this.itemsData.acceptedby;
+    }
   },
 
   watch: {

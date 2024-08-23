@@ -54,12 +54,7 @@
                 </v-card-text>
                 <div class="text-center pb-2 mx-md-auto">
                   <v-btn class="login-button" rectangle color="var(--dark)" @click="login">Login</v-btn>
-                </div>
-                <div class="text-center pb-2">
-                  <a href="" style="display: inline-block;">
-                    St. Nicholas Academy General Privacy Notice
-                  </a>
-                </div>
+                </div>s
               </v-col>
             </v-row>
           </v-card>

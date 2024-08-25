@@ -39,14 +39,14 @@
     </template>
 
 
-    <template v-slot:item='{ item }'>
+    <template v-slot:item="{ item }">
       <tr :key="item.id">
         <td>{{ item.item_name }}</td>
         <td>{{ item.item_quantity }}</td>
         <td>{{ item.category }}</td>
         <td>{{ item.unit_of_measure }}</td>
         <td>{{ item.room_number }}</td>
-        <td style="padding:1rem;">{{ item.school_level }}</td>
+        <td>{{ item.school_level }}</td>
         <td>{{ item.acceptedby }}</td>
         <td>{{ totalBorrowedQuantities[item.id] || 0 }}</td>
         <td>{{ item.overdue_items || 0 }}</td>
@@ -54,13 +54,18 @@
         <td>
           <div class="icon-container">
             <v-btn @click="editItem(item)" style="color:blue" class="tooltip-button" data-bs-toggle="tooltip"
-              data-bs-placement="bottom" data-bs-title="Update Items"><v-icon>mdi-pencil</v-icon></v-btn>
+              data-bs-placement="bottom" data-bs-title="Update Items">
+              <v-icon>mdi-pencil</v-icon>
+            </v-btn>
             <v-btn @click="openBorrowDialog(item)" style="color:green" class="tooltip-button" data-bs-toggle="tooltip"
-              data-bs-placement="bottom" data-bs-title="Borrow Items"><v-icon>mdi-handshake</v-icon></v-btn>
-            <v-btn @click="deleteItem(item)" style="color:red" class="tooltip-button" data-bs-toggle="tooltip"
-              data-bs-placement="bottom" data-bs-title="Delete Items"><v-icon>mdi-delete</v-icon></v-btn>
+              data-bs-placement="bottom" data-bs-title="Borrow Items">
+              <v-icon>mdi-handshake</v-icon>
+            </v-btn>
+            <v-btn @click="deleteItem(item)" :disabled="totalBorrowedQuantities[item.id] > 0" :style="{ color: totalBorrowedQuantities[item.id] > 0 ? 'grey' : 'red' }"
+              class="tooltip-button" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Delete Items">
+              <v-icon>mdi-delete</v-icon>
+            </v-btn>
           </div>
-
         </td>
       </tr>
     </template>

@@ -11,7 +11,7 @@
         density="compact" variant="solo-filled" flat></v-select>
         
         <v-btn color="primary" style="margin: 10px;"
-         variant="flat" dark @click="openDialog()" class="tooltip-button" data-bs-toggle="tooltip" 
+         variant="flat" dark @click="openAddDialog()" class="tooltip-button" data-bs-toggle="tooltip" 
          data-bs-placement="bottom" data-bs-title="ADD ITEM">
           <v-icon left>mdi-plus</v-icon>
           ADD ITEM
@@ -72,17 +72,14 @@
 
   </v-data-table>
 
-  <!-- Dialog for editing/adding items -->
-  <v-dialog v-model="dialog" max-width="600">
+  <!-- Dialog for adding items -->
+  <v-dialog v-model="addDialog" max-width="600">
     <v-card>
-      <v-card-title v-if="editMode" class="fw-bold"
-        style="padding:1rem;background-color: var(--dark); color:white; border-radius:3px;"><span class="material-icons"
-          style="position:relative; right:5px; top:5px;">edit</span>Edit Item</v-card-title>
-      <v-card-title v-else class="fw-bold"
-        style="padding:1rem;background-color: var(--dark); color:white; border-radius:3px;"><span class="material-icons"
-          style="position:relative; right:5px; top:5px;">add</span>Add Item</v-card-title>
+      <v-card-title class="fw-bold" style="padding:1rem;background-color: var(--dark); color:white; 
+      border-radius:3px;"><span class="material-icons" style="position:relative; right:5px; top:5px;">add
+      </span>Add Item</v-card-title>
       <v-card-text>
-        <v-text-field v-model="itemsData.item_name" label="Item Name"></v-text-field>
+        <v-text-field v-model="itemsData.item_name" label="Item Name" ></v-text-field>
         <v-text-field v-model="itemsData.item_quantity" label="Item Quantity" type="number"></v-text-field>
         <v-combobox
             v-model="itemsData.category"
@@ -95,12 +92,45 @@
         <v-select v-model="itemsData.unit_of_measure" label="Unit of Measure" :items="chquantity"></v-select>
         <v-text-field v-model="itemsData.room_number" label="Room Number"></v-text-field>
         <v-select v-model="itemsData.school_level" label="School Level" :items="chschool"></v-select>
-        <v-text-field v-model="itemsData.acceptedby" label="Accepted By"></v-text-field>
+        <v-text-field v-model="itemsData.acceptedby" label="Custodian"></v-text-field>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="blue darken-1" text @click="addDialog = false">Cancel</v-btn>
+        <v-btn color="blue darken-1" :disabled="!addValidation" @click="saveItem()">Save</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!-- Dialog for updating items -->
+  <v-dialog v-model="editMode" max-width="600">
+    <v-card>
+      <v-card-title class="fw-bold" style="padding:1rem;background-color: var(--dark); color:white; 
+      border-radius:3px;"><span class="material-icons" style="position:relative; right:5px; top:5px;">edit
+      </span>Update Item</v-card-title>
+      <v-card-text>
+        <v-text-field v-model="itemsData.item_name" label="Item Name" :readonly="true"></v-text-field>
+        <v-text-field v-model="itemsData.item_quantity" label="Item Quantity" type="number"></v-text-field>
+        <v-combobox
+            v-model="itemsData.category"
+            :items="chmeasure"
+            label="Category"
+            clearable
+            return-object
+            dense
+            :readonly="true"
+        ></v-combobox>
+        <v-select v-model="itemsData.unit_of_measure" label="Unit of Measure" :items="chquantity" 
+        :readonly="true"></v-select>
+        <v-text-field v-model="itemsData.room_number" label="Room Number" :readonly="true"></v-text-field>
+        <v-select v-model="itemsData.school_level" label="School Level" :items="chschool" :readonly="true"
+        ></v-select>
+        <v-text-field v-model="itemsData.acceptedby" label="Custodian" :readonly="true"></v-text-field>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="blue darken-1" text @click="dialog = false">Cancel</v-btn>
-        <v-btn color="blue darken-1" :disabled="!addValidation" @click="saveItem()">Save</v-btn>
+        <v-btn color="blue darken-1" @click="saveItem()">Save</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -116,7 +146,6 @@
           item-value="student_id" label="Student" clearable required></v-autocomplete>
         <v-text-field v-model="borrowersData.quantity" label="Quantity" required></v-text-field>
         <v-text-field v-model="borrowersData.adviser" label="Adviser" :readonly="true"></v-text-field>
-        <v-text-field v-model="borrowersData.unit_of_measure" label="Unit of Measure" :readonly="true"></v-text-field>
         <v-text-field v-model="borrowersData.borrow_date" label="Borrow Date" type="date"
           :readonly="true"></v-text-field>
         <v-text-field v-model="borrowersData.return_date" label="Return Date" type="date" :min="minReturnDate"
@@ -140,7 +169,7 @@
           <v-select v-model="filter.unitOfMeasure" :items="chquantity" label="Unit of Measure"></v-select>
           <v-select v-model="filter.roomNumber" :items="roomNumbers" label="Room Number"></v-select>
           <v-select v-model="filter.schoolLevel" :items="chschool" label="School Level"></v-select>
-          <v-select v-model="filter.acceptedBy" :items="acceptedBy" label="Accepted By"></v-select>
+          <v-select v-model="filter.acceptedBy" :items="acceptedBy" label="Custodian"></v-select>
         </v-form>
       </v-card-text>
       <v-card-actions>
@@ -150,7 +179,6 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
-
 </template>
 
 <script>
@@ -159,17 +187,15 @@ import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
 import ExcelJS from 'exceljs';
 import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 
 export default {
-
   data() {
     return {
       search: '',
       searchColumn: 'item_name',
       searchableColumns: ['item_name', 'category', 'unit_of_measure', 'room_number', 'school_level',
        'acceptedby'],
-      chmeasure: ['Classroom Items', 'Office Items', 'Library Items', 'Science Lab Items', 'Art Room Items', 'Music Room Items', 'Gymnasium and Sports Items', 'Cafeteria Items', 'Maintenance Items', 'Playground Item', 'Miscellaneous Items'],
+      chmeasure: ['Classroom Items', 'Office Items', 'Science Lab Items', 'Art Room Items', 'Music Room Items', 'Gymnasium and Sports Items', 'Cafeteria Items', 'Maintenance Items', 'Playground Item', 'Miscellaneous Items'],
       chquantity: ['Sets', 'Pieces', 'Packs', 'Kits'],
       chschool: ['Junior High School', 'Senior High School'],
       itemsList: [],
@@ -180,13 +206,13 @@ export default {
         { title: 'Unit Of Measure', key: 'unit_of_measure' },
         { title: 'Room Number', key: 'room_number' },
         { title: 'School Level', key: 'school_level' },
-        { title: 'Accepted By', key: 'acceptedby' },
+        { title: 'Custodian', key: 'acceptedby' },
         { title: 'Borrowed Items', key: 'borrowed_items' },
         { title: 'Overdue Items', key: 'overdue_items' },
         { title: 'Damanged Items', key: 'damaged_items' },
         { title: 'Action' },
       ],
-      dialog: false,
+      addDialog: false,
       borrowDialog: false,
       editMode: false,
 
@@ -302,8 +328,7 @@ export default {
       });
     },
 
-
-    openDialog() {
+    openAddDialog() {
       this.editMode = false;
       this.itemsData = {
         id: null,
@@ -316,18 +341,15 @@ export default {
         acceptedby: '',
       };
       this.getItems();
-      this.dialog = true;
+      this.addDialog = true;
     },
 
     editItem(item) {
       this.editMode = true;
       this.itemsData = { ...item };
-      this.dialog = true;
     },
 
     saveItem() {
-      console.log('Payload:', this.itemsData);
-
       const conflictItem = this.itemsList.find(item => (
         item.item_name.toLowerCase() === this.itemsData.item_name.toLowerCase() &&
         item.item_quantity.toString().toLowerCase() === this.itemsData.item_quantity.toString().toLowerCase() &&
@@ -349,7 +371,7 @@ export default {
             let i = this.itemsList.findIndex(item => item.id === this.itemsData.id);
             if (i !== -1) {
               this.itemsList.splice(i, 1, { ...this.itemsData });
-              this.dialog = false;
+              this.editMode = false;
               Swal.fire('Success!', 'Items updated successfully!', 'success');
 
             }
@@ -363,7 +385,7 @@ export default {
         api.post('/items/add', this.itemsData)
           .then(response => {
             this.itemsList.push({ ...this.itemsData });
-            this.dialog = false;
+            this.addDialog = false;
             this.getItems()
             Swal.fire('Success!', 'Items added successfully!', 'success');
           })
@@ -460,8 +482,9 @@ export default {
 
     async getStudents() {
       try {
-        const response = await api.get('http://26.11.249.89:8000/api/student');
+        //const response = await api.get('http://26.11.249.89:8000/api/student');
         //const response = await api.get('http://localhost:8000/api/student');
+        const response = await api.get('http://26.81.173.255:8000/api/student');
         console.log(response);
         this.studentsList = response.data.student.map(student => ({
       student_id: student.student_id,
@@ -570,7 +593,7 @@ export default {
           'Unit Of Measure',
           'Room Number',
           'School Level',
-          'Accepted By',
+          'Custodian',
           'Borrowed Items',
           'Overdue Items',
           'Damaged Items'
@@ -667,7 +690,7 @@ export default {
 
 
       const headers = [
-        ['Item Name', 'Item Quantity', 'Category', 'Unit Of Measure', 'Room Number', 'School Level', 'Accepted By', 'Borrowed Items', 'Overdue Items', 'Damaged Items']
+        ['Item Name', 'Item Quantity', 'Category', 'Unit Of Measure', 'Room Number', 'School Level', 'Custodian', 'Borrowed Items', 'Overdue Items', 'Damaged Items']
       ];
 
       const rows = data.map(item => [

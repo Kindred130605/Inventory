@@ -91,7 +91,7 @@
         <v-select v-model="filter.unitOfMeasure" :items="unitOfMeasure" label="Unit of Measure"></v-select>
         <v-select v-model="filter.roomNumber" :items="roomNumbers" label="Room Number"></v-select>
         <v-select v-model="filter.schoolLevel" :items="schoolLevel" label="School Level"></v-select>
-        <v-select v-model="filter.acceptedBy" :items="acceptedBy" label="Adviser"></v-select>
+        <v-select v-model="filter.acceptedBy" :items="acceptedBy" label="Custodian"></v-select>
       </v-form>
     </v-card-text>
     <v-card-actions>
@@ -231,17 +231,9 @@ try {
   console.error('Error returning item:', error);
   Swal.fire('Error', 'Failed to return item', 'error');
 }
-
-
 },
 
 async returnWithDamage() {
-  // Validation checks
-  if (!this.damagedItemData.report_by || !this.damagedItemData.description) {
-    Swal.fire('Error!', 'All fields are required.', 'error');
-    return; // Prevent further execution
-  }
-
   try {
     // Prepare API payload
     const payload = {
@@ -264,11 +256,7 @@ async returnWithDamage() {
     // Optionally, refresh the list to reflect changes
     this.getBorrowers();
 
-    Swal.fire({
-      icon: 'success',
-      title: 'Item Marked as Damaged',
-      confirmButtonText: 'OK'
-    });
+  Swal.fire('Success', 'Item marked as damaged successfully', 'success');
 
     // Close the dialog
     this.damageDialog = false;
@@ -542,9 +530,9 @@ if (this.filter.acceptedBy) {
 return filteredData;
 },
 
-showFilterDialog() {
-this.filterDialog = true;
-}
+  showFilterDialog() {
+    this.filterDialog = true;
+  }
 },
 
 computed: {

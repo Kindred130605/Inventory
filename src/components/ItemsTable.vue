@@ -39,14 +39,14 @@
     </template>
 
 
-    <template v-slot:item="{ item }">
+    <template v-slot:item='{ item }'>
       <tr :key="item.id">
         <td>{{ item.item_name }}</td>
         <td>{{ item.item_quantity }}</td>
         <td>{{ item.category }}</td>
         <td>{{ item.unit_of_measure }}</td>
         <td>{{ item.room_number }}</td>
-        <td>{{ item.school_level }}</td>
+        <td style="padding:1rem;">{{ item.school_level }}</td>
         <td>{{ item.acceptedby }}</td>
         <td>{{ totalBorrowedQuantities[item.id] || 0 }}</td>
         <td>{{ item.overdue_items || 0 }}</td>
@@ -54,18 +54,16 @@
         <td>
           <div class="icon-container">
             <v-btn @click="editItem(item)" style="color:blue" class="tooltip-button" data-bs-toggle="tooltip"
-              data-bs-placement="bottom" data-bs-title="Update Items">
-              <v-icon>mdi-pencil</v-icon>
-            </v-btn>
-            <v-btn @click="openBorrowDialog(item)" style="color:green" class="tooltip-button" data-bs-toggle="tooltip"
-              data-bs-placement="bottom" data-bs-title="Borrow Items">
-              <v-icon>mdi-handshake</v-icon>
-            </v-btn>
-            <v-btn @click="deleteItem(item)" :disabled="totalBorrowedQuantities[item.id] > 0" :style="{ color: totalBorrowedQuantities[item.id] > 0 ? 'grey' : 'red' }"
-              class="tooltip-button" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Delete Items">
-              <v-icon>mdi-delete</v-icon>
-            </v-btn>
+              data-bs-placement="bottom" data-bs-title="Update"><v-icon>mdi-pencil</v-icon></v-btn>
+            <v-btn @click="openBorrowDialog(item)" style="color:green" class="tooltip-button" 
+            data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Borrow">
+            <v-icon>mdi-handshake</v-icon></v-btn>
+            <v-btn @click="deleteItem(item)" :disabled="totalBorrowedQuantities[item.id] > 0 || 
+            item.damaged_items > 0" :style="{ color: (totalBorrowedQuantities[item.id] > 0 || 
+            item.damaged_items > 0) ? 'grey' : 'red' }" class="tooltip-button" data-bs-toggle="tooltip" 
+            data-bs-placement="bottom" data-bs-title="Delete"><v-icon>mdi-delete</v-icon></v-btn>
           </div>
+
         </td>
       </tr>
     </template>
@@ -97,7 +95,7 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="blue darken-1" text @click="addDialog = false">Cancel</v-btn>
-        <v-btn color="blue darken-1" :disabled="!addValidation" @click="saveItem()">Save</v-btn>
+        <v-btn color="blue darken-1" :disabled="!addValidation" @click="saveItem()">Add</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -130,7 +128,7 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="blue darken-1" text @click="dialog = false">Cancel</v-btn>
-        <v-btn color="blue darken-1" @click="saveItem()">Save</v-btn>
+        <v-btn color="blue darken-1" @click="saveItem()">Update</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -187,6 +185,7 @@ import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
 import ExcelJS from 'exceljs';
 import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 export default {
   data() {
@@ -484,7 +483,7 @@ export default {
       try {
         //const response = await api.get('http://26.11.249.89:8000/api/student');
         //const response = await api.get('http://localhost:8000/api/student');
-        const response = await api.get('http://26.81.173.255:8000/api/student');
+        //const response = await api.get('http://26.81.173.255:8000/api/student');
         console.log(response);
         this.studentsList = response.data.student.map(student => ({
       student_id: student.student_id,

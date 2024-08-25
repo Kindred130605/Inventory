@@ -76,7 +76,7 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="blue darken-1" text @click="damageDialog = false">Cancel</v-btn>
-        <v-btn color="blue darken-1" :disabled="!isValid" @click="returnWithDamage(item)">Return</v-btn>
+        <v-btn color="blue darken-1" :disabled="!isValid" @click="returnWithDamage(item)">Mark as Damaged</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -91,6 +91,10 @@
         <v-select v-model="filter.unitOfMeasure" :items="unitOfMeasure" label="Unit of Measure"></v-select>
         <v-select v-model="filter.roomNumber" :items="roomNumbers" label="Room Number"></v-select>
         <v-select v-model="filter.schoolLevel" :items="schoolLevel" label="School Level"></v-select>
+        <v-select v-model="filter.borrower" :items="borrower" label="Borrower"></v-select>
+        <v-select v-model="filter.borrowDate" :items="borrowDate" label="Date Borrowed"></v-select>
+        <v-select v-model="filter.returnDate" :items="returnDate" label="Date to Return"></v-select>
+        <v-select v-model="filter.status" :items="status" label="Status"></v-select>
         <v-select v-model="filter.acceptedBy" :items="acceptedBy" label="Custodian"></v-select>
       </v-form>
     </v-card-text>
@@ -110,6 +114,7 @@ import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
 import ExcelJS from 'exceljs';
 import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 export default {
  
@@ -128,8 +133,8 @@ export default {
         { title: 'School Level', key: 'school_level' },
         { title: 'Borrower', key: 'borrower' },
         { title: 'Quantity', key: 'quantity' },
-        { title: 'Borrow Date', key: 'borrow_date' },
-        { title: 'Return Date', key: 'return_date' },
+        { title: 'Date Borrowed', key: 'borrow_date' },
+        { title: 'Date to Return', key: 'return_date' },
         { title: 'Status', key: 'status' },
         { title: 'Adviser', key: 'adviser' },
         { title: 'Action', },
@@ -364,8 +369,8 @@ async returnWithDamage() {
     'School Level',
     'Borrower',
     'Quantity',
-    'Borrow Date',
-    'Return Date',
+    'Date Borrowed',
+    'Date to Return',
     'Status',
     'Adviser'
   ];
@@ -446,29 +451,31 @@ async downloadXLS() {
 },
 
 async downloadPDF() {
-    const doc = new jsPDF();
-    
-    const imageResponse = await fetch('/src/assets/SNA Logo no BG.png');
-    const imageBlob = await imageResponse.blob();
-    const imageBase64 = await this.blobToBase64(imageBlob);
+  const doc = await this.convertPDF(this.applyFilters(this.borrowinglist));
+      doc.save('BorrowedItemsReport.pdf');
+    },
 
-    // Add the image
-    doc.addImage(imageBase64, 'PNG', 25, 10, 40, 40); 
+    async downloadPDF() {
+      const doc = new jsPDF();
 
+      const imgData = await fetch('/src/assets/SNA Logo no BG.png')
+        .then(res => res.blob())
+        .then(this.blobToBase64);
 
-    // Add the school name and other info
-    doc.setFontSize(12);
-    doc.text('Saint Nicholas Academy', 105, 20, null, null, 'center');
-    doc.setFontSize(12);
-    doc.text('Address', 105, 30, null, null, 'center');
-    doc.text('Contact No', 105, 35, null, null, 'center');
-    doc.text(`As of: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' })}`, 105, 40, null, null, 'center');
+      doc.addImage(imgData, 'PNG', 25, 10, 30, 30);
 
-    // Add table
+      doc.setFontSize(12);
+      doc.text('Saint Nicholas Academy', 105, 20, null, null, 'center');
+      doc.setFontSize(12);
+      doc.text('Address', 105, 30, null, null, 'center');
+      doc.text('Contact No', 105, 35, null, null, 'center');
+      doc.text(`As of: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' })}`, 105, 40, null, null, 'center'); 
+
+// Add table
     const filteredData = this.applyFilters(this.borrowinglist);
 
     const columns = [
-      'Item Name', 'Category', 'Unit Of Measure', 'Room Number', 'School Level', 'Borrower', 'Quantity', 'Borrow Date', 'Return Date', 'Status', 'Adviser'
+      'Item Name', 'Category', 'Unit Of Measure', 'Room Number', 'School Level', 'Borrower', 'Quantity', 'Date Borrowed', 'Date to Return', 'Status', 'Adviser'
     ];
 
     const rows = filteredData.map(item => [
@@ -491,11 +498,11 @@ async downloadPDF() {
       startY: 40,
       theme: 'striped',
       
-      startY: 50,
+      startY: 60,
     });
 
     // Save the PDF
-    doc.save('BorrowingReport.pdf');
+    doc.save('BorrowedItemsReport.pdf');
   },
 
 
@@ -524,6 +531,18 @@ if (this.filter.roomNumber) {
 if (this.filter.schoolLevel) {
   filteredData = filteredData.filter(item => item.school_level === this.filter.schoolLevel);
 }
+if (this.filter.borrower) {
+  filteredData = filteredData.filter(item => item.borrower === this.filter.borrower);
+}
+if (this.filter.borrowDate) {
+  filteredData = filteredData.filter(item => item.borrow_date === this.filter.borrowDate);
+}
+if (this.filter.returnDate) {
+  filteredData = filteredData.filter(item => item.return_date === this.filter.returnDate);
+}
+if (this.filter.status) {
+  filteredData = filteredData.filter(item => item.status === this.filter.status);
+}
 if (this.filter.acceptedBy) {
   filteredData = filteredData.filter(item => item.adviser === this.filter.acceptedBy);
 }
@@ -547,27 +566,33 @@ computed: {
           }
         });
       },
-
       category() {
         return [...new Set(this.borrowinglist.map(item => item.category))];
       },
-
       unitOfMeasure() {
         return [...new Set(this.borrowinglist.map(item => item.unit_of_measure))];
       },
-
       roomNumbers() {
         return [...new Set(this.borrowinglist.map(item => item.room_number))];
       },
-
       schoolLevel() {
         return [...new Set(this.borrowinglist.map(item => item.school_level))];
       },
-
+      borrower() {
+        return [...new Set(this.borrowinglist.map(item => item.borrower))];
+      },
+      borrowDate() {
+        return [...new Set(this.borrowinglist.map(item => item.borrow_date))];
+      },
+      returnDate() {
+        return [...new Set(this.borrowinglist.map(item => item.return_date))];
+      },
+      status() {
+        return [...new Set(this.borrowinglist.map(item => item.status))];
+      },
       acceptedBy() {
         return [...new Set(this.borrowinglist.map(item => item.adviser))];
       },
-
       isValid(){
         return !!this.damagedItemData.description;
       }

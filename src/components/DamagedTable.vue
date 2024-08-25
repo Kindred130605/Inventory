@@ -77,6 +77,8 @@
           <v-select v-model="filter.unitOfMeasure" :items="unitOfMeasure" label="Unit of Measure"></v-select>
           <v-select v-model="filter.roomNumber" :items="roomNumbers" label="Room Number"></v-select>
           <v-select v-model="filter.schoolLevel" :items="schoolLevel" label="School Level"></v-select>
+          <v-select v-model="filter.reportBy" :items="reportBy" label="Reported By"></v-select>
+          <v-select v-model="filter.dateReported" :items="dateReported" label="Date Reported"></v-select>
           <v-select v-model="filter.acceptedBy" :items="acceptedBy" label="Custodian"></v-select>
         </v-form>
       </v-card-text>
@@ -413,7 +415,7 @@ async downloadXLS() {
 
 async downloadPDF() {
       const doc = await this.convertPDF(this.applyFilters(this.damagelist));
-      doc.save('DamageReport.pdf');
+      doc.save('DamagedItemsReport.pdf');
     },
 
     async downloadPDF() {
@@ -488,6 +490,12 @@ async downloadPDF() {
       if (this.filter.schoolLevel) {
         filteredData = filteredData.filter(item => item.school_level === this.filter.schoolLevel);
       }
+      if (this.filter.reportBy) {
+        filteredData = filteredData.filter(item => item.report_by === this.filter.reportBy);
+      }
+      if (this.filter.dateReported) {
+        filteredData = filteredData.filter(item => item.date_reported === this.filter.dateReported);
+      }
       if (this.filter.acceptedBy) {
         filteredData = filteredData.filter(item => item.adviser === this.filter.acceptedBy);
       }
@@ -506,27 +514,27 @@ computed: {
               item.item_quantity.toString().includes(this.search);
           });
         },
-
         category() {
           return [...new Set(this.damagelist.map(item => item.category))];
         },
-
         unitOfMeasure() {
           return [...new Set(this.damagelist.map(item => item.unit_of_measure))];
         },
-
         roomNumbers() {
           return [...new Set(this.damagelist.map(item => item.room_number))];
         },
-
         schoolLevel() {
           return [...new Set(this.damagelist.map(item => item.school_level))];
         },
-
+        reportBy() {
+          return [...new Set(this.damagelist.map(item => item.report_by))];
+        },
+        dateReported() {
+          return [...new Set(this.damagelist.map(item => item.date_reported))];
+        },
         acceptedBy() {
           return [...new Set(this.damagelist.map(item => item.adviser))];
         }
-
   },
 
 watch: {

@@ -56,6 +56,8 @@ import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
 import ExcelJS from 'exceljs';
 import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+
 export default {
  
   data() {

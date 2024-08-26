@@ -44,7 +44,7 @@
         <td>{{ item.quantity }}</td>
         <td>{{ item.borrow_date}}</td>
         <td>{{ item.return_date}}</td>
-        <td>{{ item.status}}</td>
+        <td :style="{ color: getStatusColor(item.status) }">{{ item.status }}</td>
         <td>{{ item.adviser}}</td>
 
         <td>
@@ -73,35 +73,71 @@
             auto-grow
           ></v-textarea>        
         </v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" text @click="damageDialog = false">Cancel</v-btn>
-        <v-btn color="blue darken-1" :disabled="!isValid" @click="returnWithDamage(item)">Mark as Damaged</v-btn>
-      </v-card-actions>
-    </v-card>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn 
+            color="error" 
+            text 
+            @click="damageDialog = false" 
+            style="border: 1px solid #ff5252;"
+          >
+            <v-icon left>mdi-cancel</v-icon>
+            Cancel
+          </v-btn>
+          <v-btn 
+            color="warning" 
+            :disabled="!isValid" 
+            @click="returnWithDamage(item)" 
+            style="border: 1px solid #ffc107;"
+          >
+            <v-icon left>mdi-alert</v-icon>
+            Mark as Damaged
+          </v-btn>
+        </v-card-actions>
+      </v-card>
   </v-dialog>
 
     <!-- Add a dialog for filtering -->
-<v-dialog v-model="filterDialog" max-width="500">
+    <v-dialog v-model="filterDialog" max-width="500">
   <v-card>
     <v-card-title>Filter Report</v-card-title>
     <v-card-text>
       <v-form ref="filterForm">
-        <v-select v-model="filter.category" :items="category" label="Category"></v-select>
-        <v-select v-model="filter.unitOfMeasure" :items="unitOfMeasure" label="Unit of Measure"></v-select>
-        <v-select v-model="filter.roomNumber" :items="roomNumbers" label="Room Number"></v-select>
-        <v-select v-model="filter.schoolLevel" :items="schoolLevel" label="School Level"></v-select>
-        <v-select v-model="filter.borrower" :items="borrower" label="Borrower"></v-select>
-        <v-select v-model="filter.borrowDate" :items="borrowDate" label="Date Borrowed"></v-select>
-        <v-select v-model="filter.returnDate" :items="returnDate" label="Date to Return"></v-select>
-        <v-select v-model="filter.status" :items="status" label="Status"></v-select>
-        <v-select v-model="filter.acceptedBy" :items="acceptedBy" label="Custodian"></v-select>
+        <v-row>
+          <v-col cols="6">
+            <v-select v-model="filter.category" :items="category" label="Category"></v-select>
+            <v-select v-model="filter.unitOfMeasure" :items="unitOfMeasure" label="Unit of Measure"></v-select>
+            <v-select v-model="filter.roomNumber" :items="roomNumbers" label="Room Number"></v-select>
+            <v-select v-model="filter.schoolLevel" :items="schoolLevel" label="School Level"></v-select>
+          </v-col>
+          <v-col cols="6">
+            <v-select v-model="filter.borrower" :items="borrower" label="Borrower"></v-select>
+            <v-select v-model="filter.borrowDate" :items="borrowDate" label="Date Borrowed"></v-select>
+            <v-select v-model="filter.returnDate" :items="returnDate" label="Date to Return"></v-select>
+            <v-select v-model="filter.acceptedBy" :items="acceptedBy" label="Custodian"></v-select>
+          </v-col>
+          <v-select v-model="filter.status" :items="status" label="Status"></v-select>
+        </v-row>
       </v-form>
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn color="primary" @click="generateReport()">Generate Report</v-btn>
-      <v-btn color="error" @click="filterDialog = false">Cancel</v-btn>
+      <v-btn 
+        color="primary" 
+        @click="generateReport()" 
+        style="border: 1px solid #1976d2;"
+      >
+        <v-icon left>mdi-file-document</v-icon>
+        Generate Report
+      </v-btn>
+      <v-btn 
+        color="error" 
+        @click="filterDialog = false" 
+        style="border: 1px solid #ff5252;"
+      >
+        <v-icon left>mdi-cancel</v-icon>
+        Cancel
+      </v-btn>
     </v-card-actions>
   </v-card>
 </v-dialog>
@@ -187,7 +223,18 @@ this.getBorrowers();
 },
 
 methods: {
-async getBorrowers() {
+  getStatusColor(status) {
+    switch (status) {
+      case 'Borrowed':
+        return 'blue';
+      case 'Overdue':
+        return 'red';
+      default:
+        return 'black';
+    }
+  },
+
+  async getBorrowers() {
     try { 
       const response = await api.get('/borrowed-items');
       this.borrowinglist = response.data;

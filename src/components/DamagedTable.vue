@@ -83,10 +83,24 @@
         </v-form>
       </v-card-text>
       <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="primary" @click="generateReport()">Generate Report</v-btn>
-        <v-btn color="error" @click="filterDialog = false">Cancel</v-btn>
-      </v-card-actions>
+      <v-spacer></v-spacer>
+      <v-btn 
+        color="primary" 
+        @click="generateReport()" 
+        style="border: 1px solid #1976d2;"
+      >
+        <v-icon left>mdi-file-document</v-icon>
+        Generate Report
+      </v-btn>
+      <v-btn 
+        color="error" 
+        @click="filterDialog = false" 
+        style="border: 1px solid #ff5252;"
+      >
+        <v-icon left>mdi-cancel</v-icon>
+        Cancel
+      </v-btn>
+    </v-card-actions>
     </v-card>
   </v-dialog>
 

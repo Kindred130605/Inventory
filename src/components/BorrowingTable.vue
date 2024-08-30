@@ -4,12 +4,12 @@
     <template v-slot:top>
       <v-toolbar flat>
         <v-toolbar-title class="text-h6 font-weight-black" style="color: #2F3F64"></v-toolbar-title>
+
+        <v-select v-model="searchColumn" :items="searchableColumns" label="Search by column" 
+        density="compact" variant="solo-filled" flat hide-details class="w-auto mr-4"></v-select>
         
         <v-text-field v-model="search" class="w-auto mr-4" density="compact" label="Search" 
         prepend-inner-icon="mdi-magnify" variant="solo-filled" flat hide-details single-line></v-text-field>
-        
-        <v-select v-model="searchColumn" :items="searchableColumns" label="Search by column" 
-        density="compact" variant="solo-filled" flat></v-select>
 
       <v-menu offset-y>
         <template v-slot:activator="{ props }">

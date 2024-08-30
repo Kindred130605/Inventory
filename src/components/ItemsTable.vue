@@ -4,15 +4,14 @@
       <v-toolbar flat>
         <v-toolbar-title class="text-h6 font-weight-black" style="color: #2F3F64"></v-toolbar-title>
         
+        <v-select v-model="searchColumn" :items="searchableColumns" label="Search by column" 
+        density="compact" variant="solo-filled" flat class="w-auto mr-4" hide-details ></v-select>
+        
         <v-text-field v-model="search" class="w-auto mr-4" density="compact" label="Search" 
         prepend-inner-icon="mdi-magnify" variant="solo-filled" flat hide-details single-line></v-text-field>
-        
-        <v-select v-model="searchColumn" :items="searchableColumns" label="Search by column" 
-        density="compact" variant="solo-filled" flat></v-select>
-        
+
         <v-btn color="primary" style="margin: 10px;"
-         variant="flat" dark @click="openAddDialog()" class="tooltip-button" data-bs-toggle="tooltip" 
-         data-bs-placement="bottom" data-bs-title="ADD ITEM">
+         variant="flat" dark @click="openAddDialog()">
           <v-icon left>mdi-plus</v-icon>
           ADD ITEM
         </v-btn>
@@ -51,6 +50,7 @@
         <td>{{ totalBorrowedQuantities[item.id] || 0 }}</td>
         <td>{{ item.overdue_items || 0 }}</td>
         <td>{{ item.damaged_items || 0 }}</td>
+        <td>{{ item.fixed_items || 0 }}</td>
         <td>
           <div class="icon-container">
             <v-btn @click="editItem(item)" style="color:blue" class="tooltip-button" data-bs-toggle="tooltip"
@@ -178,7 +178,7 @@
         <v-text-field v-model="borrowersData.borrow_date" label="Borrow Date" type="date"
           :readonly="true"></v-text-field>
         <v-text-field v-model="borrowersData.return_date" label="Return Date" type="date" :min="minReturnDate"
-          required></v-text-field>
+          required :max="maxReturnDate"></v-text-field>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
@@ -255,7 +255,9 @@ export default {
       searchColumn: 'item_name',
       searchableColumns: ['item_name', 'category', 'unit_of_measure', 'room_number', 'school_level',
        'acceptedby'],
-      chmeasure: ['Classroom Items', 'Office Items', 'Science Lab Items', 'Art Room Items', 'Music Room Items', 'Gymnasium and Sports Items', 'Cafeteria Items', 'Maintenance Items', 'Playground Item', 'Miscellaneous Items'],
+      chmeasure: ['Classroom Items', 'Office Items', 'Science Lab Items', 'Art Room Items', 
+      'Music Room Items', 'Gymnasium and Sports Items', 'Cafeteria Items', 'Maintenance Items', 
+      'Playground Items', 'Miscellaneous Items'],
       chquantity: ['Sets', 'Pieces', 'Packs', 'Kits'],
       chschool: ['Junior High School', 'Senior High School'],
       itemsList: [],
@@ -269,7 +271,8 @@ export default {
         { title: 'Custodian', key: 'acceptedby' },
         { title: 'Borrowed Items', key: 'borrowed_items' },
         { title: 'Overdue Items', key: 'overdue_items' },
-        { title: 'Damanged Items', key: 'damaged_items' },
+        { title: 'Damaged Items', key: 'damaged_items' },
+        { title: 'Fixed Items', key: 'fixed_items' },
         { title: 'Action' },
       ],
       addDialog: false,
@@ -499,10 +502,18 @@ export default {
     },
 
     openBorrowDialog(item) {
+      const now = new Date();
+
+      // Adjust for the Philippines timezone (UTC+8)
+      now.setHours(now.getHours() + 8);
+
+      // Format the adjusted date to 'YYYY-MM-DD'
+      const borrow_date = now.toISOString().split('T')[0];
+
       this.borrowersData = {
         ...item,
         item_id: item.id,
-        borrow_date: new Date().toISOString().split('T')[0],
+        borrow_date: borrow_date,
         return_date: '',
         quantity: 1,
         student_id: '',
@@ -536,14 +547,20 @@ export default {
 
     setReturnDateMin() {
       const now = new Date();
+      // Adjust for the Philippines timezone (UTC+8)
+      now.setHours(now.getHours() + 8);  // Add 8 hours to the current time
       now.setDate(now.getDate() + 1);
       this.minReturnDate = now.toISOString().split('T')[0];
+
+      const maxDate = new Date(now.getTime());
+      maxDate.setMonth(maxDate.getMonth() + 1);
+      this.maxReturnDate = maxDate.toISOString().split('T')[0];
     },
 
     async getStudents() {
       try {
         //const response = await api.get('http://26.11.249.89:8000/api/student');
-        //const response = await api.get('http://localhost:8000/api/student');
+        const response = await api.get('http://localhost:8000/api/student');
         //const response = await api.get('http://26.81.173.255:8000/api/student');
         console.log(response);
         this.studentsList = response.data.student.map(student => ({
@@ -656,7 +673,8 @@ export default {
           'Custodian',
           'Borrowed Items',
           'Overdue Items',
-          'Damaged Items'
+          'Damaged Items',
+          'Fixed Items'
         ];
 
         const headerRow = worksheet.addRow(headers);
@@ -682,7 +700,8 @@ export default {
             item.acceptedby,
             this.totalBorrowedQuantities[item.id] || 0,
             item.overdue_items || 0,
-            item.damaged_items || 0
+            item.damaged_items || 0,
+            item.fixed_items || 0
           ]);
 
           row.eachCell((cell) => {
@@ -738,7 +757,6 @@ export default {
       // Add the image
       doc.addImage(imageBase64, 'PNG', 25, 10, 40, 40); 
 
-
       // Add the school name and other info
       doc.setFontSize(12);
       doc.text('Saint Nicholas Academy', 105, 20, null, null, 'center');
@@ -747,10 +765,9 @@ export default {
       doc.text('Contact No', 105, 35, null, null, 'center');
       doc.text(`As of: ${new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Manila', year: 'numeric', month: 'long', day: 'numeric' })}`, 105, 40, null, null, 'center');
 
-
-
       const headers = [
-        ['Item Name', 'Item Quantity', 'Category', 'Unit Of Measure', 'Room Number', 'School Level', 'Custodian', 'Borrowed Items', 'Overdue Items', 'Damaged Items']
+        ['Item Name', 'Item Quantity', 'Category', 'Unit Of Measure', 'Room Number', 'School Level', 'Custodian',
+         'Borrowed Items', 'Overdue Items', 'Damaged Items', 'Fixed Items']
       ];
 
       const rows = data.map(item => [
@@ -763,7 +780,8 @@ export default {
         item.acceptedby,
         this.totalBorrowedQuantities[item.id] || 0,
         item.overdue_items || 0,
-        item.damaged_items || 0
+        item.damaged_items || 0,
+        item.fixed_items || 0
       ]);
 
       // Add the table to the PDF
@@ -915,4 +933,5 @@ export default {
 .tooltip-button {
   position: relative;
 }
+
 </style>
